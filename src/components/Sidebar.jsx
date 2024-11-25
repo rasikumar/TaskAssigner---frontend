@@ -20,6 +20,7 @@ import { AvatarFallback } from "@radix-ui/react-avatar";
 import { ChevronsUpDown, Menu, X } from "lucide-react";
 import { GrUserManager } from "react-icons/gr";
 import Instance from "@/API/Instance";
+import clsx from "clsx";
 
 const Sidebars = () => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -39,7 +40,7 @@ const Sidebars = () => {
       try {
         const response = await Instance.get("/admin/dashboard/");
         setName(response.data.data);
-        console.log(response.data.data);
+        console.log(response.data);
       } catch (error) {
         console.error(error);
       }
@@ -51,7 +52,7 @@ const Sidebars = () => {
     <div className="flex absolute">
       {/* Sidebar */}
       <SidebarProvider
-        className={`flex flex-col border border-orange-500 bg-white transition-all duration-300 ${
+        className={`flex flex-col border border-orange-500 bg-white transition-all h-full fixed  duration-300 z-[9999] ${
           isCollapsed ? "w-16" : "w-60"
         }`}
       >
@@ -198,7 +199,12 @@ const Sidebars = () => {
         onClose={() => setShowLogoutModal(false)}
         onConfirm={handleLogout}
       />
-      <div className="p-4 w-full">
+      <div
+        className={clsx(
+          "p-4 w-full z-50 bg-white transition-all",
+          isCollapsed ? "ml-14" : "ml-60"
+        )}
+      >
         <div className="w-full">
           <DynamicBreadCrumb />
           <Outlet />

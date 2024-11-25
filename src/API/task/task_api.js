@@ -5,7 +5,7 @@ export const fetchAllTasks = async () => {
     const response = await Instance.post("/admin/getAllTask");
     return response.data;
   } catch (error) {
-    console.error("Error fetching tickets:", error);
+    console.error("Error fetching Tasks:", error);
     throw error;
   }
 };
