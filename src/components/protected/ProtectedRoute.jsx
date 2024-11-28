@@ -1,8 +1,7 @@
 import { jwtDecode } from "jwt-decode";
 import { Navigate } from "react-router"; // React Router v6 import
-
 /* eslint-disable react/prop-types */
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ children, allowedRoles }) => {
   const token = localStorage.getItem("token");
 
   if (!token) {
@@ -17,18 +16,24 @@ const ProtectedRoute = ({ children }) => {
 
     // Check if the token has expired
     if (decodedToken.exp < currentTime) {
-      // Optional: Remove expired token from localStorage
+      // Remove expired token
       localStorage.removeItem("token");
 
-      // Redirect to login if token is expired
+      // Redirect to login
       return <Navigate to="/" replace />;
+    }
+
+    // Check if the user's role is included in the allowed roles
+    if (!allowedRoles.includes(decodedToken.role)) {
+      // Redirect to a "Not Authorized" page or home
+      return <Navigate to="/not-authorized" replace />;
     }
   } catch (error) {
     console.error("Error decoding token:", error);
     return <Navigate to="/" replace />; // Redirect in case of decoding error
   }
 
-  // If the token is valid, render the children (protected route content)
+  // If the token is valid and the role matches, render the children (protected content)
   return children;
 };
 

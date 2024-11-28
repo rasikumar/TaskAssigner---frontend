@@ -1,36 +1,53 @@
 import { Route, Routes } from "react-router"; // Correct import from react-router-dom
-import Login from "./components/auth/Login";
-import Dashboard from "./Pages/Dashboard/Dashboard";
 import ProtectedRoute from "./components/protected/ProtectedRoute";
-import Manager from "./Pages/Manager/Manager";
 import Error from "./components/Error";
-import HumanResouce from "./Pages/HumanResource/HumanResouce";
-import TeamLeader from "./Pages/TeamLeader/TeamLeader";
-import Employee from "./Pages/Employees/Employee";
-import Tasks from "./Pages/Tasks/Tasks";
-import { Ticket } from "lucide-react";
-import Sidebar from "./components/Sidebar";
+
+// Admin
+import Dashboard from "./Pages/admin/Dashboard/Dashboard";
+import Manager from "./Pages/admin/Manager/Manager";
+import HumanResouce from "./Pages/admin/HumanResource/HumanResouce";
+import TeamLeader from "./Pages/admin/TeamLeader/TeamLeader";
+import Employee from "./Pages/admin/Employees/Employee";
+import Tasks from "./Pages/admin/Tasks/Tasks";
+import Tickets from "./Pages/admin/Tickets/Tickets";
+import AdminLogin from "./components/auth/AdminLogin";
+import AdminSidebars from "./components/AdminSidebar";
+import Userverify from "./Pages/admin/user-verify/Userverify";
+
+// User
+import UserSidebar from "./components/UserSidebar";
+import UserLogin from "./components/auth/UserLogin";
+import UserDashboard from "./Pages/user/Dashboard/Dashboard";
+import UserManager from "./Pages/user/Manager/Manager";
+import UserHumanResource from "./Pages/user/HumanResource/HumanResouce";
+import UserTeamLeader from "./Pages/user/TeamLeader/TeamLeader";
+import UserEmployee from "./Pages/user/Employees/Employee";
+import UserTask from "./Pages/user/Tasks/Tasks";
+import UserTicket from "./Pages/user/Tickets/Tickets";
+import UsersVerify from "./Pages/user/user-verify/Userverify";
 
 const App = () => {
   return (
     <div>
       <Routes>
+        <Route path="/" element={<UserLogin />} />
         {/* Login Route */}
-        <Route path="/" element={<Login />} />
+        <Route path="/admin" element={<AdminLogin />} />
 
         {/* Protected Route for Dashboard */}
+        {/* AdminRoute */}
         <Route
-          path="/dashboard"
+          path="/admin/dashboard"
           element={
-            <ProtectedRoute>
-              <Sidebar />
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminSidebars />
             </ProtectedRoute>
           }
         >
           <Route
             index
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={["admin"]}>
                 <Dashboard />
                 {/* Add dashboard overview content here */}
               </ProtectedRoute>
@@ -40,7 +57,7 @@ const App = () => {
           <Route
             path="manager" // Relative path
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={["admin"]}>
                 <Manager />
               </ProtectedRoute>
             }
@@ -48,7 +65,7 @@ const App = () => {
           <Route
             path="human-resource" // Relative path
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={["admin"]}>
                 <HumanResouce />
               </ProtectedRoute>
             }
@@ -56,7 +73,7 @@ const App = () => {
           <Route
             path="team-leader" // Relative path
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={["admin"]}>
                 <TeamLeader />
               </ProtectedRoute>
             }
@@ -64,7 +81,7 @@ const App = () => {
           <Route
             path="employee" // Relative path
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={["admin"]}>
                 <Employee />
               </ProtectedRoute>
             }
@@ -72,7 +89,7 @@ const App = () => {
           <Route
             path="tasks" // Relative path
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={["admin"]}>
                 <Tasks />
               </ProtectedRoute>
             }
@@ -80,8 +97,109 @@ const App = () => {
           <Route
             path="ticket" // Relative path
             element={
-              <ProtectedRoute>
-                <Ticket />
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <Tickets />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="usermanagement" // Relative path
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <Userverify />
+              </ProtectedRoute>
+            }
+          />
+        </Route>
+
+        {/* UserRoutes */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute
+              allowedRoles={["employee", "hr", "manager", "team lead"]}
+            >
+              <UserSidebar />
+            </ProtectedRoute>
+          }
+        >
+          <Route
+            index
+            element={
+              <ProtectedRoute
+                allowedRoles={["employee", "hr", "manager", "team lead"]}
+              >
+                <UserDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="manager"
+            element={
+              <ProtectedRoute
+                allowedRoles={["employee", "hr", "manager", "team lead"]}
+              >
+                <UserManager />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="human-resource"
+            element={
+              <ProtectedRoute
+                allowedRoles={["employee", "hr", "manager", "team lead"]}
+              >
+                <UserHumanResource />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="team-leader"
+            element={
+              <ProtectedRoute
+                allowedRoles={["employee", "hr", "manager", "team lead"]}
+              >
+                <UserTeamLeader />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="employees"
+            element={
+              <ProtectedRoute
+                allowedRoles={["employee", "hr", "manager", "team lead"]}
+              >
+                <UserEmployee />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="tasks"
+            element={
+              <ProtectedRoute
+                allowedRoles={["employee", "hr", "manager", "team lead"]}
+              >
+                <UserTask />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="ticket"
+            element={
+              <ProtectedRoute
+                allowedRoles={["employee", "hr", "manager", "team lead"]}
+              >
+                <UserTicket />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="usermanagement"
+            element={
+              <ProtectedRoute
+                allowedRoles={["employee", "hr", "manager", "team lead"]}
+              >
+                <UsersVerify />
               </ProtectedRoute>
             }
           />

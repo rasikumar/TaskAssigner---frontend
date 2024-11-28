@@ -13,11 +13,16 @@ const DynamicBreadCrumb = () => {
   const pathnames = location.pathname.split("/").filter((x) => x);
 
   return (
-    <Breadcrumb className="border-b w-full ">
-      <BreadcrumbList>
+    <Breadcrumb className="border-b w-full bg-gray-50 p-2">
+      <BreadcrumbList className="flex items-center space-x-2">
         {/* Home link */}
         <BreadcrumbItem>
-          <BreadcrumbLink href="/dashboard">Home</BreadcrumbLink>
+          <BreadcrumbLink
+            href="/admin/dashboard"
+            className="hover:text-blue-500 transition-colors"
+          >
+            Home
+          </BreadcrumbLink>
         </BreadcrumbItem>
         {pathnames.map((name, index) => {
           const isLast = index === pathnames.length - 1;
@@ -25,20 +30,18 @@ const DynamicBreadCrumb = () => {
 
           return (
             <BreadcrumbItem key={name}>
+              <BreadcrumbSeparator className="text-gray-400" />
               {!isLast ? (
-                <>
-                  <BreadcrumbSeparator />
-                  <BreadcrumbLink href={pathTo}>
-                    {name.charAt(0).toUpperCase() + name.slice(1)}
-                  </BreadcrumbLink>
-                </>
+                <BreadcrumbLink
+                  href={pathTo}
+                  className="hover:text-blue-500 transition-colors"
+                >
+                  {name.charAt(0).toUpperCase() + name.slice(1)}
+                </BreadcrumbLink>
               ) : (
-                <>
-                  <BreadcrumbSeparator />
-                  <BreadcrumbPage>
-                    {name.charAt(0).toUpperCase() + name.slice(1)}
-                  </BreadcrumbPage>
-                </>
+                <BreadcrumbPage className="font-semibold text-gray-700">
+                  {name.charAt(0).toUpperCase() + name.slice(1)}
+                </BreadcrumbPage>
               )}
             </BreadcrumbItem>
           );
