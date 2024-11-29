@@ -13,7 +13,7 @@ const EditTask = ({ taskId, taskData, isOpen, onClose, onEdit }) => {
   const [editedTask, setEditedTask] = useState(taskData || {});
 
   useEffect(() => {
-    setEditedTask(taskData); // Update local state when taskData changes
+    setEditedTask(taskData); 
   }, [taskData]);
 
   const handleSave = () => {

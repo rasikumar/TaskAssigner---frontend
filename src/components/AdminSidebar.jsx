@@ -19,13 +19,14 @@ import { GrUserManager } from "react-icons/gr";
 import Instance from "@/API/Instance";
 import clsx from "clsx";
 import { Menu, X } from "lucide-react";
-import {
-  MdDeveloperMode,
-  MdOutlineCrisisAlert,
-  MdOutlineDesignServices,
-} from "react-icons/md";
-import { SiTestinglibrary } from "react-icons/si";
-import { GiHumanPyramid } from "react-icons/gi";
+// import {
+//   MdDeveloperMode,
+//   MdOutlineCrisisAlert,
+//   MdOutlineDesignServices,
+// } from "react-icons/md";
+// import { SiTestinglibrary } from "react-icons/si";
+// import { GiHumanPyramid } from "react-icons/gi";
+import { teams } from "@/data/teams";
 
 const AdminSidebars = () => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -63,7 +64,7 @@ const AdminSidebars = () => {
     <div className="flex absolute">
       {/* Sidebar */}
       <SidebarProvider
-        className={`flex flex-col border border-orange-500 bg-white transition-all h-full fixed  duration-300 z-[60] ${
+        className={`flex flex-col shadow-shadow-p bg-bg1 transition-all h-full fixed  duration-300 z-[60] ${
           isCollapsed ? "w-16" : "2xl:w-60 w-48"
         }`}
       >
@@ -105,7 +106,7 @@ const AdminSidebars = () => {
           </Link>
 
           <div>
-            <button
+            <button 
               className={`flex items-center transition-all duration-300 ${
                 isCollapsed ? "justify-center" : "px-4"
               }`}
@@ -122,81 +123,27 @@ const AdminSidebars = () => {
             </button>
             {isDropdownOpen && (
               <div className="dropdown-content pl-4 flex flex-col gap-4 my-4">
-                <Link
-                  to="/admin/dashboard/human-resource"
-                  className={`flex items-center transition-all duration-300 ${
-                    isCollapsed ? "justify-center" : "px-4"
-                  }`}
-                >
-                  <MdDeveloperMode
-                    className={`text-xl ${isCollapsed ? "-ml-4" : ""}`}
-                  />
-                  {!isCollapsed && (
-                    <span className="ml-2 2xl:text-base text-xs font-semibold">
-                      Development
-                    </span>
-                  )}
-                </Link>
-                <Link
-                  to="/admin/dashboard/human-resource"
-                  className={`flex items-center transition-all duration-300 ${
-                    isCollapsed ? "justify-center" : "px-4"
-                  }`}
-                >
-                  <MdOutlineDesignServices
-                    className={`text-xl ${isCollapsed ? "-ml-4" : ""}`}
-                  />
-                  {!isCollapsed && (
-                    <span className="ml-2 2xl:text-base text-xs font-semibold">
-                      Design
-                    </span>
-                  )}
-                </Link>
-                <Link
-                  to="/admin/dashboard/team-leader"
-                  className={`flex items-center transition-all duration-300 ${
-                    isCollapsed ? "justify-center" : "px-4"
-                  }`}
-                >
-                  <SiTestinglibrary
-                    className={`text-xl ${isCollapsed ? "-ml-4" : ""}`}
-                  />
-                  {!isCollapsed && (
-                    <span className="ml-2 2xl:text-base text-xs font-semibold">
-                      Testing
-                    </span>
-                  )}
-                </Link>
-                <Link
-                  to="/admin/dashboard/employee"
-                  className={`flex items-center transition-all duration-300 ${
-                    isCollapsed ? "justify-center" : "px-4"
-                  }`}
-                >
-                  <MdOutlineCrisisAlert
-                    className={`text-xl ${isCollapsed ? "-ml-4" : ""}`}
-                  />
-                  {!isCollapsed && (
-                    <span className="ml-2 2xl:text-base text-xs font-semibold">
-                      Marketing
-                    </span>
-                  )}
-                </Link>
-                <Link
-                  to="/admin/dashboard/employee"
-                  className={`flex items-center transition-all duration-300 ${
-                    isCollapsed ? "justify-center" : "px-4"
-                  }`}
-                >
-                  <GiHumanPyramid
-                    className={`text-xl ${isCollapsed ? "-ml-4" : ""}`}
-                  />
-                  {!isCollapsed && (
-                    <span className="ml-2 2xl:text-base text-xs font-semibold">
-                      Human Resource
-                    </span>
-                  )}
-                </Link>
+                {teams.map((team, index) => {
+                  const Icon = team.icon; // Dynamically assign the icon component
+                  return (
+                    <Link
+                      to={`./teams/${team.name.toLowerCase().replace(/\s+/g, "-")}`}
+                      key={index}
+                      className={`flex items-center transition-all duration-300 ${
+                        isCollapsed ? "justify-center" : "px-4"
+                      }`}
+                    >
+                      <Icon
+                        className={`text-xl ${isCollapsed ? "-ml-4" : ""}`}
+                      />
+                      {!isCollapsed && (
+                        <span className="ml-2 2xl:text-base text-xs font-semibold">
+                          {team.name}
+                        </span>
+                      )}
+                    </Link>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -344,7 +291,7 @@ const AdminSidebars = () => {
           isCollapsed ? "ml-14" : "2xl:ml-60 ml-48"
         )}
       >
-        <div className={`${isCollapsed ? "w-screen" : "w-full"}`}>
+        <div className={`${isCollapsed ? "2xl:w-[115rem] w-[75rem]" : "2xl:w-[103rem] w-[66rem]"}`}>
           {/* <DynamicBreadCrumb /> */}
           <Outlet />
         </div>
