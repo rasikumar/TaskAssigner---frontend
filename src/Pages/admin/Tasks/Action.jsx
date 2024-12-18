@@ -35,7 +35,7 @@ const Action = ({ task, onEdit, onDelete }) => {
       </Popover>
 
       <EditTask
-        taskId={task?._id} // task.id should be passed here
+        taskId={task?._id}
         taskData={task}
         isOpen={isEditDialogOpen}
         onClose={() => setIsEditDialogOpen(false)}

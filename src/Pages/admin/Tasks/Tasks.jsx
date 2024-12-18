@@ -1,14 +1,15 @@
+import { useState, useEffect } from "react";
 import { editTask, fetchAllTasks } from "@/API/admin/task/task_api";
-// import { Button } from "@/components/ui/button";
-
-import { useEffect, useState } from "react";
 import CreateTask from "./CreateTask";
 import Action from "./Action";
+import Table from "@/components/ui/table"; // Import the reusable Table component
+import useAutoRefresh from "@/components/useAutoRefresh ";
+import { CirclesWithBar } from "react-loader-spinner";
 
 const getpriority = (priority) => {
   switch (priority) {
     case "Critical":
-      return "text-red-600 bg-red-50  rounded-md";
+      return "text-red-600 bg-red-50 rounded-md";
     case "High":
       return "text-orange-600 bg-orange-50 rounded-md";
     case "Regular":
@@ -34,49 +35,35 @@ const getstatus = (status) => {
       return "text-gray-600 rounded-md bg-gray-50";
   }
 };
+
 const Tasks = () => {
-  const [taskDetails, setTaskDetails] = useState([]);
-  // const [showTaskModal, setShowTaskModal] = useState(false);
+  const [taskDetails, setTaskDetails] = useState([]); // State for task details
+  const [filters, setFilters] = useState({
+    priority: "",
+    status: "",
+    sortBy: "created_at", // Default sorting by creation date
+  });
+
+  const { data: taskDetailsFromAutoRefresh, loading } =
+    useAutoRefresh(fetchAllTasks);
+
   useEffect(() => {
-    const getTasks = async () => {
-      try {
-        const task = await fetchAllTasks();
-        console.log(task.data);
-        setTaskDetails(task.data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    getTasks();
-  }, []);
+    if (taskDetailsFromAutoRefresh) {
+      setTaskDetails(taskDetailsFromAutoRefresh);
+    }
+  }, [taskDetailsFromAutoRefresh]);
 
   const handleEditTask = async (taskId, updatedTask) => {
-    console.log("Editing Task:", updatedTask);
-    console.log("Editing Task:", taskId);
-
-    if (!updatedTask) {
-      console.error("UpdatedTask is missing!");
-      return;
-    }
+    if (!taskId) return console.error("Task ID is missing!");
 
     try {
-      console.log("Sending data to editTask function...");
       const updatedData = await editTask(taskId, updatedTask);
-
-      console.log("Received updated data:", updatedData);
-
-      setTaskDetails((prevTasks) => {
-        console.log("Previous tasks before update:", prevTasks);
-
-        const updatedTasks = prevTasks.map((task) =>
+      setTaskDetails((prevTasks) =>
+        prevTasks.map((task) =>
           task.id === updatedTask.id ? { ...task, ...updatedTask } : task
-        );
-
-        console.log("Tasks after update:", updatedTasks);
-        return updatedTasks;
-      });
-
-      console.log("Task updated successfully:", updatedData);
+        )
+      );
+      return updatedData;
     } catch (error) {
       console.error("Error updating task:", error);
     }
@@ -88,98 +75,114 @@ const Tasks = () => {
     );
   };
 
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [name]: value,
+    }));
+  };
+
+  const filteredTasks = taskDetails
+    .filter((task) => {
+      if (filters.priority && task.priority !== filters.priority) return false;
+      if (filters.status && task.status !== filters.status) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      // Sorting by creation date (last created task on top)
+      if (filters.sortBy === "created_at") {
+        return new Date(b.start_date) - new Date(a.start_date);
+      }
+      return 0;
+    });
+
+  const columns = [
+    { key: "project_title", title: "Project Title" },
+    { key: "task_description", title: "Task Description" },
+    { key: "priority", title: "Priority", className: "text-center" },
+    { key: "status", title: "Status", className: "text-center" },
+    { key: "report_to", title: "Report To" },
+    { key: "start_date", title: "Start Date" },
+    { key: "action", title: "Action", className: "text-center" },
+  ];
+
+  const renderRow = (task) => (
+    <>
+      <td className="px-2 py-3 text-sm flex flex-col gap-2">
+        <div className="font-bold text-primary">{task.project_title}</div>
+        <div className="text-slate-700">{task.project_ownership}</div>
+        <div className="text-xs text-gray-500">{task.project_description}</div>
+      </td>
+      <td className="px-2 py-3 text-sm text-gray-600 truncate max-w-52">
+        {task.task_description}
+      </td>
+      <td className={`px-2 py-2 text-center text-xs font-semibold`}>
+        <span className={getpriority(task.priority)}>{task.priority}</span>
+      </td>
+      <td className={`px-2 py-2 text-center text-xs font-semibold`}>
+        <span className={getstatus(task.status)}>{task.status}</span>
+      </td>
+      <td className="px-2 py-3 text-sm text-gray-700">{task.report_to}</td>
+      <td className="px-2 py-3 text-sm text-gray-700">{task.start_date}</td>
+      <td className="px-2 py-3 text-sm text-blue-500 cursor-pointer">
+        <Action
+          task={task}
+          onEdit={handleEditTask}
+          onDelete={handleDeleteTask}
+        />
+      </td>
+    </>
+  );
+
   return (
-    <div className="2xl:w-[103rem] w-[63rem]  bg-blue-50">
-      <div className="flex p-2 pl-4 w-full justify-start gap-2 relative mt-2">
+    <div className="relative">
+      <div className="flex justify-start gap-2 relative">
         <CreateTask />
       </div>
-      <div className="h-full w-[98%] rounded-xl m-auto overflow-y-auto relative ">
-        <table className="table-auto border-collapse mt-4 m-auto text-xs shadow-md rounded-lg overflow-hidden bg-white">
-          <thead className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white h-12">
-            <tr className="sticky top-0">
-              <th className="px-5 py-2 text-left font-semibold min-w-52">
-                Project Title
-              </th>
-              {/* <th className="px-2 py-2 text-left font-semibold">
-                Project Owner
-              </th>
-              <th className="px-2 py-2 text-left font-semibold w-1/4">
-                Project Description
-              </th> */}
-              <th className="px-2 py-2 text-left font-semibold ">
-                Task Description
-              </th>
-              <th className="px-2 py-2 text-center font-semibold">Priority</th>
-              <th className="px-2 py-2 text-center font-semibold">Status</th>
-              <th className="px-2 py-2 text-left font-semibold">Report To</th>
-              <th className="px-2 py-2 text-left font-semibold min-w-56">
-                Start Date
-              </th>
-              <th className="px-5 py-2 text-center font-semibold">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {taskDetails.map((task, index) => (
-              <tr
-                key={task.id}
-                className={`${
-                  index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                } hover:bg-gray-100 transition-colors duration-150 ease-in-out border-b cursor-pointer`}
-              >
-                <td className="px-2 py-3 text-sm flex flex-col gap-2">
-                  <div className="font-bold text-primary">
-                    {task.project_title}
-                  </div>
-                  <div className="text-slate-700">{task.project_ownership}</div>
-                  <div className="text-xs text-gray-500">
-                    {task.project_description}
-                  </div>
-                </td>
-                {/* <td className="px-2 py-3 text-sm font-medium text-gray-700">
-                </td>
-                <td className="px-2 py-3 text-sm text-gray-600 truncate">
-                </td>*/}
-                <td className="px-2 py-3 text-sm text-gray-600 truncate max-w-52">
-                  {task.task_description}
-                </td>
-                <td className={`px-2 py-2 text-center text-xs font-semibold`}>
-                  <span
-                    className={`px-2 py-2 text-center text-xs font-semibold ${getpriority(
-                      task.priority
-                    )}`}
-                  >
-                    {task.priority}
-                  </span>
-                </td>
-                <td
-                  className={`px-2 py-2 text-center text-xs font-semibold min-w-32`}
-                >
-                  <span
-                    className={`px-2 py-2 text-center text-xs font-semibold ${getstatus(
-                      task.status
-                    )}`}
-                  >
-                    {task.status}
-                  </span>
-                </td>
-                <td className="px-2 py-3 text-sm text-gray-700">
-                  {task.report_to}
-                </td>
-                <td className="px-2 py-3 text-sm text-gray-700">
-                  {task.start_date}
-                </td>
-                <td className="px-2 py-3 text-sm text-blue-500 cursor-pointer">
-                  <Action
-                    task={task}
-                    onEdit={handleEditTask}
-                    onDelete={handleDeleteTask}
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+
+      {/* Filters Section */}
+      <div className="flex gap-4 mb-4">
+        <select
+          name="priority"
+          value={filters.priority}
+          onChange={handleFilterChange}
+          className="border p-2"
+        >
+          <option value="">All Priorities</option>
+          <option value="Critical">Critical</option>
+          <option value="High">High</option>
+          <option value="Regular">Regular</option>
+          <option value="Low">Low</option>
+        </select>
+
+        <select
+          name="status"
+          value={filters.status}
+          onChange={handleFilterChange}
+          className="border p-2"
+        >
+          <option value="">All Status</option>
+          <option value="Pending">Pending</option>
+          <option value="In progress">In progress</option>
+          <option value="Not started">Not started</option>
+          <option value="Completed">Completed</option>
+        </select>
       </div>
+
+      {loading ? (
+        <div className="flex items-center justify-center w-full h-full">
+          <CirclesWithBar
+            color="#4fa94d"
+            outerCircleColor="#4fa94d"
+            innerCircleColor="#4fa94d"
+            barColor="#4fa94d"
+            visible={true}
+          />
+        </div>
+      ) : (
+        <Table columns={columns} data={filteredTasks} renderRow={renderRow} />
+      )}
     </div>
   );
 };

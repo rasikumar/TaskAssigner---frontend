@@ -22,13 +22,13 @@ const MemberDetailPage = () => {
 
   // Find the member by their ID
   const member = role.members.find((m) => m.id === memberId);
-  console.log(role);
+  // console.log(role);
   
   // If the member doesn't exist, show an error
   if (!member) return <p>Member not found</p>;
 
   return (
-    <div className="bg-slate-300 rounded-xl p-8">
+    <div className="rounded-xl">
       <Link
         to={`/team/${teamName}/role/${roleName}`}
         className="text-blue-500 hover:underline"

@@ -27,7 +27,7 @@ const RolePage = () => {
   };
 
   return (
-    <div className="bg-bg rounded-xl p-8">
+    <div className="rounded-xl ">
       <h1 className="text-white text-3xl mb-4">
         {role.name} Role in {team.name} Team
       </h1>

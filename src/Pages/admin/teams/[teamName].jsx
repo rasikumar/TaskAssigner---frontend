@@ -26,7 +26,7 @@ const TeamPage = () => {
   if (!team) return <p>Team not found</p>;
 
   return (
-    <div className="bg-bg shadow-shadow-p rounded-xl p-8">
+    <div className="rounded-xl ">
       <div className="flex justify-between">
         <div>
           <h1 className="text-pr font-bold text-3xl mb-4">
@@ -47,7 +47,7 @@ const TeamPage = () => {
           return (
             <li
               key={role.name}
-              className={`flex gap-4 flex-col 2xl:w-full sm:w-[45%] md:w-[30%] p-4 ${bgColor} shadow-minimal border-l-8 border-pink-300 rounded-lg`}
+              className={`flex gap-4 flex-col w-full p-4 ${bgColor} shadow-minimal border-l-8 border-pink-300 rounded-lg`}
             >
               <Link
                 to={`./${role.name.toLowerCase().replace(/\s+/g, "-")}`}
@@ -59,7 +59,7 @@ const TeamPage = () => {
               </Link>
             </li>
           );
-        })}
+        })} 
       </ul>
     </div>
   );

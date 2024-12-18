@@ -2,11 +2,15 @@ import { fetchAllTickets } from "@/API/admin/ticket/ticket_api";
 import { motion } from "framer-motion";
 import { ChevronDownIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-
+import Table from "@/components/ui/table";
+import useAutoRefresh from "@/components/useAutoRefresh ";
+import { CirclesWithBar } from "react-loader-spinner";
 const Tickets = () => {
   const [priority, setPriority] = useState("all");
   const [ticketDetails, setTicketDetails] = useState([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const { data: ticketDetailsFromAutoRefresh, loading } =
+    useAutoRefresh(fetchAllTickets);
 
   useEffect(() => {
     const getTicket = async () => {
@@ -40,15 +44,73 @@ const Tickets = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
+  const columns = [
+    { key: "main_category", title: "Category" },
+    { key: "subject", title: "Subject" },
+    { key: "created_by", title: "Created by" },
+    { key: "date", title: "Date" },
+    { key: "status", title: "Status" },
+    { key: "priority", title: "Priority" },
+  ];
+
+  const renderRow = (ticketDetails) => (
+    <>
+      <td className="px-2 py-3 text-sm font-medium text-gray-800 ">
+        <div className="font-bold text-primary">
+          {ticketDetails.sub_category}
+        </div>
+        <div>{ticketDetails.main_category}</div>
+      </td>
+      <td className="px-2 py-3 text-sm font-medium text-gray-800 ">
+        <div className="font-bold">{ticketDetails.ticket_title}</div>
+        <div>{ticketDetails.ticket_description}</div>
+      </td>
+      <td className="px-2 py-3 text-sm font-medium text-gray-800 ">
+        {ticketDetails.created_by}
+      </td>
+      <td className="px-2 py-3 text-sm font-medium text-gray-800 ">
+        {ticketDetails.created_date}
+      </td>
+      <td className="px-2 py-3 text-sm font-medium text-gray-800 ">
+        <span
+          className={`px-2 py-1 rounded-full text-xs ${
+            ticketDetails.status === "Open"
+              ? "bg-red-100 text-red-600"
+              : ticketDetails.status === "Closed"
+              ? "bg-green-100 text-green-600"
+              : "bg-yellow-100 text-yellow-600"
+          }`}
+        >
+          {ticketDetails.status}
+        </span>
+      </td>
+      <td className="px-2 py-3 text-sm font-medium text-gray-800 ">
+        <span
+          className={`px-2 py-1 rounded-full text-xs ${
+            ticketDetails.priority === "Low"
+              ? "bg-blue-100 text-blue-600"
+              : ticketDetails.priority === "Regular"
+              ? "bg-gray-100 text-gray-600"
+              : ticketDetails.priority === "High"
+              ? "bg-orange-100 text-orange-600"
+              : "bg-red-100 text-red-600"
+          }`}
+        >
+          {ticketDetails.priority}
+        </span>
+      </td>
+    </>
+  );
+
   return (
-    <div className="w-full h-screen bg-blue-50 rounded-lg">
-      <div className="2xl:w-[103rem] w-[63rem]">
-        <div className="flex items-center justify-between w-full px-4 mt-4">
-          <div className="mt-3">
+    <div>
+      <div>
+        <div className="flex items-center justify-between ">
+          <div className="">
             <h1 className="2xl:text-lg font-semibold">All Tickets</h1>
           </div>
-          <div className="bg-slate-200 mt-6 rounded-md relative">
-            <label className="flex items-center px-3 py-2 2xl:text-sm text-xs">
+          <div className="bg-slate-200 rounded-md relative">
+            <label className="flex items-center 2xl:text-sm text-xs">
               Sort By :
               <div
                 className="cursor-pointer flex items-center ml-2 bg-transparent font-semibold"
@@ -107,86 +169,23 @@ const Tickets = () => {
             )}
           </div>
         </div>
-
-        <table className="table-auto border-collapse w-[98%] mt-4 m-auto text-xs shadow-md rounded-lg overflow-hidden bg-white">
-          <thead className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
-            <tr>
-              <th className="px-2 py-3 text-sm  text-left font-semibold">
-                Category
-              </th>
-              <th className="px-2 py-3 text-sm  text-left font-semibold">
-                Subject
-              </th>
-              <th className="px-2 py-3 text-sm  text-left font-semibold">
-                Created by
-              </th>
-              <th className="px-2 py-3 text-sm  text-left font-semibold">
-                Date
-              </th>
-              <th className="px-2 py-3 text-sm  text-left font-semibold">
-                Status
-              </th>
-              <th className="px-2 py-3 text-sm  text-left font-semibold">
-                Priority
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {ticketDetails.map((ticket, index) => (
-              <tr
-                key={ticket.id}
-                className={`${
-                  index % 2 === 0 ? "bg-white" : "bg-gray-50"
-                } hover:bg-gray-100 transition-colors`}
-              >
-                <td className="px-2 py-3 text-sm font-medium text-gray-800 ">
-                  <div className="font-bold text-primary">
-                    {ticket.sub_category}
-                  </div>
-                  <div>{ticket.main_category}</div>
-                </td>
-                <td className="px-2 py-3 text-sm font-medium text-gray-800 ">
-                  <div className="font-bold">{ticket.ticket_title}</div>
-                  <div>{ticket.ticket_description}</div>
-                </td>
-                <td className="px-2 py-3 text-sm font-medium text-gray-800 ">
-                  {ticket.created_by}
-                </td>
-                <td className="px-2 py-3 text-sm font-medium text-gray-800 ">
-                  {ticket.created_date}
-                </td>
-                <td className="px-2 py-3 text-sm font-medium text-gray-800 ">
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs ${
-                      ticket.status === "Open"
-                        ? "bg-red-100 text-red-600"
-                        : ticket.status === "Closed"
-                        ? "bg-green-100 text-green-600"
-                        : "bg-yellow-100 text-yellow-600"
-                    }`}
-                  >
-                    {ticket.status}
-                  </span>
-                </td>
-                <td className="px-2 py-3 text-sm font-medium text-gray-800 ">
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs ${
-                      ticket.priority === "Low"
-                        ? "bg-blue-100 text-blue-600"
-                        : ticket.priority === "Regular"
-                        ? "bg-gray-100 text-gray-600"
-                        : ticket.priority === "High"
-                        ? "bg-orange-100 text-orange-600"
-                        : "bg-red-100 text-red-600"
-                    }`}
-                  >
-                    {ticket.priority}
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        {loading ? (
+          <div className="flex items-center justify-center w-full h-full ">
+            <CirclesWithBar
+              color="#4fa94d"
+              outerCircleColor="#4fa94d"
+              innerCircleColor="#4fa94d"
+              barColor="#4fa94d"
+              visible={true}
+            />
+          </div>
+        ) : (
+          <Table
+            columns={columns}
+            data={ticketDetailsFromAutoRefresh || ticketDetails}
+            renderRow={renderRow}
+          />
+        )}
       </div>
     </div>
   );

@@ -22,6 +22,7 @@ export default {
         bg: "#DFE2FF",
         pr: "#0b1a5f",
         bg1: "#FED0BB",
+        taskBlack: "#3D3D3D",
         foreground: "hsl(var(--foreground))",
         card: {
           DEFAULT: "hsl(var(--card))",
