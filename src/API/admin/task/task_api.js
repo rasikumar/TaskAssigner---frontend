@@ -10,9 +10,9 @@ export const fetchAllTasks = async () => {
   }
 };
 
-export const createTask = async () => {
+export const createTask = async (data) => {
   try {
-    const response = await Instance.post("/admin/createTask");
+    const response = await Instance.post("/admin/createTask", data);
 
     if (response.status === 200) {
       return response.data;
@@ -54,13 +54,13 @@ export const deleteTask = async (taskId) => {
       throw new Error("Task ID is missing or invalid");
     }
 
-    console.log("Deleting task with ID:", taskId);
+    // console.log("Deleting task with ID:", taskId);
 
     const response = await Instance.delete(`/admin/deleteTask/${taskId}`, {
       data: { id: taskId, role: "admin" },
     });
 
-    console.log("Response from server:", response);
+    // console.log("Response from server:", response);
 
     if (response.data.status) {
       return response.data;

@@ -102,7 +102,7 @@ const AdminSidebar = () => {
         onConfirm={handleLogout}
       />
       <div
-        className={`fixed bg-slate-100  p-4  z-[55] transition-all  m-auto ${
+        className={`fixed bg-bg rounded-xl  p-4  z-40 transition-all  m-auto ${
           isCollapsed
             ? "mt-4 right-4 2xl:w-[113rem] w-[73rem] top-0"
             : "2xl:w-[102rem] w-[66rem] mt-4 right-4 top-0"
@@ -111,7 +111,7 @@ const AdminSidebar = () => {
         Hello
       </div>
       <div
-        className={`grid rounded-xl p-8 shadow-minimal mt-8 bg-bg z-50 transition-all overflow-x-hidden w-full relative ${
+        className={`grid rounded-xl p-8 shadow-bottom mt-8 bg-bg transition-all overflow-x-hidden w-full relative ${
           isCollapsed ? "ml-20" : "2xl:ml-64 ml-48"
         }`}
       >

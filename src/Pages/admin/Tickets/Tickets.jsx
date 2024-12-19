@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { ChevronDownIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import Table from "@/components/ui/table";
-import useAutoRefresh from "@/components/useAutoRefresh ";
+import useAutoRefresh from "@/hooks/useAutoRefresh ";
 import { CirclesWithBar } from "react-loader-spinner";
 const Tickets = () => {
   const [priority, setPriority] = useState("all");

@@ -16,10 +16,11 @@ export default {
           "rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px",
         minimal:
           "rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;",
+        bottom: "rgba(17, 17, 26, 0.1) 0px 1px 0px;",
       },
       colors: {
         background: "hsl(var(--background))",
-        bg: "#DFE2FF",
+        bg: "#F0E0FF",
         pr: "#0b1a5f",
         bg1: "#FED0BB",
         taskBlack: "#3D3D3D",

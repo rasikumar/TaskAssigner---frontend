@@ -21,7 +21,8 @@ import {
 } from "../../../components/ui/select";
 import { Label } from "../../../components/ui/label";
 import { toast, ToastContainer } from "react-toastify";
-import Instance from "@/API/Instance";
+// import Instance from "@/API/Instance";
+import { createTask } from "@/API/admin/task/task_api";
 
 const CreateTask = () => {
   const [formData, setFormData] = useState({
@@ -42,12 +43,12 @@ const CreateTask = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await Instance.post("/admin/createTask", formData);
-      if (response.data.status === "Success") {
-        toast.success(response.data.message);
-        setIsOpen(false); // Close the dialog box
-      } else if (response.data.status === "failure") {
-        toast.error(response.data.message);
+      const response = await createTask(formData); // Pass formData here
+      if (response.status === 200) {
+        toast.success(response.message);
+        setIsOpen(false); 
+      } else if (response.status === "failure") {
+        toast.error(response.message);
       }
     } catch (error) {
       console.error("Error creating task:", error);

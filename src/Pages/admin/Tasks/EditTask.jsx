@@ -9,11 +9,18 @@ import {
 } from "@/components/ui/dialog";
 import { useEffect, useState } from "react";
 
-const EditTask = ({ taskId, taskData, isOpen, onClose, onEdit }) => {
-  const [editedTask, setEditedTask] = useState(taskData || {});
+const EditTask = ({ taskId, taskData = {}, isOpen, onClose, onEdit }) => {
+  const [editedTask, setEditedTask] = useState({
+    project_title: taskData.project_title || "",
+    project_description: taskData.project_description || "",
+  });
 
   useEffect(() => {
-    setEditedTask(taskData); // Update local state when taskData changes
+    // Update local state whenever taskData changes
+    setEditedTask({
+      project_title: taskData.project_title || "",
+      project_description: taskData.project_description || "",
+    });
   }, [taskData]);
 
   const handleSave = () => {
@@ -41,15 +48,16 @@ const EditTask = ({ taskId, taskData, isOpen, onClose, onEdit }) => {
         >
           <input
             type="text"
-            value={editedTask.project_title || ""}
+            value={editedTask.project_title}
             onChange={(e) =>
               setEditedTask({ ...editedTask, project_title: e.target.value })
             }
             className="w-full p-2 border border-gray-300 rounded"
             placeholder="Task Name"
+            required
           />
           <textarea
-            value={editedTask.project_description || ""}
+            value={editedTask.project_description}
             onChange={(e) =>
               setEditedTask({
                 ...editedTask,
@@ -58,6 +66,7 @@ const EditTask = ({ taskId, taskData, isOpen, onClose, onEdit }) => {
             }
             className="w-full p-2 mt-2 border border-gray-300 rounded"
             placeholder="Task Description"
+            required
           />
           <DialogFooter>
             <Button type="submit">Save Changes</Button>

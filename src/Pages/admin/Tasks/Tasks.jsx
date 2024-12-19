@@ -3,7 +3,7 @@ import { editTask, fetchAllTasks } from "@/API/admin/task/task_api";
 import CreateTask from "./CreateTask";
 import Action from "./Action";
 import Table from "@/components/ui/table"; // Import the reusable Table component
-import useAutoRefresh from "@/components/useAutoRefresh ";
+import useAutoRefresh from "@/hooks/useAutoRefresh ";
 import { CirclesWithBar } from "react-loader-spinner";
 
 const getpriority = (priority) => {
