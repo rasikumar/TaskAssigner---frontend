@@ -16,8 +16,8 @@ export default function MainCards({
       style={{ backgroundColor: bgColor || "#f8f9fa" }}
     >
       <div className="flex items-end justify-between">
-        <h3 className="2xl:text-2xl text-xl">{title}</h3>
-        <p>{btn}</p>
+        <h3 className="text-xl">{title}</h3>
+        <p className="text-sm">{btn}</p>
       </div>
       <div className="flex items-end justify-between">
         <div className="flex items-end gap-2">

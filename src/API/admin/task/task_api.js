@@ -10,31 +10,31 @@ export const fetchAllTasks = async () => {
   }
 };
 
-export const createTask = async (data) => {
-  try {
-    const response = await Instance.post("/admin/createTask", data);
+// export const createTask = async (data) => {
+//   try {
+//     const response = await Instance.post("/admin/createTask", data);
 
-    if (response.status === 200) {
-      return response.data;
-    } else {
-      throw new Error(`Failed to create task: ${response.status}`);
-    }
-  } catch (error) {
-    console.error("Error creating task:", error);
-    throw error;
-  }
-};
+//     if (response.status === 200) {
+//       return response.data;
+//     } else {
+//       throw new Error(`Failed to create task: ${response.status}`);
+//     }
+//   } catch (error) {
+//     console.error("Error creating task:", error);
+//     throw error;
+//   }
+// };
 
-export const editTask = async (taskId, id) => {
+export const editTask = async (taskId) => {
   try {
     if (!taskId) {
       throw new Error("Task ID is missing or invalid");
     }
 
     console.log("Updating task with ID:", taskId);
-    console.log("Updated task data:", id);
+    // console.log("Updated task data:", id);
 
-    const response = await Instance.put(`/admin/editTask/${id}`, taskId);
+    const response = await Instance.put(`/admin/updateTask/`, taskId);
 
     // Check the response and handle success
     if (response.status === 200) {

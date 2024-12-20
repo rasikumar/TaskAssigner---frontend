@@ -23,7 +23,7 @@ const DeleteTask = ({ taskId, onDelete }) => {
       className="flex items-center gap-2 text-red-600 hover:text-red-800"
       onClick={handleDelete}
     >
-      <FaRegTrashAlt /> Delete
+      <FaRegTrashAlt /> 
     </button>
   );
 };

@@ -1,33 +1,42 @@
-import Instance from "@/API/Instance";
+import { fetchAllTasks } from "@/API/admin/task/task_api";
 import MainCards from "@/components/ui/cards/MainCards";
+import { useQuery } from "@tanstack/react-query";
 
-import { useEffect, useState } from "react";
 import { FaTasks } from "react-icons/fa";
 
 const Dashboard = () => {
-  const [name, setName] = useState(null);
-  useEffect(() => {
-    const responseName = async () => {
-      try {
-        const response = await Instance.get("/admin/dashboard/");
-        setName(response.data.data.mail);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    responseName();
-  }, []);
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["task"],
+    queryFn: () => {
+      return fetchAllTasks();
+    },
+  });
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+  if (isError) {
+    return <div>Error: {error.message}</div>;
+  }
+
+  const tasks = data?.data || {};
+
+  const CompletedTask = tasks.filter((task) => task.status === "Completed");
+  const InprogressTask = tasks.filter((task) => task.status === "In progress");
+  const NotStartedTask = tasks.filter((task) => task.status === "Not started");
+
+  console.log(data?.data);
+
   return (
     <div className="flex flex-col gap-4">
-      Welcome, Please enter your name to proceed.{name}
-      <section className="flex lg:flex-nowrap flex-wrap w-full gap-4">
+      <section className="flex 2xl:flex-nowrap md:flex-wrap w-full gap-6">
         {/* First Column */}
-        <div className="flex flex-col w-full ">
+        <div className="flex flex-col w-full">
           {/* Projects Section */}
-          <h1 className="text-lg font-semibold mb-2">Projects</h1>
+          <h1 className="text-lg font-semibold my-4">Projects</h1>
           <div className="flex gap-4">
             <MainCards
-              title="Pending"
+              title="Yet to Start"
               btn="View All"
               totaltasks={12}
               Icon={FaTasks}
@@ -53,12 +62,12 @@ const Dashboard = () => {
           </div>
 
           {/* Tasks Section */}
-          <h1 className="text-lg font-semibold mb-2">Tasks</h1>
+          <h1 className="text-lg font-semibold my-4">Tasks</h1>
           <div className="flex gap-4">
             <MainCards
-              title="Pending"
+              title="Yet to Start"
               btn="View All"
-              totaltasks={12}
+              totaltasks={NotStartedTask.length}
               Icon={FaTasks}
               subtitle="Task"
               bgColor="#B23A48"
@@ -66,7 +75,7 @@ const Dashboard = () => {
             <MainCards
               title="In-progress"
               btn="View All"
-              totaltasks={12}
+              totaltasks={InprogressTask.length}
               Icon={FaTasks}
               subtitle="Task"
               bgColor="#DCA74B"
@@ -74,7 +83,7 @@ const Dashboard = () => {
             <MainCards
               title="Completed"
               btn="View All"
-              totaltasks={12}
+              totaltasks={CompletedTask.length}
               Icon={FaTasks}
               subtitle="Task"
               bgColor="#566E3D"
@@ -83,7 +92,7 @@ const Dashboard = () => {
         </div>
 
         {/* Second Column */}
-        <div className="grid grid-cols-1 mt-9 w-full gap-4">
+        <div className="grid grid-cols-1 mt-[3.7rem] w-full gap-4">
           {/* Today's Tasks Section */}
           <MainCards
             title="Today's Tasks"

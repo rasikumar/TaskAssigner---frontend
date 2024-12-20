@@ -123,7 +123,7 @@ const App = () => {
             }
           /> */}
           <Route
-            path="tasks" // Relative path
+            path="projects" // Relative path
             element={
               <ProtectedRoute allowedRoles={["admin"]}>
                 <Tasks />

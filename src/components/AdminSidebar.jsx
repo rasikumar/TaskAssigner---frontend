@@ -43,7 +43,7 @@ const AdminSidebar = () => {
     <div className="flex w-full p-4 absolute h-full bg-slate-100">
       <div
         className={`fixed rounded-xl flex flex-col h-[calc(100vh-3.5%)] transition-all duration-300 z-50 ${
-          isCollapsed ? "w-16" : "w-48 2xl:w-60"
+          isCollapsed ? "w-16" : "w-44 2xl:w-60"
         }`}
       >
         <SidebarHeader
@@ -68,9 +68,9 @@ const AdminSidebar = () => {
             }))}
           />
           <SidebarLink
-            to="/admin/dashboard/tasks"
+            to="/admin/dashboard/projects"
             Icon={FaTasks}
-            label="Tasks Management"
+            label="Project Management"
             isCollapsed={isCollapsed}
           />
           <SidebarLink
@@ -108,7 +108,7 @@ const AdminSidebar = () => {
             : "2xl:w-[102rem] w-[66rem] mt-4 right-4 top-0"
         }`}
       >
-        Hello
+        Welcome Back {name?.mail || "loading"}
       </div>
       <div
         className={`grid rounded-xl p-8 shadow-bottom mt-8 bg-bg transition-all overflow-x-hidden w-full relative ${

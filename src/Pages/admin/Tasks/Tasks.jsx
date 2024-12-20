@@ -5,6 +5,7 @@ import Action from "./Action";
 import Table from "@/components/ui/table"; // Import the reusable Table component
 import useAutoRefresh from "@/hooks/useAutoRefresh ";
 import { CirclesWithBar } from "react-loader-spinner";
+import { toast } from "react-toastify";
 
 const getpriority = (priority) => {
   switch (priority) {
@@ -38,6 +39,7 @@ const getstatus = (status) => {
 
 const Tasks = () => {
   const [taskDetails, setTaskDetails] = useState([]); // State for task details
+
   const [filters, setFilters] = useState({
     priority: "",
     status: "",
@@ -55,14 +57,9 @@ const Tasks = () => {
 
   const handleEditTask = async (taskId, updatedTask) => {
     if (!taskId) return console.error("Task ID is missing!");
-
     try {
       const updatedData = await editTask(taskId, updatedTask);
-      setTaskDetails((prevTasks) =>
-        prevTasks.map((task) =>
-          task.id === updatedTask.id ? { ...task, ...updatedTask } : task
-        )
-      );
+      toast.success()
       return updatedData;
     } catch (error) {
       console.error("Error updating task:", error);
@@ -99,7 +96,6 @@ const Tasks = () => {
 
   const columns = [
     { key: "project_title", title: "Project Title" },
-    { key: "task_description", title: "Task Description" },
     { key: "priority", title: "Priority", className: "text-center" },
     { key: "status", title: "Status", className: "text-center" },
     { key: "report_to", title: "Report To" },
@@ -113,9 +109,6 @@ const Tasks = () => {
         <div className="font-bold text-primary">{task.project_title}</div>
         <div className="text-slate-700">{task.project_ownership}</div>
         <div className="text-xs text-gray-500">{task.project_description}</div>
-      </td>
-      <td className="px-2 py-3 text-sm text-gray-600 truncate max-w-52">
-        {task.task_description}
       </td>
       <td className={`px-2 py-2 text-center text-xs font-semibold`}>
         <span className={getpriority(task.priority)}>{task.priority}</span>
@@ -132,43 +125,44 @@ const Tasks = () => {
           onDelete={handleDeleteTask}
         />
       </td>
+      <td></td>
     </>
   );
 
   return (
-    <div className="relative">
+    <div className="relative h-full">
       <div className="flex justify-start gap-2 relative">
         <CreateTask />
+        <div className="flex gap-4 mb-4">
+          <select
+            name="priority"
+            value={filters.priority}
+            onChange={handleFilterChange}
+            className="border p-2 bg-transparent"
+          >
+            <option value="">All Priorities</option>
+            <option value="Critical">Critical</option>
+            <option value="High">High</option>
+            <option value="Regular">Regular</option>
+            <option value="Low">Low</option>
+          </select>
+
+          <select
+            name="status"
+            value={filters.status}
+            onChange={handleFilterChange}
+            className="border p-2 bg-transparent"
+          >
+            <option value="">All Status</option>
+            <option value="Pending">Pending</option>
+            <option value="In progress">In progress</option>
+            <option value="Not started">Not started</option>
+            <option value="Completed">Completed</option>
+          </select>
+        </div>
       </div>
 
       {/* Filters Section */}
-      <div className="flex gap-4 mb-4">
-        <select
-          name="priority"
-          value={filters.priority}
-          onChange={handleFilterChange}
-          className="border p-2"
-        >
-          <option value="">All Priorities</option>
-          <option value="Critical">Critical</option>
-          <option value="High">High</option>
-          <option value="Regular">Regular</option>
-          <option value="Low">Low</option>
-        </select>
-
-        <select
-          name="status"
-          value={filters.status}
-          onChange={handleFilterChange}
-          className="border p-2"
-        >
-          <option value="">All Status</option>
-          <option value="Pending">Pending</option>
-          <option value="In progress">In progress</option>
-          <option value="Not started">Not started</option>
-          <option value="Completed">Completed</option>
-        </select>
-      </div>
 
       {loading ? (
         <div className="flex items-center justify-center w-full h-full">
