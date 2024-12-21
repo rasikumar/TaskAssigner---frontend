@@ -27,7 +27,6 @@ const UserLogin = () => {
       const response = await Instance.post("/admin/login", { mail, password });
       if (response.status === 200 && response.data.status) {
         localStorage.setItem("token", response.data.token);
-        console.log(response);
 
         toast.success(
           response.data.message ||

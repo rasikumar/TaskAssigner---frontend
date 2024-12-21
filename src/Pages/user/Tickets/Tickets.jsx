@@ -41,8 +41,8 @@ const Tickets = () => {
   };
 
   return (
-    <div className="w-full h-screen bg-blue-50 rounded-lg">
-      <div className="2xl:w-[103rem] w-[63rem]">
+    <div className="">
+      <div>
         <div className="flex items-center justify-between w-full px-4 mt-4">
           <div className="mt-3">
             <h1 className="2xl:text-lg font-semibold">All Tickets</h1>
@@ -108,7 +108,7 @@ const Tickets = () => {
           </div>
         </div>
 
-        <table className="table-auto border-collapse w-[98%] mt-4 m-auto text-xs shadow-md rounded-lg overflow-hidden bg-white">
+        <table className="table-auto border-collapse w-full mt-4 m-auto text-xs shadow-md rounded-lg overflow-hidden bg-white">
           <thead className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
             <tr>
               <th className="px-2 py-3 text-sm  text-left font-semibold">

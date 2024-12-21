@@ -109,7 +109,7 @@ const Tickets = () => {
           <div className="">
             <h1 className="2xl:text-lg font-semibold">All Tickets</h1>
           </div>
-          <div className="bg-slate-200 rounded-md relative">
+          <div className=" rounded-md relative">
             <label className="flex items-center 2xl:text-sm text-xs">
               Sort By :
               <div

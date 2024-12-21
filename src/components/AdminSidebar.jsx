@@ -2,17 +2,18 @@ import { useState, useEffect } from "react";
 import SidebarHeader from "./SideBar/SidebarHeader";
 import SidebarLink from "./SideBar/SidebarLink";
 import Dropdown from "./SideBar/Dropdown";
-import SidebarFooter from "./SideBar/SidebarFooter";
 import Verify from "./ui/verify";
 import { FaDashcube, FaTasks, FaTicketAlt, FaCheck } from "react-icons/fa";
 import { GrUserManager } from "react-icons/gr";
 import { teams } from "@/data/teams";
 import Instance from "@/API/Instance";
 import { Outlet, useNavigate } from "react-router";
+import AdminSidebarFooter from "./SideBar/AdminSidebarFooter";
 
 const AdminSidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [name, setName] = useState(null);
+  const [name, setName] = useState(false);
+  console.log(name);
   const [isOpen, setIsOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
@@ -32,6 +33,7 @@ const AdminSidebar = () => {
       try {
         const response = await Instance.get("/admin/dashboard/");
         setName(response.data.data);
+        console.log(response.data.data);
       } catch (error) {
         console.error(error);
       }
@@ -86,7 +88,7 @@ const AdminSidebar = () => {
             isCollapsed={isCollapsed}
           />
         </div>
-        <SidebarFooter
+        <AdminSidebarFooter
           isCollapsed={isCollapsed}
           name={name}
           isOpen={isOpen}

@@ -1,370 +1,157 @@
 import { useEffect, useState } from "react";
-import { Link, Outlet, useNavigate } from "react-router";
-import { MdManageAccounts } from "react-icons/md";
+import SidebarHeader from "./SideBar/SidebarHeader";
+import SidebarLink from "./SideBar/SidebarLink";
+import Dropdown from "./SideBar/Dropdown";
+import SidebarFooter from "./SideBar/SidebarFooter";
 import Verify from "./ui/verify";
-import {
-  FaDashcube,
-  FaTasks,
-  FaTicketAlt,
-  FaWindowClose,
-} from "react-icons/fa";
-import { SiTestinglibrary } from "react-icons/si";
-import { MdOutlineCrisisAlert } from "react-icons/md";
-import { MdDeveloperMode } from "react-icons/md";
-import { MdOutlineDesignServices } from "react-icons/md";
-import { GiHumanPyramid } from "react-icons/gi";
-
-import {
-  SidebarHeader,
-  SidebarContent,
-  SidebarFooter,
-  SidebarProvider,
-  // SidebarMenuButton,
-} from "./ui/sidebar";
-// import DynamicBreadCrumb from "./DynamicBreadCrumb";
-// import {
-//   DropdownMenuLabel,
-//   DropdownMenuTrigger,
-// } from "@radix-ui/react-dropdown-menu";
-// import { DropdownMenu, DropdownMenuContent } from "./ui/dropdown-menu";
-// import { Avatar } from "./ui/avatar";
-// import { AvatarFallback } from "@radix-ui/react-avatar";
-// import { ChevronsUpDown, Menu, X } from "lucide-react";
+import { FaDashcube, FaTasks, FaTicketAlt, FaCheck } from "react-icons/fa";
 import { GrUserManager } from "react-icons/gr";
-import Instance from "@/API/Instance";
-import clsx from "clsx";
-import { Menu, X } from "lucide-react";
+import { teams } from "@/data/teams";
+import { Outlet, useLocation, useNavigate } from "react-router";
+import RoleChecker from "@/hooks/RoleChecker";
 
-const AdminSidebars = () => {
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
+const UserSidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [name, setName] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
-  // const [data, setDate] = useState(null);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
-  const toggleDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen);
-  };
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const navigate = useNavigate();
+  const location = useLocation();
 
+  // Get user data from location or localStorage
+  const getRole = location.state?.data?.role || localStorage.getItem("role");
+  const getName = location.state?.data?.name || localStorage.getItem("name");
+
+  // Remove surrounding quotes if they exist
+  const role = getRole ? getRole.replace(/^"|"$/g, "") : "Loading...";
+  const name = getName ? getName.replace(/^"|"$/g, "") : "Loading...";
+
+  // console.log(cleanedRole); // test-teamleader
+  // console.log(cleanedName); // test-teamleader
+
+  // Redirect to login if no user data
+  useEffect(() => {
+    if (!role) {
+      navigate("/", { replace: true });
+    }
+  }, [role, navigate]);
+
+  // Toggle sidebar collapse
+  function toggleCollapse() {
+    return setIsCollapsed(!isCollapsed);
+  }
+
+  // Toggle profile dropdown
+  const toggleProfile = () => setIsOpen(!isOpen);
+
+  // Handle logout
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    localStorage.removeItem("name");
+    localStorage.removeItem("mail");
     setShowLogoutModal(false);
     navigate("/", { replace: true });
   };
 
-  useEffect(() => {
-    const responseName = async () => {
-      try {
-        const response = await Instance.get("/admin/dashboard/");
-        setName(response.data.data);
-        // setDate(response.data);
-        console.log(response.data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    responseName();
-  }, []);
-
   return (
-    <div className="flex absolute">
+    <div className="flex w-full p-4 absolute h-full bg-slate-100">
       {/* Sidebar */}
-      <SidebarProvider
-        className={`flex flex-col border border-orange-500 bg-white transition-all h-full fixed  duration-300 z-[60] ${
-          isCollapsed ? "w-16" : "2xl:w-60 w-48"
+      <div
+        className={`fixed rounded-xl flex flex-col h-[calc(100vh-3.5%)] transition-all duration-300 z-50 ${
+          isCollapsed ? "w-16" : "w-44 2xl:w-60"
         }`}
       >
-        <div className="flex items-center justify-between px-4 py-3">
-          <SidebarHeader className="xl:text-lg text-xs font-bold">
-            {!isCollapsed && (
-              <div className="2xl:text-sm text-xs">Dashboard Sidebar</div>
-            )}
-          </SidebarHeader>
-          <button
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="p-2 rounded-md transition"
-          >
-            {isCollapsed ? (
-              <Menu
-                size={40}
-                className="items-center -ml-[26px] rounded-md transition-all hover:bg-orange-500 p-2 "
-              />
-            ) : (
-              <X
-                size={40}
-                className="items-center rounded-md transition-all hover:bg-orange-500 p-2 "
-              />
-            )}
-          </button>
-        </div>
-        <SidebarContent className="flex flex-col gap-4 mt-4">
-          {/* Links with centered icons */}
-          <Link
+        <SidebarHeader
+          isCollapsed={isCollapsed}
+          toggleCollapse={toggleCollapse}
+        />
+
+        {/* Sidebar Links */}
+        <div className="flex flex-col gap-4 mt-4">
+          <SidebarLink
             to="/dashboard"
-            className={`flex items-center transition-all duration-300 ${
-              isCollapsed ? "justify-center" : "px-4"
-            }`}
-          >
-            <FaDashcube className="text-xl" />
-            {!isCollapsed && (
-              <span className="ml-2 2xl:text-base text-xs font-semibold ">
-                Dashboard
-              </span>
-            )}
-          </Link>
-          <div>
-            <button
-              className={`flex items-center transition-all duration-300 ${
-                isCollapsed ? "justify-center" : "px-4"
-              }`}
-              onClick={toggleDropdown}
-            >
-              <GrUserManager
-                className={`text-xl ${isCollapsed ? "ml-5" : ""}`}
-              />
-              {!isCollapsed && (
-                <span className="ml-2 2xl:text-base text-xs font-semibold">
-                  Team Management
-                </span>
-              )}
-            </button>
-            {isDropdownOpen && (
-              <div className="dropdown-content pl-4 flex flex-col gap-4 my-4">
-                {["manager", "employee", "hr"].includes(name?.role) && (
-                  <Link
-                    to="/dashboard/manager"
-                    className={`flex items-center transition-all duration-300 ${
-                      isCollapsed ? "justify-center" : "px-4"
-                    }`}
-                  >
-                    <MdDeveloperMode
-                      className={`text-xl ${isCollapsed ? "-ml-4" : ""}`}
-                    />
-                    {!isCollapsed && (
-                      <span className="ml-2 2xl:text-base text-xs font-semibold">
-                        Development
-                      </span>
-                    )}
-                  </Link>
-                )}
-                <Link
-                  to="/dashboard/human-resource"
-                  className={`flex items-center transition-all duration-300 ${
-                    isCollapsed ? "justify-center" : "px-4"
-                  }`}
-                >
-                  <MdOutlineDesignServices
-                    className={`text-xl ${isCollapsed ? "-ml-4" : ""}`}
-                  />
-                  {!isCollapsed && (
-                    <span className="ml-2 2xl:text-base text-xs font-semibold">
-                      Design
-                    </span>
-                  )}
-                </Link>
-                <Link
-                  to="/dashboard/team-leader"
-                  className={`flex items-center transition-all duration-300 ${
-                    isCollapsed ? "justify-center" : "px-4"
-                  }`}
-                >
-                  <SiTestinglibrary
-                    className={`text-xl ${isCollapsed ? "-ml-4" : ""}`}
-                  />
-                  {!isCollapsed && (
-                    <span className="ml-2 2xl:text-base text-xs font-semibold">
-                      Testing
-                    </span>
-                  )}
-                </Link>
-                <Link
-                  to="/dashboard/employees"
-                  className={`flex items-center transition-all duration-300 ${
-                    isCollapsed ? "justify-center" : "px-4"
-                  }`}
-                >
-                  <MdOutlineCrisisAlert
-                    className={`text-xl ${isCollapsed ? "-ml-4" : ""}`}
-                  />
-                  {!isCollapsed && (
-                    <span className="ml-2 2xl:text-base text-xs font-semibold">
-                      Marketing
-                    </span>
-                  )}
-                </Link>
-                <Link
-                  to="/dashboard/employees"
-                  className={`flex items-center transition-all duration-300 ${
-                    isCollapsed ? "justify-center" : "px-4"
-                  }`}
-                >
-                  <GiHumanPyramid
-                    className={`text-xl ${isCollapsed ? "-ml-4" : ""}`}
-                  />
-                  {!isCollapsed && (
-                    <span className="ml-2 2xl:text-base text-xs font-semibold">
-                      Human Resource
-                    </span>
-                  )}
-                </Link>
-              </div>
-            )}
-          </div>
-          <Link
-            to="/dashboard/tasks"
-            className={`flex items-center transition-all duration-300 ${
-              isCollapsed ? "justify-center" : "px-4"
-            }`}
-          >
-            <FaTasks className="text-xl" />
+            Icon={FaDashcube}
+            label="Dashboard"
+            isCollapsed={isCollapsed}
+          />
 
-            {!isCollapsed && (
-              <span className="ml-2 2xl:text-base text-xs font-semibold ">
-                Tasks Management
-              </span>
-            )}
-          </Link>
-          <Link
+          <RoleChecker allowedRoles={["team lead", "hr", "manager"]}>
+            <Dropdown
+              isCollapsed={isCollapsed}
+              label="Team Management"
+              Icon={GrUserManager}
+              links={teams.map((team) => ({
+                to: `./teams/${team.name.toLowerCase().replace(/\s+/g, "-")}`,
+                icon: team.icon,
+                label: team.name,
+              }))}
+            />
+          </RoleChecker>
+
+          <SidebarLink
+            to="/dashboard/projects"
+            Icon={FaTasks}
+            label="Project Management"
+            isCollapsed={isCollapsed}
+          />
+          <SidebarLink
             to="/dashboard/ticket"
-            className={`flex items-center transition-all duration-300 ${
-              isCollapsed ? "justify-center" : "px-4"
-            }`}
-          >
-            <FaTicketAlt className="text-xl" />
+            Icon={FaTicketAlt}
+            label="Tickets Management"
+            isCollapsed={isCollapsed}
+          />
+          <RoleChecker allowedRoles={["hr"]}>
+            <SidebarLink
+              to="/dashboard/usermanagement"
+              Icon={FaCheck}
+              label="User Management"
+              isCollapsed={isCollapsed}
+            />
+          </RoleChecker>
+        </div>
 
-            {!isCollapsed && (
-              <span className="ml-2 2xl:text-base text-xs font-semibold ">
-                Tickets Management
-              </span>
-            )}
-          </Link>
-          <Link
-            to="/dashboard/ticket"
-            className={`flex items-center transition-all duration-300 ${
-              isCollapsed ? "justify-center" : "px-4"
-            }`}
-          >
-            <MdManageAccounts className="text-xl" />
+        {/* Sidebar Footer */}
+        <SidebarFooter
+          isCollapsed={isCollapsed}
+          name={name}
+          role={role}
+          isOpen={isOpen}
+          toggleProfile={toggleProfile}
+          handleLogout={handleLogout}
+        />
+      </div>
 
-            {!isCollapsed && (
-              <span className="ml-2 2xl:text-base text-xs font-semibold ">
-                User Management
-              </span>
-            )}
-          </Link>
-        </SidebarContent>
-        <SidebarFooter>
-          <button
-            onClick={() => setIsOpen((prev) => !prev)}
-            className={`flex items-center px-2 py-1 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 ${
-              isOpen ? "bg-sidebar-accent text-sidebar-accent-foreground" : ""
-            }`}
-          >
-            <div
-              className={`${
-                isCollapsed ? "h-8 bg-transparent w-8" : "h-8 w-8"
-              } rounded-lg bg-gray-300 flex items-center justify-center text-sm font-semibold`}
-            >
-              CN
-            </div>
-            {!isCollapsed && (
-              <div className="grid flex-1 text-left leading-tight ml-2 ">
-                <span className="truncate font-semibold text-xs">
-                  {name ? (
-                    <div>{name.mail}</div>
-                  ) : (
-                    <div>Loading user information...</div>
-                  )}
-                </span>
-                <span className="truncate text-xs">
-                  {name ? (
-                    <div>{name.role}</div>
-                  ) : (
-                    <div>Loading user Role...</div>
-                  )}
-                </span>
-              </div>
-            )}
-            <div className="ml-auto">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className={`h-4 w-4 transition-transform ${
-                  isOpen ? "rotate-180" : ""
-                }`}
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </div>
-          </button>
-
-          {/* Dropdown Content */}
-          {isOpen && (
-            <div
-              className="absolute -mt-20 w-48 bg-white border border-gray-300 rounded-lg shadow-md"
-              onBlur={() => setIsOpen(false)}
-            >
-              <div className="p-3">
-                {/* Dropdown Label */}
-                <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                  <div className="h-8 w-8 rounded-lg bg-gray-300 flex items-center justify-center text-sm font-semibold">
-                    CN
-                  </div>
-                  <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold text-xs text-wrap">
-                      {name.mail}
-                    </span>
-                    <span className="truncate text-xs">{name.role}</span>
-                  </div>
-                </div>
-
-                {/* Logout Link */}
-                <div className="flex items-center">
-                  <button
-                    onClick={() => setShowLogoutModal(true)}
-                    className="mt-2 text-red-500 hover:underline text-sm w-full text-left"
-                  >
-                    Logout
-                  </button>
-                  <button onClick={() => setIsOpen(false)}>
-                    <FaWindowClose />
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-        </SidebarFooter>
-      </SidebarProvider>
+      {/* Logout Modal */}
       <Verify
         isOpen={showLogoutModal}
         title="Confirm Logout"
-        message="Are you guessing to finish your tasks?"
+        message="Are you sure you want to finish your tasks and log out?"
         onClose={() => setShowLogoutModal(false)}
         onConfirm={handleLogout}
       />
+
+      {/* Welcome Message */}
       <div
-        className={clsx(
-          "p-4 w-full z-50 bg-white transition-all",
-          isCollapsed ? "ml-14" : "2xl:ml-60 ml-48"
-        )}
+        className={`fixed bg-bg rounded-xl p-4 z-40 transition-all m-auto ${
+          isCollapsed
+            ? "mt-4 right-4 2xl:w-[113rem] w-[73rem] top-0"
+            : "2xl:w-[102rem] w-[66rem] mt-4 right-4 top-0"
+        }`}
       >
-        <div className={`${isCollapsed ? "w-screen" : "w-full"}`}>
-          {/* <DynamicBreadCrumb /> */}
-          <Outlet />
-        </div>
+        Welcome Back {name || "loading"}
+      </div>
+
+      {/* Main Content */}
+      <div
+        className={`grid rounded-xl p-8 shadow-bottom mt-8 bg-bg transition-all overflow-x-hidden w-full relative ${
+          isCollapsed ? "ml-20" : "2xl:ml-64 ml-48"
+        }`}
+      >
+        <Outlet />
       </div>
     </div>
   );
 };
 
-export default AdminSidebars;
+export default UserSidebar;

@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 const useAutoRefresh = (fetchData) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
-  const intervalTime = 1000; // Set default interval time here
+  const intervalTime = 4000; // Set default interval time here
 
   useEffect(() => {
     setLoading(true);

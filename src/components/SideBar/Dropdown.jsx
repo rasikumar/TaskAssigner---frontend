@@ -22,8 +22,8 @@ const Dropdown = ({ isCollapsed, label, Icon, links }) => {
           isCollapsed ? "justify-center" : "px-4"
         } ${
           isDropdownActive
-            ? "bg-blue-500 text-white" // Active styles for dropdown header
-            : "text-taskBlack hover:text-taskBlack/50"
+            ? "bg-bg rounded-xl p-4" // Active styles for dropdown header
+            : "text-taskBlack"
         }`}
       >
         <Icon className={`text-xl ${isCollapsed ? "ml-5" : ""}`} />

@@ -27,7 +27,9 @@ const UserLogin = () => {
       const response = await Instance.post("/user/login", { mail, password });
       if (response.status === 200 && response.data.status) {
         localStorage.setItem("token", response.data.token);
-        console.log(response);
+        localStorage.setItem("role", JSON.stringify(response.data.data.role));
+        localStorage.setItem("name", JSON.stringify(response.data.data.name));
+        localStorage.setItem("mail", JSON.stringify(response.data.data.mail));
 
         toast.success(
           response.data.message ||

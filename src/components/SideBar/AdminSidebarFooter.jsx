@@ -1,10 +1,9 @@
 /* eslint-disable react/prop-types */
 import { motion } from "framer-motion";
 
-const SidebarFooter = ({
+const AdminSidebarFooter = ({
   isCollapsed,
   name,
-  role,
   isOpen,
   toggleProfile,
   handleLogout,
@@ -26,11 +25,9 @@ const SidebarFooter = ({
       {!isCollapsed && (
         <div className="ml-2 2xl:text-xs text-[0.62rem] flex flex-col items-start leading-tight transition-all">
           <div className="font-semibold text-taskBlack">
-            {name || "Loading..."}
+            {name?.mail || "Loading..."}
           </div>
-          <div className="text-taskBlack">
-            {role || "Loading..."}
-          </div>
+          <div className="text-taskBlack">{name?.role || "Loading..."}</div>
         </div>
       )}
     </button>
@@ -54,4 +51,4 @@ const SidebarFooter = ({
   </div>
 );
 
-export default SidebarFooter;
+export default AdminSidebarFooter;

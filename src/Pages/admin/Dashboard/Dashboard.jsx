@@ -25,8 +25,6 @@ const Dashboard = () => {
   const InprogressTask = tasks.filter((task) => task.status === "In progress");
   const NotStartedTask = tasks.filter((task) => task.status === "Not started");
 
-  console.log(data?.data);
-
   return (
     <div className="flex flex-col gap-4">
       <section className="flex 2xl:flex-nowrap md:flex-wrap w-full gap-6">

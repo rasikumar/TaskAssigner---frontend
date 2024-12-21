@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -10,13 +10,6 @@ import {
 import { Input } from "../../../components/ui/input";
 import { Textarea } from "../../../components/ui/textarea";
 import { Button } from "../../../components/ui/button";
-import {
-  Select,
-  SelectItem,
-  SelectTrigger,
-  SelectContent,
-  SelectValue,
-} from "../../../components/ui/select";
 import { Label } from "../../../components/ui/label";
 import { toast, ToastContainer } from "react-toastify";
 import Instance from "@/API/Instance";
@@ -26,8 +19,6 @@ const CreateTask = () => {
     project_title: "",
     project_description: "",
     project_ownership: "",
-    assigned_to: "",
-    report_to: "",
     status: "Not started",
     priority: "Low",
     start_date: "",
@@ -35,6 +26,10 @@ const CreateTask = () => {
   });
 
   const [isOpen, setIsOpen] = useState(false);
+
+  // Refs for date inputs
+  const startDateRef = useRef(null);
+  const endDateRef = useRef(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -65,13 +60,14 @@ const CreateTask = () => {
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="p-6 max-w-lg text-taskBlack bg-bg h-96 overflow-scroll">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold">Create Project</DialogTitle>
+            <DialogTitle className="text-xl font-bold">
+              Create Project
+            </DialogTitle>
             <DialogDescription className="text-sm text-gray-500">
               Fill in the details below to create a new Project.
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Task Details Section */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Project Details</h3>
               <div>
@@ -100,31 +96,6 @@ const CreateTask = () => {
               </div>
             </div>
 
-            {/* Priority Section */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Priority</h3>
-              <div>
-                <Label htmlFor="priority">Priority</Label>
-                <Select
-                  value={formData.priority}
-                  onValueChange={(value) =>
-                    handleSelectChange("priority", value)
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select priority" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Critical">Very High</SelectItem>
-                    <SelectItem value="High">High</SelectItem>
-                    <SelectItem value="Regular">Normal</SelectItem>
-                    <SelectItem value="Low">Low</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {/* Assignment Section */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Assignment</h3>
               <div>
@@ -139,57 +110,56 @@ const CreateTask = () => {
                   required
                 />
               </div>
-              <div>
-                <Label htmlFor="assigned_to">Assigned To</Label>
-                <Input
-                  id="assigned_to"
-                  name="assigned_to"
-                  value={formData.assigned_to}
-                  onChange={(e) =>
-                    handleSelectChange("assigned_to", e.target.value)
-                  }
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="report_to">Report To</Label>
-                <Input
-                  id="report_to"
-                  name="report_to"
-                  value={formData.report_to}
-                  onChange={(e) =>
-                    handleSelectChange("report_to", e.target.value)
-                  }
-                  required
-                />
-              </div>
             </div>
 
-            {/* Dates Section */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Dates</h3>
-              <div>
-                <Label htmlFor="start_date">Start Date</Label>
-                <Input
-                  id="start_date"
-                  name="start_date"
-                  type="date"
-                  value={formData.start_date}
-                  onChange={(e) =>
-                    handleSelectChange("start_date", e.target.value)
-                  }
-                  required
-                />
+              <div className="flex items-center justify-between gap-6">
+                <div
+                  className="w-full cursor-pointer"
+                  onClick={() => startDateRef.current.showPicker()}
+                >
+                  <Label htmlFor="start_date">Start Date</Label>
+                  <Input
+                    ref={startDateRef}
+                    id="start_date"
+                    name="start_date"
+                    type="date"
+                    value={formData.start_date}
+                    onChange={(e) =>
+                      handleSelectChange("start_date", e.target.value)
+                    }
+                    required
+                  />
+                </div>
+                <div
+                  className="w-full cursor-pointer"
+                  onClick={() => endDateRef.current.showPicker()}
+                >
+                  <Label htmlFor="end_date">End Date</Label>
+                  <Input
+                    ref={endDateRef}
+                    id="end_date"
+                    name="end_date"
+                    type="date"
+                    value={formData.end_date}
+                    onChange={(e) =>
+                      handleSelectChange("end_date", e.target.value)
+                    }
+                    required
+                  />
+                </div>
               </div>
+
               <div>
-                <Label htmlFor="end_date">End Date</Label>
+                <Label htmlFor="estimated_hour">Estimated Hour</Label>
                 <Input
-                  id="end_date"
-                  name="end_date"
-                  type="date"
-                  value={formData.end_date}
+                  id="estimated_hour"
+                  name="estimated_hour"
+                  type="input"
+                  value={formData.estimated_hour}
                   onChange={(e) =>
-                    handleSelectChange("end_date", e.target.value)
+                    handleSelectChange("estimated_hour", e.target.value)
                   }
                   required
                 />

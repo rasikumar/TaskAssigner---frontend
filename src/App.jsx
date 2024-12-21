@@ -21,18 +21,20 @@ import RolePage from "./Pages/admin/roles/[roleName]";
 import UserSidebar from "./components/UserSidebar";
 import UserLogin from "./components/auth/UserLogin";
 import UserDashboard from "./Pages/user/Dashboard/Dashboard";
-import UserManager from "./Pages/user/Manager/Manager";
-import UserHumanResource from "./Pages/user/HumanResource/HumanResouce";
-import UserTeamLeader from "./Pages/user/TeamLeader/TeamLeader";
-import UserEmployee from "./Pages/user/Employees/Employee";
+// import UserManager from "./Pages/user/Manager/Manager";
+// import UserHumanResource from "./Pages/user/HumanResource/HumanResouce";
+// import UserTeamLeader from "./Pages/user/TeamLeader/TeamLeader";
+// import UserEmployee from "./Pages/user/Employees/Employee";
 import UserTask from "./Pages/user/Tasks/Tasks";
 import UserTicket from "./Pages/user/Tickets/Tickets";
 import UsersVerify from "./Pages/user/user-verify/Userverify";
 import MemberDetailPage from "./Pages/admin/people/[peopleName]";
+import ScrollToTop from "./hooks/scrollToTop";
 
 const App = () => {
   return (
-    <div>
+    <>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<UserLogin />} />
         {/* Login Route */}
@@ -53,7 +55,6 @@ const App = () => {
             element={
               <ProtectedRoute allowedRoles={["admin"]}>
                 <Dashboard />
-                {/* Add dashboard overview content here */}
               </ProtectedRoute>
             }
           />
@@ -89,39 +90,7 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-          {/* Relative Nested Route for /manager */}
-          {/* <Route
-            path="manager" // Relative path
-            element={
-              <ProtectedRoute allowedRoles={["admin"]}>
-                <Manager />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="human-resource" // Relative path
-            element={
-              <ProtectedRoute allowedRoles={["admin"]}>
-                <HumanResouce />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="team-leader" // Relative path
-            element={
-              <ProtectedRoute allowedRoles={["admin"]}>
-                <TeamLeader />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="employee" // Relative path
-            element={
-              <ProtectedRoute allowedRoles={["admin"]}>
-                <Employee />
-              </ProtectedRoute>
-            }
-          /> */}
+
           <Route
             path="projects" // Relative path
             element={
@@ -169,7 +138,7 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-          <Route
+          {/* <Route
             path="manager"
             element={
               <ProtectedRoute
@@ -208,9 +177,9 @@ const App = () => {
                 <UserEmployee />
               </ProtectedRoute>
             }
-          />
+          /> */}
           <Route
-            path="tasks"
+            path="projects"
             element={
               <ProtectedRoute
                 allowedRoles={["employee", "hr", "manager", "team lead"]}
@@ -244,7 +213,7 @@ const App = () => {
         {/* Catch-all Route for 404 */}
         <Route path="*" element={<Error />} />
       </Routes>
-    </div>
+    </>
   );
 };
 
