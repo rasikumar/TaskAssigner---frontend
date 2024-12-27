@@ -19,7 +19,9 @@ const Dashboard = () => {
     return <div>Error: {error.message}</div>;
   }
 
-  const tasks = data?.data || {};
+  const tasks = data || {};
+
+  // console.log("Tasks:", tasks);  
 
   const CompletedTask = tasks.filter((task) => task.status === "Completed");
   const InprogressTask = tasks.filter((task) => task.status === "In progress");

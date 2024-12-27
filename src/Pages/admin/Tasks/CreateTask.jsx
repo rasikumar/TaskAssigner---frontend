@@ -71,7 +71,6 @@ const CreateTask = () => {
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Project Details</h3>
               <div>
-                <Label htmlFor="project_title">Project Title</Label>
                 <Input
                   id="project_title"
                   name="project_title"
@@ -80,10 +79,11 @@ const CreateTask = () => {
                     handleSelectChange("project_title", e.target.value)
                   }
                   required
+                  placeholder="Enter project title"
+                  className=""
                 />
               </div>
               <div>
-                <Label htmlFor="project_description">Project Description</Label>
                 <Textarea
                   id="project_description"
                   name="project_description"
@@ -92,6 +92,7 @@ const CreateTask = () => {
                     handleSelectChange("project_description", e.target.value)
                   }
                   required
+                  placeholder="Enter project description"
                 />
               </div>
             </div>
@@ -99,7 +100,6 @@ const CreateTask = () => {
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Assignment</h3>
               <div>
-                <Label htmlFor="project_ownership">Project Ownership</Label>
                 <Input
                   id="project_ownership"
                   name="project_ownership"
@@ -108,7 +108,9 @@ const CreateTask = () => {
                     handleSelectChange("project_ownership", e.target.value)
                   }
                   required
+                  placeholder="Enter project ownership"
                 />
+                <div></div>
               </div>
             </div>
 

@@ -1,29 +1,19 @@
 import { fetchAllTickets } from "@/API/admin/ticket/ticket_api";
 import { motion } from "framer-motion";
 import { ChevronDownIcon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Table from "@/components/ui/table";
-import useAutoRefresh from "@/hooks/useAutoRefresh ";
 import { CirclesWithBar } from "react-loader-spinner";
+import { useQuery } from "@tanstack/react-query";
+
 const Tickets = () => {
   const [priority, setPriority] = useState("all");
-  const [ticketDetails, setTicketDetails] = useState([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const { data: ticketDetailsFromAutoRefresh, loading } =
-    useAutoRefresh(fetchAllTickets);
 
-  useEffect(() => {
-    const getTicket = async () => {
-      try {
-        const ticket = await fetchAllTickets();
-        console.log(ticket.data);
-        setTicketDetails(ticket.data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    getTicket();
-  }, []);
+  const { data: ticketDetails, isLoading } = useQuery({
+    queryKey: ["tickets"],
+    queryFn: fetchAllTickets,
+  });
 
   const optionVariants = {
     hidden: {
@@ -169,7 +159,7 @@ const Tickets = () => {
             )}
           </div>
         </div>
-        {loading ? (
+        {isLoading ? (
           <div className="flex items-center justify-center w-full h-full ">
             <CirclesWithBar
               color="#4fa94d"
@@ -182,7 +172,7 @@ const Tickets = () => {
         ) : (
           <Table
             columns={columns}
-            data={ticketDetailsFromAutoRefresh || ticketDetails}
+            data={ticketDetails?.data || []}
             renderRow={renderRow}
           />
         )}

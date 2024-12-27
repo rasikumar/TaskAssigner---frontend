@@ -1,11 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { editTask, fetchAllTasks } from "@/API/admin/task/task_api";
 import CreateTask from "./CreateTask";
 import Action from "./Action";
 import Table from "@/components/ui/table"; // Import the reusable Table component
-import useAutoRefresh from "@/hooks/useAutoRefresh ";
 import { CirclesWithBar } from "react-loader-spinner";
 import { toast } from "react-toastify";
+import { TaskDetailsModal } from "@/components/ui/TaskDetailModal";
 
 const getpriority = (priority) => {
   switch (priority) {
@@ -38,38 +39,49 @@ const getstatus = (status) => {
 };
 
 const Tasks = () => {
-  const [taskDetails, setTaskDetails] = useState([]); // State for task details
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const handleTaskClick = (task) => {
+    setSelectedTask(task);
+    setIsModalOpen(true);
+  };
+  const queryClient = useQueryClient(); // React Query Client
   const [filters, setFilters] = useState({
     priority: "",
     status: "",
     sortBy: "created_at", // Default sorting by creation date
   });
 
-  const { data: taskDetailsFromAutoRefresh, loading } =
-    useAutoRefresh(fetchAllTasks);
+  // Fetch Tasks using React Query
+  const { data: taskDetails, isLoading } = useQuery({
+    queryKey: ["tasks"],
+    queryFn: fetchAllTasks,
+    staleTime: 30000, // Cache tasks for 30 seconds
+  });
 
-  useEffect(() => {
-    if (taskDetailsFromAutoRefresh) {
-      setTaskDetails(taskDetailsFromAutoRefresh);
-    }
-  }, [taskDetailsFromAutoRefresh]);
+  // Edit Task Mutation
+  const editTaskMutation = useMutation({
+    mutationFn: ({ taskId, updatedTask }) => editTask(taskId, updatedTask),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["tasks"]); // Refetch tasks after edit
+      toast.success("Task updated successfully!");
+    },
+    onError: () => {
+      toast.error("Failed to update task!");
+    },
+  });
 
   const handleEditTask = async (taskId, updatedTask) => {
     if (!taskId) return console.error("Task ID is missing!");
-    try {
-      const updatedData = await editTask(taskId, updatedTask);
-      toast.success()
-      return updatedData;
-    } catch (error) {
-      console.error("Error updating task:", error);
-    }
+    editTaskMutation.mutate({ taskId, updatedTask });
   };
 
   const handleDeleteTask = (taskId) => {
-    setTaskDetails((prevTasks) =>
-      prevTasks.filter((task) => task.id !== taskId)
+    queryClient.setQueryData(["tasks"], (oldTasks) =>
+      oldTasks.filter((task) => task.id !== taskId)
     );
+    queryClient.invalidateQueries(["tasks"]); // Refetch tasks after deletion
   };
 
   const handleFilterChange = (e) => {
@@ -80,19 +92,21 @@ const Tasks = () => {
     }));
   };
 
-  const filteredTasks = taskDetails
-    .filter((task) => {
-      if (filters.priority && task.priority !== filters.priority) return false;
-      if (filters.status && task.status !== filters.status) return false;
-      return true;
-    })
-    .sort((a, b) => {
-      // Sorting by creation date (last created task on top)
-      if (filters.sortBy === "created_at") {
-        return new Date(b.start_date) - new Date(a.start_date);
-      }
-      return 0;
-    });
+  const filteredTasks = Array.isArray(taskDetails)
+    ? taskDetails
+        .filter((task) => {
+          if (filters.priority && task.priority !== filters.priority)
+            return false;
+          if (filters.status && task.status !== filters.status) return false;
+          return true;
+        })
+        .sort((a, b) => {
+          if (filters.sortBy === "created_at") {
+            return new Date(b.start_date) - new Date(a.start_date);
+          }
+          return 0;
+        })
+    : [];
 
   const columns = [
     { key: "project_title", title: "Project Title" },
@@ -105,7 +119,12 @@ const Tasks = () => {
 
   const renderRow = (task) => (
     <>
-      <td className="px-2 py-3 text-sm flex flex-col gap-2">
+      <td
+        onClick={() => {
+          handleTaskClick(task);
+        }}
+        className="px-2 py-3 text-sm flex flex-col gap-2"
+      >
         <div className="font-bold text-primary">{task.project_title}</div>
         <div className="text-slate-700">{task.project_ownership}</div>
         <div className="text-xs text-gray-500">{task.project_description}</div>
@@ -116,7 +135,7 @@ const Tasks = () => {
       <td className={`px-2 py-2 text-center text-xs font-semibold`}>
         <span className={getstatus(task.status)}>{task.status}</span>
       </td>
-      <td className="px-2 py-3 text-sm text-gray-700">{task.report_to}</td>
+      <td className="px-2 py-3 text-sm text-gray-700">{task.report_to.name}</td>
       <td className="px-2 py-3 text-sm text-gray-700">{task.start_date}</td>
       <td className="px-2 py-3 text-sm text-blue-500 cursor-pointer">
         <Action
@@ -125,7 +144,6 @@ const Tasks = () => {
           onDelete={handleDeleteTask}
         />
       </td>
-      <td></td>
     </>
   );
 
@@ -162,9 +180,7 @@ const Tasks = () => {
         </div>
       </div>
 
-      {/* Filters Section */}
-
-      {loading ? (
+      {isLoading ? (
         <div className="flex items-center justify-center w-full h-full">
           <CirclesWithBar
             color="#4fa94d"
@@ -176,6 +192,12 @@ const Tasks = () => {
         </div>
       ) : (
         <Table columns={columns} data={filteredTasks} renderRow={renderRow} />
+      )}
+      {isModalOpen && (
+        <TaskDetailsModal
+          task={selectedTask}
+          onClose={() => setIsModalOpen(false)}
+        />
       )}
     </div>
   );

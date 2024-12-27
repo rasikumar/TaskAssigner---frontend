@@ -3,7 +3,13 @@ import SidebarHeader from "./SideBar/SidebarHeader";
 import SidebarLink from "./SideBar/SidebarLink";
 import Dropdown from "./SideBar/Dropdown";
 import Verify from "./ui/verify";
-import { FaDashcube, FaTasks, FaTicketAlt, FaCheck } from "react-icons/fa";
+import {
+  FaDashcube,
+  FaTasks,
+  FaTicketAlt,
+  FaCheck,
+  FaProjectDiagram,
+} from "react-icons/fa";
 import { GrUserManager } from "react-icons/gr";
 import { teams } from "@/data/teams";
 import Instance from "@/API/Instance";
@@ -70,9 +76,15 @@ const AdminSidebar = () => {
             }))}
           />
           <SidebarLink
+            to="/admin/dashboard/tasks"
+            Icon={FaProjectDiagram}
+            label="Project Management"
+            isCollapsed={isCollapsed}
+          />
+          <SidebarLink
             to="/admin/dashboard/projects"
             Icon={FaTasks}
-            label="Project Management"
+            label="Task Management"
             isCollapsed={isCollapsed}
           />
           <SidebarLink

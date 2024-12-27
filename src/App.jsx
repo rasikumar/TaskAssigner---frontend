@@ -30,6 +30,7 @@ import UserTicket from "./Pages/user/Tickets/Tickets";
 import UsersVerify from "./Pages/user/user-verify/Userverify";
 import MemberDetailPage from "./Pages/admin/people/[peopleName]";
 import ScrollToTop from "./hooks/scrollToTop";
+import Projects from "./Pages/admin/projects/Projects";
 
 const App = () => {
   return (
@@ -92,10 +93,18 @@ const App = () => {
           />
 
           <Route
-            path="projects" // Relative path
+            path="tasks" // Relative path
             element={
               <ProtectedRoute allowedRoles={["admin"]}>
                 <Tasks />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="projects" // Relative path
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <Projects />
               </ProtectedRoute>
             }
           />
@@ -179,7 +188,7 @@ const App = () => {
             }
           /> */}
           <Route
-            path="projects"
+            path="tasks"
             element={
               <ProtectedRoute
                 allowedRoles={["employee", "hr", "manager", "team lead"]}

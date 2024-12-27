@@ -3,13 +3,27 @@ import Instance from "../../Instance";
 export const fetchAllTasks = async () => {
   try {
     const response = await Instance.post("/admin/getAllTask");
-    return response.data;
+    return response.data.data;
   } catch (error) {
     console.error("Error fetching Tasks:", error);
     throw error;
   }
 };
 
+export const fetchPaginationTasks = async ({ queryKey }) => {
+  const [, { page, pageSize }] = queryKey;
+
+  try {
+    const response = await Instance.post("/admin/getAllTask", {
+      page,
+      pageSize,
+    });
+    return response.data.data;
+  } catch (error) {
+    console.error("Error fetching Tasks:", error);
+    throw error;
+  }
+};
 // export const createTask = async (data) => {
 //   try {
 //     const response = await Instance.post("/admin/createTask", data);

@@ -10,7 +10,7 @@ const DeleteTask = ({ taskId, onDelete }) => {
         const result = await deleteTask(taskId); // Use the deleteTask API function
         toast.success(result.message || "Task deleted successfully!");
         console.log(result);
-        onDelete(taskId); // Notify parent component of the deleted task
+        onDelete(taskId);
       } catch (error) {
         toast.error("Failed to delete task.");
         console.error("Error deleting task:", error);
@@ -23,7 +23,7 @@ const DeleteTask = ({ taskId, onDelete }) => {
       className="flex items-center gap-2 text-red-600 hover:text-red-800"
       onClick={handleDelete}
     >
-      <FaRegTrashAlt /> 
+      <FaRegTrashAlt />
     </button>
   );
 };

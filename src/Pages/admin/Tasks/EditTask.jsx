@@ -43,7 +43,7 @@ const EditTask = ({ taskData = {}, isOpen, onClose, onEdit }) => {
         project_description: taskData.project_description || "",
         project_ownership: taskData.project_ownership || "",
         assigned_to: taskData.assigned_to || "",
-        report_to: taskData.report_to || "",
+        report_to: taskData.report_to.name || "",
         status: taskData.status || "Not started",
         priority: taskData.priority || "Low",
         start_date: taskData.start_date || "",
@@ -163,13 +163,13 @@ const EditTask = ({ taskData = {}, isOpen, onClose, onEdit }) => {
                 />
               </div>
               <div>
-                <Label htmlFor="report_to">Report To</Label>
+                <Label htmlFor="report_to.name">Report To</Label>
                 <Input
-                  id="report_to"
-                  name="report_to"
-                  value={formData.report_to}
+                  id="report_to.name"
+                  name="report_to.name"
+                  value={formData.report_to.name}
                   onChange={(e) =>
-                    handleSelectChange("report_to", e.target.value)
+                    handleSelectChange("report_to.name", e.target.value)
                   }
                   required
                   className="border-gray-300 focus:ring-2 focus:ring-blue-500"

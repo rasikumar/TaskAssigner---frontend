@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -83,7 +83,7 @@
     padding: 0;
     box-sizing: border-box;
     margin: 0;
-    font-family: "Open Sans", sans-serif;
+    font-family: "Noto Sans", serif;
     outline: none;
   }
 
@@ -99,4 +99,9 @@
 body {
   -ms-overflow-style: none; /* Hides scrollbar in Internet Explorer 10+ */
   scrollbar-width: none;    /* Hides scrollbar in Firefox */
+}
+input[type="date"]::-webkit-inner-spin-button,
+input[type="date"]::-webkit-calendar-picker-indicator {
+  display: none;
+  -webkit-appearance: none;
 }

@@ -1,10 +1,13 @@
+import CreateUser from "./CreateUser";
+import UserDetails from "./UserDetails";
 
 const Userverify = () => {
   return (
     <div>
-      Userverify
+      <CreateUser />
+      <UserDetails />
     </div>
-  )
-}
+  );
+};
 
-export default Userverify
+export default Userverify;
