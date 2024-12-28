@@ -13,6 +13,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination"; // Import ShadCN pagination components
+import CreateProject from "./CreateProject";
 
 const Projects = () => {
   const [currentPage, setCurrentPage] = useState(1); // Track current page
@@ -24,7 +25,7 @@ const Projects = () => {
     staleTime: 30000, // Cache projects for 30 seconds
     onError: () => toast.error("Error fetching projects"),
   });
-
+  console.log(data);
   if (isError) {
     return <div>Error: {error.message}</div>;
   }
@@ -32,6 +33,7 @@ const Projects = () => {
   const columns = [
     { key: "project_title", title: "Project Title" },
     { key: "project_ownership", title: "Project Ownership" },
+    { key: "estimated_hours", title: "Total Hours", className: "text-center" },
     { key: "start_date", title: "Start Date" },
     { key: "end_date", title: "End Date" },
     { key: "status", title: "Status" },
@@ -39,11 +41,16 @@ const Projects = () => {
 
   const renderRow = (project) => (
     <>
-      <td className="px-2 py-3 text-sm">{project.project_title}</td>
-      <td className="px-2 py-3 text-sm">{project.project_ownership}</td>
-      <td className="px-2 py-3 text-sm">{project.start_date}</td>
-      <td className="px-2 py-3 text-sm">{project.end_date}</td>
-      <td className="px-2 py-3 text-sm">{project.status}</td>
+      <td className="px-2 py-3 text-sm">{project.project_name}</td>
+      <td className="px-2 py-3 text-sm text-center">
+        {project.project_ownership.name || "No name available"}
+      </td>
+      <td className="px-2 py-3 text-sm text-center">
+        {project.estimated_hours}
+      </td>
+      <td className="px-2 py-3 text-sm">{project.startDate}</td>
+      <td className="px-2 py-3 text-sm">{project.endDate}</td>
+      <td className="px-2 py-3 text-sm">{project.project_status}</td>
     </>
   );
 
@@ -149,11 +156,8 @@ const Projects = () => {
         </div>
       ) : (
         <>
-          <Table
-            columns={columns}
-            data={data?.projects || []}
-            renderRow={renderRow}
-          />
+          <CreateProject />
+          <Table columns={columns} data={data || []} renderRow={renderRow} />
           <div className="flex justify-center mt-4">
             <Pagination>
               <PaginationContent>

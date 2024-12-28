@@ -56,7 +56,9 @@ export const TaskDetailsModal = ({ task, onClose }) => {
           </p>
           <p className="text-gray-700">
             Report To:{" "}
-            <span className="font-medium">{task.report_to.name}</span>
+            <span className="font-medium">
+              {task.report_to?.name || "No name available"}
+            </span>
           </p>
           <p className="text-gray-700">
             Description:{" "}

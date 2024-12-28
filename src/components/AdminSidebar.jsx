@@ -19,7 +19,7 @@ import AdminSidebarFooter from "./SideBar/AdminSidebarFooter";
 const AdminSidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [name, setName] = useState(false);
-  console.log(name);
+  // console.log(name);
   const [isOpen, setIsOpen] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
@@ -39,7 +39,7 @@ const AdminSidebar = () => {
       try {
         const response = await Instance.get("/admin/dashboard/");
         setName(response.data.data);
-        console.log(response.data.data);
+        // console.log(response.data.data);
       } catch (error) {
         console.error(error);
       }

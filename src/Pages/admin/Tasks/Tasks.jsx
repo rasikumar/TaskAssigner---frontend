@@ -59,7 +59,7 @@ const Tasks = () => {
     queryFn: fetchAllTasks,
     staleTime: 30000, // Cache tasks for 30 seconds
   });
-
+  console.log(taskDetails);
   // Edit Task Mutation
   const editTaskMutation = useMutation({
     mutationFn: ({ taskId, updatedTask }) => editTask(taskId, updatedTask),
@@ -135,7 +135,7 @@ const Tasks = () => {
       <td className={`px-2 py-2 text-center text-xs font-semibold`}>
         <span className={getstatus(task.status)}>{task.status}</span>
       </td>
-      <td className="px-2 py-3 text-sm text-gray-700">{task.report_to.name}</td>
+      <td>{task.report_to?.name || "No name available"}</td>
       <td className="px-2 py-3 text-sm text-gray-700">{task.start_date}</td>
       <td className="px-2 py-3 text-sm text-blue-500 cursor-pointer">
         <Action

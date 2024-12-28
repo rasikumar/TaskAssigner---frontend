@@ -84,6 +84,7 @@ const CreateUser = () => {
         starting_date: "",
         lastWorking_date: "",
       });
+      setIsOpen(false);
       toast.success("User created successfully!");
     },
     onError: (error) => {
@@ -159,6 +160,7 @@ const CreateUser = () => {
               placeholder="Confirm Password"
               required
             />
+
             <Select
               onValueChange={(value) =>
                 setFormData({ ...formData, role: value })
@@ -180,14 +182,6 @@ const CreateUser = () => {
                 </SelectGroup>
               </SelectContent>
             </Select>
-            <Input
-              type="text"
-              name="admin_verify"
-              value={formData.admin_verify}
-              onChange={handleChange}
-              placeholder="Admin Verify"
-              required
-            />
 
             <Select
               onValueChange={(value) =>
@@ -211,6 +205,23 @@ const CreateUser = () => {
                 </SelectGroup>
               </SelectContent>
             </Select>
+
+            <Input
+              type="text"
+              name="employee_id"
+              value={formData.employee_id}
+              readOnly // Make the field read-only
+            />
+
+            <Input
+              type="text"
+              name="admin_verify"
+              value={formData.admin_verify}
+              onChange={handleChange}
+              placeholder="Admin Verify"
+              required
+            />
+
             <div
               className="flex items-center justify-between gap-6"
               onClick={() => startDateRef.current.showPicker()}

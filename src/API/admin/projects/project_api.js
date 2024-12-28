@@ -1,6 +1,6 @@
 import Instance from "@/API/Instance";
 
-const API_URL = "/admin/getAllTask";
+const API_URL = "/admin";
 
 // Create a new project
 export const createProject = async (projectData) => {
@@ -14,22 +14,29 @@ export const createProject = async (projectData) => {
 };
 
 // Fetch all projects with optional pagination
+// data: {
+//   total: 85,
+//   projects: Array.from({ length: limit }, (_, index) => ({
+//     project_title: `Project ${index + 1 + (page - 1) * limit}`,
+//     project_ownership: `Owner ${index + 1 + (page - 1) * limit}`,
+//     start_date: `2023-01-${String(index + 1).padStart(2, "0")}`,
+//     end_date: `2023-02-${String(index + 1).padStart(2, "0")}`,
+//     status: index % 2 === 0 ? "Completed" : "In progress",
+//   })),
+// },
+
 export const fetchAllProjects = async (page, limit) => {
   try {
-    const response = {
-      data: {
-        total: 85,
-        projects: Array.from({ length: limit }, (_, index) => ({
-          project_title: `Project ${index + 1 + (page - 1) * limit}`,
-          project_ownership: `Owner ${index + 1 + (page - 1) * limit}`,
-          start_date: `2023-01-${String(index + 1).padStart(2, "0")}`,
-          end_date: `2023-02-${String(index + 1).padStart(2, "0")}`,
-          status: index % 2 === 0 ? "Completed" : "In progress",
-        })),
-      },
-    };
-    console.log("response", response);
-    return response.data;
+    const response = await Instance.post(`${API_URL}/getAllProjects`, {
+      page: page,
+      limit: limit,
+    });
+    
+    if (response.data && response.data.data) {
+      return response.data.data;
+    } else {
+      throw new Error("Invalid response structure");
+    }
   } catch (error) {
     console.error("Error fetching projects:", error);
     throw error;

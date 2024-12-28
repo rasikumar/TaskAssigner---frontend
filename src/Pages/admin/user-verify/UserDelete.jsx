@@ -8,9 +8,12 @@ const UserDelete = ({ userId, onDelete }) => {
     if (confirm("Are you sure you want to delete this User?")) {
       try {
         const result = await deleteUser(userId); // Use the deleteUser API function
-        toast.success(result.message || "User deleted successfully!");
         console.log(result);
-        onDelete(userId);
+        if (result.status === "true") {
+          onDelete(userId);
+        } else {
+          toast.error(result.message || "Failed to delete User.");
+        }
       } catch (error) {
         toast.error("Failed to delete User.");
         console.error("Error deleting User:", error);

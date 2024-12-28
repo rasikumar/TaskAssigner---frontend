@@ -2,6 +2,7 @@ import { getAllUser } from "@/API/admin/userverify/userVerify";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { UserCard } from "@/components/ui/cards/userCard";
 import UserDelete from "./UserDelete"; // Import UserDelete component
+import { toast } from "react-toastify";
 
 const UserDetails = () => {
   const queryClient = useQueryClient();
@@ -15,6 +16,8 @@ const UserDetails = () => {
     queryClient.setQueryData(["userDetails"], (oldUsers) =>
       oldUsers.filter((user) => user.id !== userId)
     );
+    toast.success("User deleted successfully!");
+
     queryClient.invalidateQueries(["userDetails"]); // Refetch users after deletion
   };
 
