@@ -3,7 +3,7 @@ import UserDetails from "./UserDetails";
 
 const Userverify = () => {
   return (
-    <div>
+    <div className="flex flex-col gap-y-2">
       <CreateUser />
       <UserDetails />
     </div>

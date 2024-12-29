@@ -115,17 +115,9 @@ const AdminSidebar = () => {
         onClose={() => setShowLogoutModal(false)}
         onConfirm={handleLogout}
       />
+
       <div
-        className={`fixed bg-bg rounded-xl  p-4  z-40 transition-all  m-auto ${
-          isCollapsed
-            ? "mt-4 right-4 2xl:w-[113rem] w-[73rem] top-0"
-            : "2xl:w-[102rem] w-[66rem] mt-4 right-4 top-0"
-        }`}
-      >
-        Welcome Back {name?.mail || "loading"}
-      </div>
-      <div
-        className={`grid rounded-xl p-8 shadow-bottom mt-8 bg-bg transition-all overflow-x-hidden w-full relative ${
+        className={`grid rounded-xl p-8 shadow-bottom bg-bg transition-all overflow-x-hidden w-full relative ${
           isCollapsed ? "ml-20" : "2xl:ml-64 ml-48"
         }`}
       >

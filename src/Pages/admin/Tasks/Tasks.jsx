@@ -148,7 +148,7 @@ const Tasks = () => {
   );
 
   return (
-    <div className="relative h-full">
+    <div className="relative">
       <div className="flex justify-start gap-2 relative">
         <CreateTask />
         <div className="flex gap-4 mb-4">

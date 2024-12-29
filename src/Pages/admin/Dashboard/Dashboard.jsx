@@ -1,3 +1,4 @@
+import { adminDashboard } from "@/API/admin/adminDashborad";
 import { fetchAllTasks } from "@/API/admin/task/task_api";
 import MainCards from "@/components/ui/cards/MainCards";
 import { useQuery } from "@tanstack/react-query";
@@ -12,6 +13,25 @@ const Dashboard = () => {
     },
   });
 
+  const {
+    data: adminData,
+    isError: isAdminError,
+    isLoading: isAdminLoading,
+    error: adminError,
+  } = useQuery({
+    queryKey: ["name"],
+    queryFn: () => {
+      return adminDashboard();
+    },
+  });
+
+  if (isAdminLoading) {
+    return <div>Loading...</div>;
+  }
+  if (isAdminError) {
+    return <div>Error: {adminError.message}</div>;
+  }
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -20,15 +40,29 @@ const Dashboard = () => {
   }
 
   const tasks = data || {};
+  console.log(data);
 
-  // console.log("Tasks:", tasks);  
+  // console.log("Tasks:", tasks);
 
   const CompletedTask = tasks.filter((task) => task.status === "Completed");
   const InprogressTask = tasks.filter((task) => task.status === "In progress");
   const NotStartedTask = tasks.filter((task) => task.status === "Not started");
 
   return (
-    <div className="flex flex-col gap-4">
+    <section className="flex flex-col gap-4">
+      <header className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl shadow-lg p-6 text-center">
+        <h1 className="text-3xl font-extrabold mb-2 tracking-wide">
+          Welcome,{" "}
+          <span className="text-yellow-300">
+            {adminData?.data.mail || "Admin"}!
+          </span>
+        </h1>
+        <p className="text-lg font-medium">
+          We&apos;re glad to see you back. 🚀 Here&apos;s a quick overview of
+          your tasks:
+        </p>
+      </header>
+
       <section className="flex 2xl:flex-nowrap md:flex-wrap w-full gap-6">
         {/* First Column */}
         <div className="flex flex-col w-full">
@@ -38,7 +72,7 @@ const Dashboard = () => {
             <MainCards
               title="Yet to Start"
               btn="View All"
-              totaltasks={12}
+              totaltasks={NotStartedTask.length} // Fix task count
               Icon={FaTasks}
               subtitle="Task"
               bgColor="#B23A48"
@@ -46,7 +80,7 @@ const Dashboard = () => {
             <MainCards
               title="In-progress"
               btn="View All"
-              totaltasks={12}
+              totaltasks={InprogressTask.length} // Fix task count
               Icon={FaTasks}
               subtitle="Task"
               bgColor="#DCA74B"
@@ -54,7 +88,7 @@ const Dashboard = () => {
             <MainCards
               title="Completed"
               btn="View All"
-              totaltasks={12}
+              totaltasks={CompletedTask.length} // Fix task count
               Icon={FaTasks}
               subtitle="Task"
               bgColor="#566E3D"
@@ -105,7 +139,7 @@ const Dashboard = () => {
         </div>
       </section>
       <section className="bg-[#1A659E] h-96 rounded-xl"></section>
-    </div>
+    </section>
   );
 };
 

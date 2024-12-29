@@ -1,24 +1,29 @@
-import { getAllUser } from "@/API/admin/userverify/userVerify";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { deleteUser, getAllUser } from "@/API/admin/userverify/userVerify";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { UserCard } from "@/components/ui/cards/userCard";
-import UserDelete from "./UserDelete"; // Import UserDelete component
-import { toast } from "react-toastify";
+import DeleteUser from "./DeleteUser";
 
 const UserDetails = () => {
   const queryClient = useQueryClient();
+
   const { data, error, isError, isLoading } = useQuery({
     queryKey: ["userDetails"],
     queryFn: getAllUser,
     staleTime: 30000,
   });
 
-  const handleDeleteUser = (userId) => {
-    queryClient.setQueryData(["userDetails"], (oldUsers) =>
-      oldUsers.filter((user) => user.id !== userId)
-    );
-    toast.success("User deleted successfully!");
+  const deleteMutation = useMutation({
+    mutationFn: deleteUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries(["userDetails"]);
+    },
+    onError: (err) => {
+      console.log("Error deleting user", err);
+    },
+  });
 
-    queryClient.invalidateQueries(["userDetails"]); // Refetch users after deletion
+  const handleDelete = (userId) => {
+    deleteMutation.mutate(userId);
   };
 
   if (isLoading) return <div>Loading...</div>;
@@ -37,8 +42,13 @@ const UserDetails = () => {
             viewbtn={true}
             startDate={user.starting_date}
             endDate={user.lastWorking_date}
+            actionButton={
+              <DeleteUser
+                onConfirm={() => handleDelete(user._id)}
+                isLoading={deleteMutation.isPending}
+              />
+            }
           />
-          <UserDelete userId={user._id} onDelete={handleDeleteUser} />{" "}
         </div>
       ))}
     </div>

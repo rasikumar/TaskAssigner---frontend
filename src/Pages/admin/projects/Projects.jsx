@@ -143,7 +143,7 @@ const Projects = () => {
   };
 
   return (
-    <div className="relative h-full">
+    <div className="relative mt-0">
       {isLoading ? (
         <div className="flex items-center justify-center w-full h-full">
           <CirclesWithBar

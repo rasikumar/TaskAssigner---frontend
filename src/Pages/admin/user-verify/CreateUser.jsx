@@ -107,11 +107,15 @@ const CreateUser = () => {
   const endDateRef = useRef(null);
   return (
     <>
-      <Button onClick={() => setIsOpen(true)}>Create New Project</Button>
+      <Button onClick={() => setIsOpen(true)} className="w-fit">
+        Create User
+      </Button>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold">Create User</DialogTitle>
+            <DialogTitle className="text-xl font-bold ">
+              Create User
+            </DialogTitle>
             <DialogDescription className="text-sm text-gray-500">
               Fill in the details below to create a new User.
             </DialogDescription>
