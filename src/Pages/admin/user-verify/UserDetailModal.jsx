@@ -1,0 +1,256 @@
+import { FaPen, FaRegWindowClose, FaSave } from "react-icons/fa";
+import { useEffect, useRef, useState } from "react";
+import { Input } from "../../../components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "../../../components/ui/select";
+
+/* eslint-disable react/prop-types */
+export const UserDetailModal = ({ user, onClose, onEdit }) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState(user); // Editable fields
+  const [errorMessage, setErrorMessage] = useState(""); // To display error messages
+
+  const startDateRef = useRef(null);
+  const endDateRef = useRef(null);
+
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
+
+  if (!user) return null;
+
+  // Handle outside click
+  const handleOutsideClick = (e) => {
+    if (e.target.id === "modal-overlay") {
+      onClose();
+    }
+  };
+
+  // Handle Input change
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  // Handle save
+  const handleSave = (e) => {
+    e.preventDefault();
+
+    // Check if form data is different from the original user data
+    if (JSON.stringify(formData) === JSON.stringify(user)) {
+      setErrorMessage("No changes were made.");
+    } else {
+      setErrorMessage(""); // Clear error message
+      onEdit(formData); // Submit changes if there are any
+    }
+  };
+
+  return (
+    <div
+      id="modal-overlay"
+      className={`fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 transition-opacity duration-300 ${
+        isVisible ? "opacity-100" : "opacity-0"
+      }`}
+      onClick={handleOutsideClick}
+    >
+      <div
+        className={`bg-white rounded-lg shadow-lg w-[30rem] p-6 transition-transform duration-300 ease-in-out ${
+          isVisible ? "scale-100" : "scale-95"
+        }`}
+      >
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-3xl font-semibold text-gray-800">
+            {isEditing ? (
+              <Input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                className="p-2 border-b-2 focus:border-primary outline-none"
+              />
+            ) : (
+              user.name
+            )}
+          </h2>
+          <div className="flex gap-x-2">
+            {isEditing ? (
+              <button
+                onClick={handleSave}
+                className="p-2 text-green-500 hover:text-green-700 transition-colors"
+              >
+                <FaSave size={20} />
+              </button>
+            ) : (
+              <button
+                onClick={() => setIsEditing(true)}
+                className="p-2 text-blue-500 hover:text-blue-700 transition-colors"
+              >
+                <FaPen size={20} />
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
+            >
+              <FaRegWindowClose size={20} />
+            </button>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <p className="text-sm text-gray-600">Department</p>
+            {isEditing ? (
+              <Select
+                onValueChange={(value) =>
+                  setFormData({ ...formData, department: value })
+                }
+                value={formData.department}
+                required
+              >
+                <SelectTrigger className="p-2 border rounded-md w-full focus:ring-2 focus:ring-primary">
+                  <SelectValue placeholder="Select a department" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Departments</SelectLabel>
+                    <SelectItem value="design">Design</SelectItem>
+                    <SelectItem value="development">Development</SelectItem>
+                    <SelectItem value="marketing">Marketing</SelectItem>
+                    <SelectItem value="testing">Testing</SelectItem>
+                    <SelectItem value="humanresource">
+                      Human Resource
+                    </SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            ) : (
+              <span className="text-gray-800">{user.department}</span>
+            )}
+          </div>
+
+          <div>
+            <p className="text-sm text-gray-600">Role</p>
+            {isEditing ? (
+              <Select
+                onValueChange={(value) =>
+                  setFormData({ ...formData, role: value })
+                }
+                value={formData.role}
+                required
+              >
+                <SelectTrigger className="p-2 border rounded-md w-full focus:ring-2 focus:ring-primary">
+                  <SelectValue placeholder="Select a role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Roles</SelectLabel>
+                    <SelectItem value="employee">Employee</SelectItem>
+                    <SelectItem value="hr">HR</SelectItem>
+                    <SelectItem value="team leader">Team Leader</SelectItem>
+                    <SelectItem value="manager">Manager</SelectItem>
+                    <SelectItem value="tester">Tester</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            ) : (
+              <span className="text-gray-800">{user.role}</span>
+            )}
+          </div>
+
+          <div>
+            <p className="text-sm text-gray-600">Employee ID</p>
+            {isEditing ? (
+              <Input
+                type="text"
+                name="employee_id"
+                value={formData.employee_id}
+                onChange={handleChange}
+                className="p-2 border rounded-md w-full focus:ring-2 focus:ring-primary"
+              />
+            ) : (
+              <span className="text-gray-800">{user.employee_id}</span>
+            )}
+          </div>
+
+          <div>
+            <p className="text-sm text-gray-600">Email</p>
+            {isEditing ? (
+              <Input
+                type="email"
+                name="mail"
+                value={formData.mail}
+                onChange={handleChange}
+                className="p-2 border rounded-md w-full focus:ring-2 focus:ring-primary"
+              />
+            ) : (
+              <span className="text-gray-800">{user.mail}</span>
+            )}
+          </div>
+
+          <div>
+            <p className="text-sm text-gray-600">Dates</p>
+            {isEditing ? (
+              <>
+                <div
+                  className="flex items-center justify-between gap-6 mb-2"
+                  onClick={() => startDateRef.current.showPicker()}
+                >
+                  <Input
+                    ref={startDateRef}
+                    type="date"
+                    name="starting_date"
+                    value={formData.starting_date}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div
+                  className="flex items-center justify-between gap-6 mb-2"
+                  onClick={() => endDateRef.current.showPicker()}
+                >
+                  <Input
+                    ref={endDateRef}
+                    type="date"
+                    name="lastWorking_date"
+                    value={formData.lastWorking_date}
+                    onChange={handleChange}
+                  />
+                </div>
+              </>
+            ) : (
+              <span className="text-gray-800">
+                {user.starting_date} - {user.lastWorking_date}
+              </span>
+            )}
+          </div>
+
+          <div>
+            <p className="text-sm text-gray-600">Phone</p>
+            {isEditing ? (
+              <Input
+                type="text"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                className="p-2 border rounded-md w-full focus:ring-2 focus:ring-primary"
+              />
+            ) : (
+              <span className="text-gray-800">{user.phone}</span>
+            )}
+          </div>
+        </div>
+
+        {errorMessage && (
+          <div className="mt-4 text-red-500 text-sm">{errorMessage}</div>
+        )}
+      </div>
+    </div>
+  );
+};

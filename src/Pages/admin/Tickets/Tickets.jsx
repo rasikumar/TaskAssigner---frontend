@@ -2,7 +2,7 @@ import { fetchAllTickets } from "@/API/admin/ticket/ticket_api";
 import { motion } from "framer-motion";
 import { ChevronDownIcon } from "lucide-react";
 import { useState } from "react";
-import Table from "@/components/ui/table";
+import Table from "@/components/ui/customUi/Table";
 import { CirclesWithBar } from "react-loader-spinner";
 import { useQuery } from "@tanstack/react-query";
 

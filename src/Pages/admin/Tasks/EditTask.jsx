@@ -35,7 +35,6 @@ const EditTask = ({ taskData = {}, isOpen, onClose, onEdit }) => {
   });
 
   useEffect(() => {
-    // If taskData is present, only update the form data for the task
     if (taskData.id) {
       setFormData({
         id: taskData._id || "",
@@ -50,7 +49,7 @@ const EditTask = ({ taskData = {}, isOpen, onClose, onEdit }) => {
         end_date: taskData.end_date || "",
       });
     }
-  }, [taskData]); // Re-run when taskData changes
+  }, [taskData]);
 
   const handleSelectChange = (name, value) => {
     setFormData((prevData) => ({
@@ -61,7 +60,6 @@ const EditTask = ({ taskData = {}, isOpen, onClose, onEdit }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Call the onEdit function passed through props with the updated form data
     onEdit(formData);
   };
 

@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchAllProjects } from "@/API/admin/projects/project_api";
 import { CirclesWithBar } from "react-loader-spinner";
 import { toast } from "react-toastify";
-import Table from "@/components/ui/table"; // Import the reusable Table component
+import Table from "@/components/ui/customUi/Table"; // Import the reusable Table component
 import {
   Pagination,
   PaginationContent,
@@ -17,6 +17,8 @@ import CreateProject from "./CreateProject";
 
 const Projects = () => {
   const [currentPage, setCurrentPage] = useState(1); // Track current page
+  
+
   const [itemsPerPage] = useState(15);
   // Fetch Projects using React Query with pagination support
   const { data, isLoading, error, isError } = useQuery({

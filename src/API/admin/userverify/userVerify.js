@@ -12,12 +12,9 @@ export const createUser = async (userData) => {
   }
 };
 
-export const updateUser = async (userId, userData) => {
+export const updateUser = async (userData) => {
   try {
-    const response = await Instance.put(
-      `${API_URL}/update/${userId}`,
-      userData
-    );
+    const response = await Instance.put(`${API_URL}/update`, userData);
     return response.data;
   } catch (error) {
     throw error;
