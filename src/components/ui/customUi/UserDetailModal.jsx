@@ -1,6 +1,6 @@
-import { FaPen, FaRegWindowClose, FaSave } from "react-icons/fa";
+import { FaPen, FaRegWindowClose } from "react-icons/fa";
 import { useEffect, useRef, useState } from "react";
-import { Input } from "../../../components/ui/input";
+import { Input } from "../input";
 import {
   Select,
   SelectContent,
@@ -9,7 +9,8 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "../../../components/ui/select";
+} from "../select";
+import { Button } from "@/components/ui/button";
 
 /* eslint-disable react/prop-types */
 export const UserDetailModal = ({ user, onClose, onEdit }) => {
@@ -63,9 +64,34 @@ export const UserDetailModal = ({ user, onClose, onEdit }) => {
       <div
         className={`bg-white rounded-lg shadow-lg w-[30rem] p-6 transition-transform duration-300 ease-in-out ${
           isVisible ? "scale-100" : "scale-95"
-        }`}
+        } ${isEditing ? "h-[26rem] overflow-scroll" : ""}`}
       >
-        <div className="flex justify-between items-center mb-4">
+        <div
+          className={`${
+            user.admin_verify === "true"
+              ? "bg-gradient-to-r from-green-600 to-bg"
+              : "bg-gradient-to-r from-red-600 to-bg"
+          } -top-10 left-0 w-full h-14 fixed rounded-t-xl flex items-center justify-between px-6 `}
+        >
+          <h1 className="flex flex-col items-center  text-xl font-semibold">
+            User Profile
+          </h1>
+          <div className="flex gap-x-2">
+            <button
+              onClick={() => setIsEditing(true)}
+              className="p-2 text-blue-500 hover:text-blue-700 transition-colors"
+            >
+              <FaPen size={20} />
+            </button>
+            <button
+              onClick={onClose}
+              className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
+            >
+              <FaRegWindowClose size={20} />
+            </button>
+          </div>
+        </div>
+        <div className="flex justify-between items-center mb-4 border-taskBlack pb-2  border-b-2">
           <h2 className="text-3xl font-semibold text-gray-800">
             {isEditing ? (
               <Input
@@ -79,29 +105,31 @@ export const UserDetailModal = ({ user, onClose, onEdit }) => {
               user.name
             )}
           </h2>
-          <div className="flex gap-x-2">
+          <p>
             {isEditing ? (
-              <button
-                onClick={handleSave}
-                className="p-2 text-green-500 hover:text-green-700 transition-colors"
+              <Select
+                onValueChange={(value) =>
+                  setFormData({ ...formData, admin_verify: value })
+                }
+                value={formData.admin_verify}
+                required
+                className="outline-none focus:ring-0 focus:ring-offset-0"
               >
-                <FaSave size={20} />
-              </button>
+                <SelectTrigger className="outline-none focus:ring-0 focus:ring-offset-0 ">
+                  <SelectValue placeholder="Verify User" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Admin Verify</SelectLabel>
+                    <SelectItem value="true">True</SelectItem>
+                    <SelectItem value="false">False</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
             ) : (
-              <button
-                onClick={() => setIsEditing(true)}
-                className="p-2 text-blue-500 hover:text-blue-700 transition-colors"
-              >
-                <FaPen size={20} />
-              </button>
+              user.admin_verify
             )}
-            <button
-              onClick={onClose}
-              className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
-            >
-              <FaRegWindowClose size={20} />
-            </button>
-          </div>
+          </p>
         </div>
 
         <div className="space-y-4">
@@ -152,11 +180,12 @@ export const UserDetailModal = ({ user, onClose, onEdit }) => {
                 <SelectContent>
                   <SelectGroup>
                     <SelectLabel>Roles</SelectLabel>
-                    <SelectItem value="employee">Employee</SelectItem>
-                    <SelectItem value="hr">HR</SelectItem>
+                    <SelectItem value="employee">Member</SelectItem>
+                    {/* <SelectItem value="employee">Senior</SelectItem> */}
+                    {/* <SelectItem value="hr">HR</SelectItem> */}
                     <SelectItem value="team leader">Team Leader</SelectItem>
                     <SelectItem value="manager">Manager</SelectItem>
-                    <SelectItem value="tester">Tester</SelectItem>
+                    {/* <SelectItem value="tester">Tester</SelectItem> */}
                   </SelectGroup>
                 </SelectContent>
               </Select>
@@ -246,7 +275,16 @@ export const UserDetailModal = ({ user, onClose, onEdit }) => {
             )}
           </div>
         </div>
-
+        {isEditing ? (
+          <button
+            onClick={handleSave}
+            className="mt-2 text-green-500 hover:text-green-700 transition-colors"
+          >
+            <Button>Update Profile</Button>
+          </button>
+        ) : (
+          ""
+        )}
         {errorMessage && (
           <div className="mt-4 text-red-500 text-sm">{errorMessage}</div>
         )}

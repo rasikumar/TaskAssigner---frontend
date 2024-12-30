@@ -1,4 +1,5 @@
 import { adminDashboard } from "@/API/admin/adminDashborad";
+import { fetchAllProjects } from "@/API/admin/projects/project_api";
 import { fetchAllTasks } from "@/API/admin/task/task_api";
 import MainCards from "@/components/ui/cards/MainCards";
 import { useQuery } from "@tanstack/react-query";
@@ -11,6 +12,18 @@ const Dashboard = () => {
     queryFn: () => {
       return fetchAllTasks();
     },
+  });
+
+  const {
+    data: projectData,
+    isError: isProjectError,
+    error: projectError,
+    isLoading: isProjectLoading,
+  } = useQuery({
+    queryKey: ["projects"],
+    queryFn: () => fetchAllProjects(),
+    staleTime: 30000, // Cache projects for 30 seconds
+    onError: (err) => console.error("Project", err),
   });
 
   const {
@@ -28,21 +41,39 @@ const Dashboard = () => {
   if (isAdminLoading) {
     return <div>Loading...</div>;
   }
-  if (isAdminError) {
-    return <div>Error: {adminError.message}</div>;
-  }
 
   if (isLoading) {
     return <div>Loading...</div>;
   }
+
+  if (isProjectLoading) {
+    return <div>Loading...</div>;
+  }
+  if (isAdminError) {
+    return <div>Error: {adminError.message}</div>;
+  }
+
+  if (isProjectError) {
+    return <div>Error: {projectError.message}</div>;
+  }
+
   if (isError) {
     return <div>Error: {error.message}</div>;
   }
 
   const tasks = data || {};
-  console.log(data);
+  const projects = projectData.projects || {};
 
-  // console.log("Tasks:", tasks);
+  // console.log("Tasks:", projects);
+  const CompletedProject = projects.filter(
+    (project) => project.project_status === "Completed"
+  );
+  const InprogressProject = projects.filter(
+    (project) => project.project_status === "Pending"
+  );
+  const NotStartedProject = projects.filter(
+    (project) => project.project_status === "Not Started"
+  );
 
   const CompletedTask = tasks.filter((task) => task.status === "Completed");
   const InprogressTask = tasks.filter((task) => task.status === "In progress");
@@ -72,7 +103,7 @@ const Dashboard = () => {
             <MainCards
               title="Yet to Start"
               btn="View All"
-              totaltasks={NotStartedTask.length} // Fix task count
+              totaltasks={NotStartedProject.length} // Fix task count
               Icon={FaTasks}
               subtitle="Task"
               bgColor="#B23A48"
@@ -80,7 +111,7 @@ const Dashboard = () => {
             <MainCards
               title="In-progress"
               btn="View All"
-              totaltasks={InprogressTask.length} // Fix task count
+              totaltasks={InprogressProject.length} // Fix task count
               Icon={FaTasks}
               subtitle="Task"
               bgColor="#DCA74B"
@@ -88,7 +119,7 @@ const Dashboard = () => {
             <MainCards
               title="Completed"
               btn="View All"
-              totaltasks={CompletedTask.length} // Fix task count
+              totaltasks={CompletedProject.length} // Fix task count
               Icon={FaTasks}
               subtitle="Task"
               bgColor="#566E3D"

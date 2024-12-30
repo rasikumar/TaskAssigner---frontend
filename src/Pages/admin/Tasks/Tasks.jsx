@@ -60,7 +60,7 @@ const Tasks = () => {
     queryFn: fetchAllTasks,
     staleTime: 30000, // Cache tasks for 30 seconds
   });
-  console.log(taskDetails);
+  // console.log(taskDetails);
   // Edit Task Mutation
   const editTaskMutation = useMutation({
     mutationFn: ({ taskId, updatedTask }) => editTask(taskId, updatedTask),

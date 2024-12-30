@@ -1,12 +1,8 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  createUser,
-  getLastEmployeeId,
-} from "@/API/admin/userverify/userVerify";
+import { createUser } from "@/API/admin/userverify/userVerify";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,7 +24,6 @@ import {
 
 const CreateUser = () => {
   const [isOpen, setIsOpen] = useState(false);
-
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -36,7 +31,7 @@ const CreateUser = () => {
     password: "",
     confirmPassword: "",
     role: "",
-    admin_verify: "true",
+    admin_verify: "",
     employee_id: "",
     department: "",
     starting_date: "",
@@ -45,32 +40,12 @@ const CreateUser = () => {
 
   const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const fetchLastEmployeeId = async () => {
-      try {
-        const lastEmployeeId = await getLastEmployeeId();
-        const newEmployeeId = `EVS${String(
-          parseInt(lastEmployeeId.slice(3)) + 1
-        ).padStart(6, "0")}`;
-        setFormData((prevFormData) => ({
-          ...prevFormData,
-          employee_id: newEmployeeId,
-        }));
-      } catch (error) {
-        console.error("Error fetching last employee ID:", error);
-      }
-    };
-
-    fetchLastEmployeeId();
-  }, []);
+  // Fetch last employee ID and generate new ID on component mount
 
   const mutation = useMutation({
     mutationFn: createUser,
     onSuccess: () => {
       queryClient.invalidateQueries(["users"]);
-      const newEmployeeId = `EVS${String(
-        parseInt(formData.employee_id.slice(3)) + 1
-      ).padStart(6, "0")}`;
       setFormData({
         name: "",
         phone: "",
@@ -78,8 +53,8 @@ const CreateUser = () => {
         password: "",
         confirmPassword: "",
         role: "",
-        admin_verify: "true",
-        employee_id: newEmployeeId,
+        admin_verify: "",
+        employee_id: "",
         department: "",
         starting_date: "",
         lastWorking_date: "",
@@ -105,7 +80,10 @@ const CreateUser = () => {
 
   const startDateRef = useRef(null);
   const endDateRef = useRef(null);
-  
+
+  // Memoizing form data to avoid unnecessary re-renders
+  const memoizedFormData = useMemo(() => formData, [formData]);
+
   return (
     <>
       <Button onClick={() => setIsOpen(true)} className="w-fit">
@@ -128,7 +106,7 @@ const CreateUser = () => {
             <Input
               type="text"
               name="name"
-              value={formData.name}
+              value={memoizedFormData.name}
               onChange={handleChange}
               placeholder="Name"
               required
@@ -136,7 +114,7 @@ const CreateUser = () => {
             <Input
               type="text"
               name="phone"
-              value={formData.phone}
+              value={memoizedFormData.phone}
               onChange={handleChange}
               placeholder="Phone"
               required
@@ -144,7 +122,7 @@ const CreateUser = () => {
             <Input
               type="email"
               name="mail"
-              value={formData.mail}
+              value={memoizedFormData.mail}
               onChange={handleChange}
               placeholder="Email"
               required
@@ -152,7 +130,7 @@ const CreateUser = () => {
             <Input
               type="password"
               name="password"
-              value={formData.password}
+              value={memoizedFormData.password}
               onChange={handleChange}
               placeholder="Password"
               required
@@ -160,7 +138,7 @@ const CreateUser = () => {
             <Input
               type="password"
               name="confirmPassword"
-              value={formData.confirmPassword}
+              value={memoizedFormData.confirmPassword}
               onChange={handleChange}
               placeholder="Confirm Password"
               required
@@ -168,31 +146,9 @@ const CreateUser = () => {
 
             <Select
               onValueChange={(value) =>
-                setFormData({ ...formData, role: value })
-              } // Handle change correctly
-              value={formData.role}
-              required
-            >
-              <SelectTrigger className="outline-none focus:ring-0 focus:ring-offset-0 ">
-                <SelectValue placeholder="Select a role" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectLabel>Roles</SelectLabel>
-                  <SelectItem value="employee">Employee</SelectItem>
-                  <SelectItem value="hr">HR</SelectItem>
-                  <SelectItem value="team leader">Team Leader</SelectItem>
-                  <SelectItem value="manager">Manager</SelectItem>
-                  <SelectItem value="tester">Tester</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-
-            <Select
-              onValueChange={(value) =>
                 setFormData({ ...formData, department: value })
               }
-              value={formData.department}
+              value={memoizedFormData.department}
               required
               className="outline-none focus:ring-0 focus:ring-offset-0"
             >
@@ -210,22 +166,54 @@ const CreateUser = () => {
                 </SelectGroup>
               </SelectContent>
             </Select>
+            <Select
+              onValueChange={(value) =>
+                setFormData({ ...formData, role: value })
+              }
+              value={memoizedFormData.role}
+              required
+            >
+              <SelectTrigger className="outline-none focus:ring-0 focus:ring-offset-0 ">
+                <SelectValue placeholder="Select a role" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Roles</SelectLabel>
+                  <SelectItem value="employee">Member</SelectItem>
+                  <SelectItem value="employee">Senior</SelectItem>
+                  {/* <SelectItem value="hr">HR</SelectItem> */}
+                  <SelectItem value="team leader">Team Leader</SelectItem>
+                  <SelectItem value="manager">Manager</SelectItem>
+                  {/* <SelectItem value="tester">Tester</SelectItem> */}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
 
             <Input
               type="text"
               name="employee_id"
-              value={formData.employee_id}
-              readOnly // Make the field read-only
+              value={memoizedFormData.employee_id}
+              readOnly
             />
-
-            <Input
-              type="text"
-              name="admin_verify"
-              value={formData.admin_verify}
-              onChange={handleChange}
-              placeholder="Admin Verify"
+            <Select
+              onValueChange={(value) =>
+                setFormData({ ...formData, admin_verify: value })
+              }
+              value={memoizedFormData.admin_verify}
               required
-            />
+              className="outline-none focus:ring-0 focus:ring-offset-0"
+            >
+              <SelectTrigger className="outline-none focus:ring-0 focus:ring-offset-0 ">
+                <SelectValue placeholder="Verify User" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Admin Verify</SelectLabel>
+                  <SelectItem value="true">True</SelectItem>
+                  <SelectItem value="false">False</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
 
             <div
               className="flex items-center justify-between gap-6"
@@ -235,7 +223,7 @@ const CreateUser = () => {
                 ref={startDateRef}
                 type="date"
                 name="starting_date"
-                value={formData.starting_date}
+                value={memoizedFormData.starting_date}
                 onChange={handleChange}
                 placeholder="Starting Date"
                 required
@@ -249,7 +237,7 @@ const CreateUser = () => {
                 ref={endDateRef}
                 type="date"
                 name="lastWorking_date"
-                value={formData.lastWorking_date}
+                value={memoizedFormData.lastWorking_date}
                 onChange={handleChange}
                 placeholder="Last Working Date"
               />

@@ -1,55 +1,89 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
   DialogDescription,
+  DialogFooter,
 } from "../../../components/ui/dialog";
 import { Input } from "../../../components/ui/input";
 import { Textarea } from "../../../components/ui/textarea";
 import { Button } from "../../../components/ui/button";
 import { Label } from "../../../components/ui/label";
 import { toast, ToastContainer } from "react-toastify";
-import Instance from "@/API/Instance";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createProject } from "@/API/admin/projects/project_api";
+import { adminDashboard } from "@/API/admin/adminDashborad";
 
 const CreateProject = () => {
   const [formData, setFormData] = useState({
     project_name: "",
     project_description: "",
-    project_ownership: "",
+    project_ownership: "", // Initially empty, will be set when user data is fetched
     project_status: "Not Started",
     start_date: "",
     end_date: "",
     estimated_hours: "",
   });
 
+  const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
 
-  // Refs for date inputs
   const startDateRef = useRef(null);
   const endDateRef = useRef(null);
 
+  const mutations = useMutation({
+    mutationFn: createProject,
+    onSuccess: () => {
+      queryClient.invalidateQueries(["projects"]);
+      setFormData({
+        project_name: "",
+        project_description: "",
+        project_ownership: "",
+        project_status: "Not Started",
+        start_date: "",
+        end_date: "",
+        estimated_hours: "",
+      });
+      setIsOpen(false);
+      toast.success("Project Created Successfully");
+    },
+    onError: (err) => {
+      toast.error("Failed to create project. Please try again.");
+      console.error("Error creating project:", err);
+    },
+  });
+
+  const {
+    data: userData,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["userData"],
+    queryFn: adminDashboard,
+    enabled: isOpen, // Only fetch when the dialog is open
+  });
+
+  // console.log(userData.data.role);
+
+  useEffect(() => {
+    if (userData) {
+      setFormData((prevData) => ({
+        ...prevData,
+        project_ownership: userData.data.role || "",
+      }));
+    }
+  }, [userData]);
+
+  if (isError) {
+    return <div>Error: {error.message}</div>;
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const response = await Instance.post("/admin/createProject", {
-        ...formData,
-        startDate: formData.start_date,
-        endDate: formData.end_date,
-        estimated_hours: formData.estimated_hours,
-      });
-      if (response.data.status === true) {
-        toast.success(response.data.message);
-        setIsOpen(false);
-      } else if (response.data.status === "failure") {
-        toast.error(response.data.message);
-      }
-    } catch (error) {
-      console.error("Error creating task:", error);
-      toast.error("An error occurred. Please try again.");
-    }
+    mutations.mutate(formData);
   };
 
   const handleSelectChange = (name, value) => {
@@ -58,6 +92,8 @@ const CreateProject = () => {
       [name]: value,
     }));
   };
+
+  // Set project ownership once user data is available
 
   return (
     <>
@@ -85,7 +121,6 @@ const CreateProject = () => {
                   }
                   required
                   placeholder="Enter project title"
-                  className=""
                 />
               </div>
               <div>
@@ -114,8 +149,9 @@ const CreateProject = () => {
                   }
                   required
                   placeholder="Enter project ownership"
+                  readOnly={formData.project_ownership !== ""}
+                  className="cursor-not-allowed"
                 />
-                <div></div>
               </div>
             </div>
 
@@ -175,8 +211,12 @@ const CreateProject = () => {
             </div>
 
             <DialogFooter>
-              <Button type="submit" className="mt-4 w-full">
-                Create Task
+              <Button
+                type="submit"
+                className="mt-4 w-full"
+                disabled={isLoading}
+              >
+                {isLoading ? "Creating..." : "Create Project"}
               </Button>
             </DialogFooter>
           </form>

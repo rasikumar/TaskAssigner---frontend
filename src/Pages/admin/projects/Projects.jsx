@@ -1,6 +1,9 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { fetchAllProjects } from "@/API/admin/projects/project_api";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  fetchAllProjects,
+  updateProject,
+} from "@/API/admin/projects/project_api";
 import { CirclesWithBar } from "react-loader-spinner";
 import { toast } from "react-toastify";
 import Table from "@/components/ui/customUi/Table"; // Import the reusable Table component
@@ -14,27 +17,59 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination"; // Import ShadCN pagination components
 import CreateProject from "./CreateProject";
+import { ProjectDetailModal } from "@/components/ui/customUi/ProjectDetailModal";
 
 const Projects = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState(false);
+
+  const queryClient = useQueryClient();
+
+  const handleProjectClick = (project) => {
+    setSelectedProject(project);
+    setIsModalOpen(true);
+  };
+
   const [currentPage, setCurrentPage] = useState(1); // Track current page
-  
 
   const [itemsPerPage] = useState(15);
   // Fetch Projects using React Query with pagination support
   const { data, isLoading, error, isError } = useQuery({
     queryKey: ["projects", currentPage],
-    queryFn: () => fetchAllProjects(currentPage, itemsPerPage), // Pass currentPage and itemsPerPage to fetchAllProjects
-    staleTime: 30000, // Cache projects for 30 seconds
+    queryFn: () => fetchAllProjects(currentPage, itemsPerPage),
+    staleTime: 30000,
     onError: () => toast.error("Error fetching projects"),
   });
-  console.log(data);
+
+  const updateMutation = useMutation({
+    mutationFn: updateProject,
+    onSuccess: () => {
+      queryClient.invalidateQueries(["projects"]);
+      setIsModalOpen(false);
+      toast.success("Project updated successfully!");
+    },
+    onError: (error) => {
+      toast.error("Failed to update project");
+      console.error("Error updating project:", error);
+    },
+  });
+
+  const handleUpdateProject = (updateProject) => {
+    updateMutation.mutate(updateProject);
+  };
+  // console.log(data);
+
   if (isError) {
     return <div>Error: {error.message}</div>;
   }
 
   const columns = [
     { key: "project_title", title: "Project Title" },
-    { key: "project_ownership", title: "Project Ownership" },
+    {
+      key: "project_ownership",
+      title: "Project Ownership",
+      className: "text-center",
+    },
     { key: "estimated_hours", title: "Total Hours", className: "text-center" },
     { key: "start_date", title: "Start Date" },
     { key: "end_date", title: "End Date" },
@@ -43,15 +78,34 @@ const Projects = () => {
 
   const renderRow = (project) => (
     <>
-      <td className="px-2 py-3 text-sm">{project.project_name}</td>
+      <td
+        onClick={() => {
+          handleProjectClick(project);
+        }}
+        className="px-2 py-3 text-sm text-primary font-bold "
+      >
+        {project.project_name}
+      </td>
       <td className="px-2 py-3 text-sm text-center">
         {project.project_ownership.name || "No name available"}
       </td>
       <td className="px-2 py-3 text-sm text-center">
         {project.estimated_hours}
       </td>
-      <td className="px-2 py-3 text-sm">{project.startDate}</td>
-      <td className="px-2 py-3 text-sm">{project.endDate}</td>
+      <td className="px-2 py-3 text-sm">
+        {new Date(project.startDate).toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        })}
+      </td>
+      <td className="px-2 py-3 text-sm">
+        {new Date(project.endDate).toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        })}
+      </td>
       <td className="px-2 py-3 text-sm">{project.project_status}</td>
     </>
   );
@@ -159,8 +213,12 @@ const Projects = () => {
       ) : (
         <>
           <CreateProject />
-          <Table columns={columns} data={data || []} renderRow={renderRow} />
-          <div className="flex justify-center mt-4">
+          <Table
+            columns={columns}
+            data={data?.projects || []}
+            renderRow={renderRow}
+          />
+          <div className="flex justify-center items-center mt-4 w-full absolute bottom-0">
             <Pagination>
               <PaginationContent>
                 <PaginationPrevious
@@ -188,6 +246,13 @@ const Projects = () => {
             </Pagination>
           </div>
         </>
+      )}
+      {isModalOpen && (
+        <ProjectDetailModal
+          project={selectedProject}
+          onClose={() => setIsModalOpen(false)}
+          onEdit={handleUpdateProject}
+        />
       )}
     </div>
   );

@@ -8,7 +8,7 @@ import DeleteUser from "./DeleteUser";
 import { CirclesWithBar } from "react-loader-spinner";
 import Table from "@/components/ui/customUi/Table";
 import { useState } from "react";
-import { UserDetailModal } from "@/Pages/admin/user-verify/UserDetailModal";
+import { UserDetailModal } from "@/components/ui/customUi/UserDetailModal";
 import { toast } from "react-toastify";
 
 const UserDetails = () => {

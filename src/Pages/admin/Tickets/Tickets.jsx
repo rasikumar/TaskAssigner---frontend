@@ -13,7 +13,10 @@ const Tickets = () => {
   const { data: ticketDetails, isLoading } = useQuery({
     queryKey: ["tickets"],
     queryFn: fetchAllTickets,
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
+
+  
 
   const optionVariants = {
     hidden: {

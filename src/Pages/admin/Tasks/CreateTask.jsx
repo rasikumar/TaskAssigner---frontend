@@ -27,7 +27,6 @@ const CreateTask = () => {
 
   const [isOpen, setIsOpen] = useState(false);
 
-  // Refs for date inputs
   const startDateRef = useRef(null);
   const endDateRef = useRef(null);
 
@@ -56,15 +55,13 @@ const CreateTask = () => {
 
   return (
     <>
-      <Button onClick={() => setIsOpen(true)}>Create New Project</Button>
+      <Button onClick={() => setIsOpen(true)}>Create New Task</Button>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="p-6 max-w-lg text-taskBlack bg-bg h-96 overflow-scroll">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold">
-              Create Project
-            </DialogTitle>
+            <DialogTitle className="text-xl font-bold">Create Task</DialogTitle>
             <DialogDescription className="text-sm text-gray-500">
-              Fill in the details below to create a new Project.
+              Fill in the details below to create a new Task.
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-6">

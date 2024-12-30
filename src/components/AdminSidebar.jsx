@@ -37,7 +37,7 @@ const AdminSidebar = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await Instance.get("/admin/dashboard/");
+        const response = await Instance.get("/admin/dashboard/"); 
         setName(response.data.data);
         // console.log(response.data.data);
       } catch (error) {
@@ -76,17 +76,18 @@ const AdminSidebar = () => {
             }))}
           />
           <SidebarLink
-            to="/admin/dashboard/tasks"
-            Icon={FaProjectDiagram}
+            to="/admin/dashboard/projects"
+            Icon={FaTasks}
             label="Project Management"
             isCollapsed={isCollapsed}
           />
           <SidebarLink
-            to="/admin/dashboard/projects"
-            Icon={FaTasks}
-            label="Task Management"
+            to="/admin/dashboard/tasks"
+            Icon={FaProjectDiagram}
+            label="Tasks Management"
             isCollapsed={isCollapsed}
           />
+
           <SidebarLink
             to="/admin/dashboard/ticket"
             Icon={FaTicketAlt}
