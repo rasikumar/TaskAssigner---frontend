@@ -22,7 +22,7 @@ export const fetchAllProjects = async (page, limit) => {
     const response = await Instance.post(
       `${API_URL}/getAllProjects/?page=${page}&limit=${limit}&sort=-createdAt`
     );
-
+    
     // Validate response
     if (response.data && response.data.data) {
       return response.data.data; // Return the sorted project data

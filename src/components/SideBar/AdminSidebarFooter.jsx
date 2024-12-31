@@ -8,7 +8,7 @@ const AdminSidebarFooter = ({
   toggleProfile,
   handleLogout,
 }) => (
-  <div className={`mt-auto ${isCollapsed ? "p-1 py-3" : "p-4"} relative`}>
+  <div className={`mt-auto ${isCollapsed ? "p-1 py-3" : "pb-2"} relative`}>
     <button
       onClick={toggleProfile}
       className={`flex items-center 2xl:w-full  ${

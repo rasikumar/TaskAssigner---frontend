@@ -14,13 +14,22 @@ import { Label } from "../../../components/ui/label";
 import { toast, ToastContainer } from "react-toastify";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createProject } from "@/API/admin/projects/project_api";
-import { adminDashboard } from "@/API/admin/adminDashborad";
+import { getAllEmployeeOwnerShip } from "@/API/admin/adminDashborad";
+import {
+  Select,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectGroup,
+  SelectLabel,
+} from "@/components/ui/select";
 
 const CreateProject = () => {
   const [formData, setFormData] = useState({
     project_name: "",
     project_description: "",
-    project_ownership: "", // Initially empty, will be set when user data is fetched
+    project_ownership: "",
     project_status: "Not Started",
     start_date: "",
     end_date: "",
@@ -29,6 +38,7 @@ const CreateProject = () => {
 
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
+  const [ownershipOptions, setOwnershipOptions] = useState([]);
 
   const startDateRef = useRef(null);
   const endDateRef = useRef(null);
@@ -50,7 +60,27 @@ const CreateProject = () => {
       toast.success("Project Created Successfully");
     },
     onError: (err) => {
-      toast.error("Failed to create project. Please try again.");
+      if (err.response) {
+        switch (err.response.status) {
+          case 400:
+            toast.error(err.response.data.message || "Bad Request.");
+            break;
+          case 403:
+            toast.error(
+              err.response.data.message || "Forbidden: Access denied."
+            );
+            break;
+          case 500:
+            toast.error(err.response.data.message || "Server error occurred.");
+            break;
+          default:
+            toast.error("An unexpected error occurred. Please try again.");
+        }
+      } else {
+        toast.error(
+          err.message || "Network error. Please check your connection."
+        );
+      }
       console.error("Error creating project:", err);
     },
   });
@@ -62,18 +92,28 @@ const CreateProject = () => {
     error,
   } = useQuery({
     queryKey: ["userData"],
-    queryFn: adminDashboard,
+    queryFn: getAllEmployeeOwnerShip,
     enabled: isOpen, // Only fetch when the dialog is open
   });
 
-  // console.log(userData.data.role);
-
+  // Map user data into dropdown options when data is available
   useEffect(() => {
     if (userData) {
-      setFormData((prevData) => ({
-        ...prevData,
-        project_ownership: userData.data.role || "",
-      }));
+      const options = [
+        ...userData.data.teamLeads
+          .filter((lead) => lead.admin_verify === "true") // Check admin_verify for team leads
+          .map((lead) => ({
+            id: lead.id,
+            name: `Team Lead - ${lead.name}`,
+          })),
+        ...userData.data.managers
+          .filter((manager) => manager.admin_verify === "true") // Check admin_verify for managers
+          .map((manager) => ({
+            id: manager.id,
+            name: `Manager - ${manager.name}`,
+          })),
+      ];
+      setOwnershipOptions(options);
     }
   }, [userData]);
 
@@ -93,11 +133,11 @@ const CreateProject = () => {
     }));
   };
 
-  // Set project ownership once user data is available
-
   return (
     <>
-      <Button onClick={() => setIsOpen(true)}>Create New Project</Button>
+      <Button onClick={() => setIsOpen(true)} className="w-fit">
+        Create New Project
+      </Button>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="p-6 max-w-lg text-taskBlack bg-bg h-96 overflow-scroll">
           <DialogHeader>
@@ -133,25 +173,38 @@ const CreateProject = () => {
                   }
                   required
                   placeholder="Enter project description"
+                  className="outline-none border-none focus:ring-0 focus:ring-offset-0 "
                 />
               </div>
             </div>
 
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Assignment</h3>
+              <h3 className="text-lg font-semibold">Ownership</h3>
               <div>
-                <Input
+                <Select
                   id="project_ownership"
                   name="project_ownership"
                   value={formData.project_ownership}
-                  onChange={(e) =>
-                    handleSelectChange("project_ownership", e.target.value)
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, project_ownership: value })
                   }
                   required
-                  placeholder="Enter project ownership"
-                  readOnly={formData.project_ownership !== ""}
-                  className="cursor-not-allowed"
-                />
+                  className="w-full p-2 border rounded-md"
+                >
+                  <SelectTrigger className="outline-none focus:ring-0 focus:ring-offset-0 ">
+                    <SelectValue placeholder="Select project ownership" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Select a Ownership</SelectLabel>
+                      {ownershipOptions.map((option) => (
+                        <SelectItem key={option.id} value={option.id}>
+                          {option.name}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
@@ -173,7 +226,6 @@ const CreateProject = () => {
                       handleSelectChange("start_date", e.target.value)
                     }
                     required
-                    placeholder="Start date"
                   />
                 </div>
                 <div
@@ -200,10 +252,13 @@ const CreateProject = () => {
                 <Input
                   id="estimated_hours"
                   name="estimated_hours"
-                  type="input"
+                  type="number"
                   value={formData.estimated_hours}
                   onChange={(e) =>
-                    handleSelectChange("estimated_hours", e.target.value)
+                    handleSelectChange(
+                      "estimated_hours",
+                      Number(e.target.value)
+                    )
                   }
                   required
                 />

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "../ui/button";
 import { Evvi_new, LoginImg } from "@/assets/Index";
 import { Input } from "../ui/input";
@@ -8,13 +8,20 @@ import Instance from "../../API/Instance";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/ReactToastify.css";
 import { useNavigate } from "react-router";
-// import { Router } from "react-router";
 
 const UserLogin = () => {
   const [mail, setMail] = useState("");
   const [password, setPassword] = useState("");
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check if user is already logged in
+    const token = localStorage.getItem("token");
+    if (token) {
+      navigate(`/admin/dashboard`, { replace: true });
+    }
+  }, [navigate]);
 
   const togglePasswordVisibility = () => {
     setIsPasswordVisible(!isPasswordVisible);
@@ -32,9 +39,11 @@ const UserLogin = () => {
           response.data.message ||
             "Login successful! Redirecting to the dashboard..."
         );
+
+        // Redirect to the dashboard with replace to prevent back navigation
         setTimeout(() => {
-          navigate(`/admin/dashboard`);
-        }, 1000);
+          navigate(`/admin/dashboard`, { replace: true });
+        });
       } else if (response.status === 404 && response.data.status) {
         toast.error("Invalid email or password.");
       }

@@ -211,14 +211,14 @@ const Projects = () => {
           />
         </div>
       ) : (
-        <>
+        <div className="flex flex-col justify-start gap-2 relative">
           <CreateProject />
           <Table
             columns={columns}
             data={data?.projects || []}
             renderRow={renderRow}
           />
-          <div className="flex justify-center items-center mt-4 w-full absolute bottom-0">
+          <div className="mt-4">
             <Pagination>
               <PaginationContent>
                 <PaginationPrevious
@@ -245,7 +245,7 @@ const Projects = () => {
               </PaginationContent>
             </Pagination>
           </div>
-        </>
+        </div>
       )}
       {isModalOpen && (
         <ProjectDetailModal
