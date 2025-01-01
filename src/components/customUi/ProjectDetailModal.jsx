@@ -1,8 +1,8 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
 import { FaPen, FaRegWindowClose } from "react-icons/fa";
-import { Input } from "../input";
-import { Button } from "../button";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
 
 export const ProjectDetailModal = ({ project, onClose, onEdit }) => {
   const [isVisible, setIsVisible] = useState(false);

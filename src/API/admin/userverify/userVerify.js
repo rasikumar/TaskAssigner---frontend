@@ -21,14 +21,17 @@ export const updateUser = async (userData) => {
   }
 };
 
-export const getAllUser = async () => {
+export const getAllUser = async (page = 1, limit = 10) => {
   try {
-    const response = await Instance.post(`${API_URL}/getAllEmployee`);
+    const response = await Instance.post(
+      `${API_URL}/getAllEmployee?page=${page}&limit=${limit}`
+    );
     return response.data;
   } catch (error) {
     throw error;
   }
 };
+
 
 export const deleteUser = async (userId) => {
   try {

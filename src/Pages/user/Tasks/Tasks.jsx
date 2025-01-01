@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { editTask } from "@/API/admin/task/task_api";
 import CreateTask from "./CreateTask";
 import Action from "./Action";
-import Table from "@/components/ui/customUi/Table";
+import Table from "@/components/customUi/Table";
 import { CirclesWithBar } from "react-loader-spinner";
 import { toast } from "react-toastify";
 import { fetchDashBoard } from "@/API/user/dashboard/dashboard";

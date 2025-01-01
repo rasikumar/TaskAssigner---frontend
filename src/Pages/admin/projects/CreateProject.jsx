@@ -24,7 +24,7 @@ import {
   SelectGroup,
   SelectLabel,
 } from "@/components/ui/select";
-
+ 
 const CreateProject = () => {
   const [formData, setFormData] = useState({
     project_name: "",

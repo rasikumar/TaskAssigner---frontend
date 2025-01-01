@@ -3,10 +3,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { editTask, fetchAllTasks } from "@/API/admin/task/task_api";
 import CreateTask from "./CreateTask";
 import Action from "./Action";
-import Table from "@/components/ui/customUi/Table"; // Import the reusable Table component
+import Table from "@/components/customUi/Table"; // Import the reusable Table component
 import { CirclesWithBar } from "react-loader-spinner";
 import { toast } from "react-toastify";
-import { TaskDetailsModal } from "@/components/ui/customUi/TaskDetailModal";
+import { TaskDetailsModal } from "@/components/customUi/TaskDetailModal";
 
 const getpriority = (priority) => {
   switch (priority) {
@@ -46,7 +46,7 @@ const Tasks = () => {
     setSelectedTask(task);
     setIsModalOpen(true);
   };
-  
+
   const queryClient = useQueryClient(); // React Query Client
   const [filters, setFilters] = useState({
     priority: "",

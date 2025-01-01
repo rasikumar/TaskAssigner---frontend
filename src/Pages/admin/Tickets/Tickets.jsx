@@ -2,7 +2,7 @@ import { fetchAllTickets } from "@/API/admin/ticket/ticket_api";
 import { motion } from "framer-motion";
 import { ChevronDownIcon } from "lucide-react";
 import { useState } from "react";
-import Table from "@/components/ui/customUi/Table";
+import Table from "@/components/customUi/Table";
 import { CirclesWithBar } from "react-loader-spinner";
 import { useQuery } from "@tanstack/react-query";
 
@@ -15,8 +15,6 @@ const Tickets = () => {
     queryFn: fetchAllTickets,
     staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
-
-  
 
   const optionVariants = {
     hidden: {

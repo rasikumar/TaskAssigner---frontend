@@ -6,7 +6,7 @@ import {
 } from "@/API/admin/projects/project_api";
 import { CirclesWithBar } from "react-loader-spinner";
 import { toast } from "react-toastify";
-import Table from "@/components/ui/customUi/Table"; // Import the reusable Table component
+import Table from "@/components/customUi/Table"; // Import the reusable Table component
 import {
   Pagination,
   PaginationContent,
@@ -17,7 +17,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination"; // Import ShadCN pagination components
 import CreateProject from "./CreateProject";
-import { ProjectDetailModal } from "@/components/ui/customUi/ProjectDetailModal";
+import { ProjectDetailModal } from "@/components/customUi/ProjectDetailModal";
 
 const Projects = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
