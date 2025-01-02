@@ -180,9 +180,9 @@ const CreateUser = () => {
                 <SelectGroup>
                   <SelectLabel>Roles</SelectLabel>
                   <SelectItem value="employee">Member</SelectItem>
-                  <SelectItem value="employee">Senior</SelectItem>
+                  {/* <SelectItem value="employee">Senior</SelectItem> */}
                   {/* <SelectItem value="hr">HR</SelectItem> */}
-                  <SelectItem value="team leader">Team Leader</SelectItem>
+                  <SelectItem value="team lead">Team Leader</SelectItem>
                   <SelectItem value="manager">Manager</SelectItem>
                   {/* <SelectItem value="tester">Tester</SelectItem> */}
                 </SelectGroup>
@@ -233,7 +233,7 @@ const CreateUser = () => {
               className="flex items-center justify-between gap-6"
               onClick={() => endDateRef.current.showPicker()}
             >
-              <Input
+              <Input 
                 ref={endDateRef}
                 type="date"
                 name="lastWorking_date"

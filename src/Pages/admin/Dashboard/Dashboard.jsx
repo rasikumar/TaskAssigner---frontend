@@ -1,10 +1,15 @@
 import { adminDashboard } from "@/API/admin/adminDashborad";
 import { fetchAllProjects } from "@/API/admin/projects/project_api";
 import { fetchAllTasks } from "@/API/admin/task/task_api";
+import MotionSection from "@/components/MotionSection";
+import ProjectSummaryChart from "@/components/ProjectSummaryChart";
+// import MotionSection from "@/components/MotionSection";
 import MainCards from "@/components/ui/cards/MainCards";
+import { ProjectsCard } from "@/components/ui/cards/ProjectsCard";
 import { useQuery } from "@tanstack/react-query";
 
 import { FaTasks } from "react-icons/fa";
+import { CirclesWithBar } from "react-loader-spinner";
 
 const Dashboard = () => {
   const { data, isLoading, isError, error } = useQuery({
@@ -38,17 +43,20 @@ const Dashboard = () => {
     },
   });
 
-  if (isAdminLoading) {
-    return <div>Loading...</div>;
+  if (isAdminLoading || isLoading || isProjectLoading) {
+    return (
+      <div className="flex items-center justify-center w-full h-full">
+        <CirclesWithBar
+          color="#4fa94d"
+          outerCircleColor="#4fa94d"
+          innerCircleColor="#4fa94d"
+          barColor="#4fa94d"
+          visible={true}
+        />
+      </div>
+    );
   }
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  if (isProjectLoading) {
-    return <div>Loading...</div>;
-  }
   if (isAdminError) {
     return <div>Error: {adminError.message}</div>;
   }
@@ -64,7 +72,6 @@ const Dashboard = () => {
   const tasks = data || {};
   const projects = projectData.projects || {};
 
-  // console.log("Tasks:", projects);
   const CompletedProject = projects.filter(
     (project) => project.project_status === "Completed"
   );
@@ -79,6 +86,17 @@ const Dashboard = () => {
   const InprogressTask = tasks.filter((task) => task.status === "In progress");
   const NotStartedTask = tasks.filter((task) => task.status === "Not started");
 
+  const projectDataForChart = [
+    { name: "Completed", value: CompletedProject.length },
+    { name: "In Progress", value: InprogressProject.length },
+    { name: "Not Started", value: NotStartedProject.length },
+  ];
+
+  const TaskDataForChart = [
+    { name: "Completed", value: CompletedTask.length },
+    { name: "In Progress", value: InprogressTask.length },
+    { name: "Not Started", value: NotStartedTask.length },
+  ];
   return (
     <section className="flex flex-col gap-4">
       <header className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl shadow-lg p-6 text-center">
@@ -157,19 +175,63 @@ const Dashboard = () => {
         </div>
 
         {/* Second Column */}
-        <div className="grid grid-cols-1 mt-[3.7rem] w-full gap-4">
+        <div className="grid grid-cols-1 mt-[3.7rem] bg-[#f9a065] rounded-xl h-[21.3rem] w-full gap-4">
           {/* Today's Tasks Section */}
-          <MainCards
-            title="Today's Tasks"
-            btn="View All"
-            totaltasks={12}
-            Icon={FaTasks}
-            subtitle="Task"
-            bgColor="#7B4597"
+          <div className="flex items-center justify-center mt-5">
+            <div>
+              <MotionSection>
+                <h1 className="text-white mt-6 text-lg font-medium z-50 text-center">
+                  Project Summary
+                </h1>
+              </MotionSection>
+              <div className="-mt-20">
+                <ProjectSummaryChart data={projectDataForChart} />
+              </div>
+            </div>
+            <div>
+              <MotionSection>
+                <h1 className="text-white mt-6 text-lg font-medium z-50 text-center">
+                  Task Summary
+                </h1>
+              </MotionSection>
+              <div className="-mt-20">
+                <ProjectSummaryChart data={TaskDataForChart} />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section className="bg-taskBlack py-6 w-full mx-auto rounded-xl px-4">
+        <h1 className="text-2xl text-white text-center font-semibold p-4">
+          Recent Projects
+        </h1>
+        <div className="flex gap-x-4 items-center justify-between w-full p-4">
+          <ProjectsCard
+            title="Project Alpha"
+            subtitle="Building a dashboard UI"
+            priority="High"
+            progressBar={45}
+          />
+          <ProjectsCard
+            title="Project Alpha"
+            subtitle="Building a dashboard UI"
+            priority="High"
+            progressBar={45}
+          />
+          <ProjectsCard
+            title="Project Alpha"
+            subtitle="Building a dashboard UI"
+            priority="High"
+            progressBar={45}
+          />
+          <ProjectsCard
+            title="Project Alpha"
+            subtitle="Building a dashboard UI"
+            priority="High"
+            progressBar={45}
           />
         </div>
       </section>
-      <section className="bg-[#1A659E] h-96 rounded-xl"></section>
     </section>
   );
 };

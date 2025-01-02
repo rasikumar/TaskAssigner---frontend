@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
+  deleteProject,
   fetchAllProjects,
   updateProject,
 } from "@/API/admin/projects/project_api";
@@ -18,6 +19,7 @@ import {
 } from "@/components/ui/pagination"; // Import ShadCN pagination components
 import CreateProject from "./CreateProject";
 import { ProjectDetailModal } from "@/components/customUi/ProjectDetailModal";
+import DeleteDialog from "@/components/DeleteDialog";
 
 const Projects = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -54,10 +56,25 @@ const Projects = () => {
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: deleteProject,
+    onSuccess: () => {
+      queryClient.invalidateQueries(["projects"]);
+      toast.success("Project deleted successfully!");
+    },
+    onError: (err) => {
+      console.log("Error deleting project", err);
+    },
+  });
+
   const handleUpdateProject = (updateProject) => {
     updateMutation.mutate(updateProject);
   };
   // console.log(data);
+
+  const handleDeleteProject = (projectId) => {
+    deleteMutation.mutate(projectId);
+  };
 
   if (isError) {
     return <div>Error: {error.message}</div>;
@@ -74,6 +91,7 @@ const Projects = () => {
     { key: "start_date", title: "Start Date" },
     { key: "end_date", title: "End Date" },
     { key: "status", title: "Status" },
+    { key: "action", title: "Action", className: "text-center" },
   ];
 
   const renderRow = (project) => (
@@ -107,6 +125,13 @@ const Projects = () => {
         })}
       </td>
       <td className="px-2 py-3 text-sm">{project.project_status}</td>
+      <td className="px-2 py-3 text-sm">
+        <DeleteDialog
+          message="Are you sure you want to delete this project?"
+          onConfirm={() => handleDeleteProject(project._id)}
+          isLoading={deleteMutation.isPending}
+        />
+      </td>
     </>
   );
 

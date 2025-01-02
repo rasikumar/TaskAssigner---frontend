@@ -63,10 +63,10 @@ export const updateProject = async (updatedData) => {
 // Delete a project by ID
 export const deleteProject = async (projectId) => {
   try {
-    const response = await Instance.delete(`${API_URL}/${projectId}`);
+    const response = await Instance.delete(`${API_URL}/deleteProject/${projectId}`);
     return response.data;
   } catch (error) {
     console.error("Error deleting project:", error);
-    throw error;
+    throw error; 
   }
 };

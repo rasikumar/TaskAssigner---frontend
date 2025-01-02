@@ -24,7 +24,7 @@ import {
   SelectGroup,
   SelectLabel,
 } from "@/components/ui/select";
- 
+
 const CreateProject = () => {
   const [formData, setFormData] = useState({
     project_name: "",
@@ -96,17 +96,19 @@ const CreateProject = () => {
     enabled: isOpen, // Only fetch when the dialog is open
   });
 
+  // console.log(userData);
   // Map user data into dropdown options when data is available
   useEffect(() => {
     if (userData) {
       const options = [
-        ...userData.data.teamLeads
+        ...userData.teamLeads
           .filter((lead) => lead.admin_verify === "true") // Check admin_verify for team leads
           .map((lead) => ({
             id: lead.id,
             name: `Team Lead - ${lead.name}`,
           })),
-        ...userData.data.managers
+
+        ...userData.managers
           .filter((manager) => manager.admin_verify === "true") // Check admin_verify for managers
           .map((manager) => ({
             id: manager.id,

@@ -183,7 +183,7 @@ export const UserDetailModal = ({ user, onClose, onEdit }) => {
                     <SelectItem value="employee">Member</SelectItem>
                     {/* <SelectItem value="employee">Senior</SelectItem> */}
                     {/* <SelectItem value="hr">HR</SelectItem> */}
-                    <SelectItem value="team leader">Team Leader</SelectItem>
+                    <SelectItem value="team lead">Team Leader</SelectItem>
                     <SelectItem value="manager">Manager</SelectItem>
                     {/* <SelectItem value="tester">Tester</SelectItem> */}
                   </SelectGroup>

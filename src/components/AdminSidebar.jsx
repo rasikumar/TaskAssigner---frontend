@@ -37,7 +37,7 @@ const AdminSidebar = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await Instance.get("/admin/dashboard/"); 
+        const response = await Instance.get("/admin/dashboard/");
         setName(response.data.data);
         // console.log(response.data.data);
       } catch (error) {
@@ -50,7 +50,7 @@ const AdminSidebar = () => {
   return (
     <div className="flex w-full p-4 absolute h-full bg-slate-100">
       <div
-        className={`fixed rounded-xl flex flex-col h-[calc(100vh-3.5%)] transition-all duration-300 z-50 ${
+        className={`fixed rounded-xl flex flex-col h-[calc(100vh-3.5%)] overflow-y-scroll transition-all duration-300 z-50 ${
           isCollapsed ? "w-16" : "w-44 2xl:w-60"
         }`}
       >

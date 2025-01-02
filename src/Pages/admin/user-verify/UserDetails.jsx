@@ -4,7 +4,6 @@ import {
   updateUser,
 } from "@/API/admin/userverify/userVerify";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import DeleteUser from "./DeleteUser";
 import { CirclesWithBar } from "react-loader-spinner";
 import Table from "@/components/customUi/Table";
 import { useState } from "react";
@@ -18,6 +17,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import DeleteDialog from "@/components/DeleteDialog";
 
 const UserDetails = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -38,10 +38,13 @@ const UserDetails = () => {
     staleTime: 30000,
   });
 
+  // console.log("user",data)
+
   const deleteMutation = useMutation({
     mutationFn: deleteUser,
     onSuccess: () => {
       queryClient.invalidateQueries(["userDetails"]);
+      toast.success("User deleted successfully!");
     },
     onError: (err) => {
       console.log("Error deleting user", err);
@@ -86,7 +89,11 @@ const UserDetails = () => {
   const columns = [
     { key: "name", title: "Name" },
     { key: "starting_date", title: "Start Date", className: "text-center" },
-    { key: "lastWorking_date", title: "End Date", className: "text-center" },
+    {
+      key: "lastWorking_date",
+      title: "End Date",
+      className: "text-center",
+    },
     { key: "phone", title: "Phone", className: "text-center" },
     { key: "action", title: "Action", className: "text-center" },
   ];
@@ -110,9 +117,10 @@ const UserDetails = () => {
         <span>{user.phone}</span>
       </td>
       <td className="px-2 py-3 text-sm text-blue-500 cursor-pointer flex flex-col items-center">
-        <DeleteUser
-          onConfirm={() => handleDelete(user._id)}
-          isLoading={deleteMutation.isPending}
+        <DeleteDialog
+          message="Are you sure you want to delete this user?"
+          onConfirm={() => handleDelete(user._id)} // Pass user ID
+          isLoading={deleteMutation.isLoading} // Handle loading state dynamically
         />
       </td>
     </>
