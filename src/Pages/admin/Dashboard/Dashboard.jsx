@@ -82,9 +82,16 @@ const Dashboard = () => {
     (project) => project.project_status === "Not Started"
   );
 
-  const CompletedTask = tasks.filter((task) => task.status === "Completed");
-  const InprogressTask = tasks.filter((task) => task.status === "In progress");
-  const NotStartedTask = tasks.filter((task) => task.status === "Not started");
+  const CompletedTask =
+    tasks.length > 0 ? tasks.filter((task) => task.status === "Completed") : [];
+  const InprogressTask =
+    tasks.length > 0
+      ? tasks.filter((task) => task.status === "In progress")
+      : [];
+  const NotStartedTask =
+    tasks.length > 0
+      ? tasks.filter((task) => task.status === "Not started")
+      : [];
 
   const projectDataForChart = [
     { name: "Completed", value: CompletedProject.length },
@@ -123,7 +130,7 @@ const Dashboard = () => {
               btn="View All"
               totaltasks={NotStartedProject.length} // Fix task count
               Icon={FaTasks}
-              subtitle="Task"
+              subtitle="Projects"
               bgColor="#B23A48"
             />
             <MainCards
@@ -131,7 +138,7 @@ const Dashboard = () => {
               btn="View All"
               totaltasks={InprogressProject.length} // Fix task count
               Icon={FaTasks}
-              subtitle="Task"
+              subtitle="Projects"
               bgColor="#DCA74B"
             />
             <MainCards
@@ -139,39 +146,47 @@ const Dashboard = () => {
               btn="View All"
               totaltasks={CompletedProject.length} // Fix task count
               Icon={FaTasks}
-              subtitle="Task"
+              subtitle="Projects"
               bgColor="#566E3D"
             />
           </div>
 
           {/* Tasks Section */}
           <h1 className="text-lg font-semibold my-4">Tasks</h1>
-          <div className="flex gap-4">
-            <MainCards
-              title="Yet to Start"
-              btn="View All"
-              totaltasks={NotStartedTask.length}
-              Icon={FaTasks}
-              subtitle="Task"
-              bgColor="#B23A48"
-            />
-            <MainCards
-              title="In-progress"
-              btn="View All"
-              totaltasks={InprogressTask.length}
-              Icon={FaTasks}
-              subtitle="Task"
-              bgColor="#DCA74B"
-            />
-            <MainCards
-              title="Completed"
-              btn="View All"
-              totaltasks={CompletedTask.length}
-              Icon={FaTasks}
-              subtitle="Task"
-              bgColor="#566E3D"
-            />
-          </div>
+          {tasks.length === 0 ? (
+            <div className="flex items-center justify-center w-full h-40 bg-gray-100 rounded-lg shadow">
+              <p className="text-gray-500 text-lg font-medium">
+                No tasks available
+              </p>
+            </div>
+          ) : (
+            <div className="flex gap-4">
+              <MainCards
+                title="Yet to Start"
+                btn="View All"
+                totaltasks={NotStartedTask.length}
+                Icon={FaTasks}
+                subtitle="Task"
+                bgColor="#B23A48"
+              />
+              <MainCards
+                title="In-progress"
+                btn="View All"
+                totaltasks={InprogressTask.length}
+                Icon={FaTasks}
+                subtitle="Task"
+                bgColor="#DCA74B"
+              />
+              <MainCards
+                title="Completed"
+                btn="View All"
+                totaltasks={CompletedTask.length}
+                Icon={FaTasks}
+                subtitle="Task"
+                bgColor="#566E3D"
+              />
+            </div>
+          )}
         </div>
 
         {/* Second Column */}

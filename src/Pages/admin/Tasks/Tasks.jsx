@@ -1,12 +1,9 @@
-import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { editTask, fetchAllTasks } from "@/API/admin/task/task_api";
-import CreateTask from "./CreateTask";
-import Action from "./Action";
-import Table from "@/components/customUi/Table"; // Import the reusable Table component
+import { fetchAllTasks } from "@/API/admin/task/task_api";
+import Table from "@/components/customUi/Table";
+import DeleteDialog from "@/components/DeleteDialog";
+import { useQuery } from "@tanstack/react-query";
 import { CirclesWithBar } from "react-loader-spinner";
-import { toast } from "react-toastify";
-import { TaskDetailsModal } from "@/components/customUi/TaskDetailModal";
+import CreateTask from "./CreateTask";
 
 const getpriority = (priority) => {
   switch (priority) {
@@ -37,84 +34,34 @@ const getstatus = (status) => {
       return "text-gray-600 rounded-md bg-gray-50";
   }
 };
-
 const Tasks = () => {
-  const [selectedTask, setSelectedTask] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const handleTaskClick = (task) => {
-    setSelectedTask(task);
-    setIsModalOpen(true);
-  };
-
-  const queryClient = useQueryClient(); // React Query Client
-  const [filters, setFilters] = useState({
-    priority: "",
-    status: "",
-    sortBy: "created_at", // Default sorting by creation date
-  });
-
-  // Fetch Tasks using React Query
-  const { data: taskDetails, isLoading } = useQuery({
+  const {
+    isLoading,
+    data: tasks,
+    error,
+    isError,
+  } = useQuery({
     queryKey: ["tasks"],
     queryFn: fetchAllTasks,
-    staleTime: 30000, // Cache tasks for 30 seconds
+    staleTime: 1000 * 60, // 1 minute
   });
-  // console.log(taskDetails);
-  // Edit Task Mutation
-  const editTaskMutation = useMutation({
-    mutationFn: ({ taskId, updatedTask }) => editTask(taskId, updatedTask),
-    onSuccess: () => {
-      queryClient.invalidateQueries(["tasks"]); // Refetch tasks after edit
-      toast.success("Task updated successfully!");
-    },
-    onError: () => {
-      toast.error("Failed to update task!");
-    },
-  });
+  // console.log(tasks);
 
-  const handleEditTask = async (taskId, updatedTask) => {
-    if (!taskId) return console.error("Task ID is missing!");
-    editTaskMutation.mutate({ taskId, updatedTask });
-  };
-
-  const handleDeleteTask = (taskId) => {
-    queryClient.setQueryData(["tasks"], (oldTasks) =>
-      oldTasks.filter((task) => task.id !== taskId)
-    );
-    queryClient.invalidateQueries(["tasks"]); // Refetch tasks after deletion
-  };
-
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      [name]: value,
-    }));
-  };
-
-  const filteredTasks = Array.isArray(taskDetails)
-    ? taskDetails
-        .filter((task) => {
-          if (filters.priority && task.priority !== filters.priority)
-            return false;
-          if (filters.status && task.status !== filters.status) return false;
-          return true;
-        })
-        .sort((a, b) => {
-          if (filters.sortBy === "created_at") {
-            return new Date(b.start_date) - new Date(a.start_date);
-          }
-          return 0;
-        })
-    : [];
+  if (isError) {
+    console.error(error);
+  }
 
   const columns = [
     { key: "project_title", title: "Project Title" },
-    { key: "priority", title: "Priority", className: "text-center" },
-    { key: "status", title: "Status", className: "text-center" },
-    { key: "report_to", title: "Report To" },
+    {
+      key: "project_ownership",
+      title: "Project Ownership",
+      className: "text-center",
+    },
+    { key: "estimated_hours", title: "Total Hours", className: "text-center" },
     { key: "start_date", title: "Start Date" },
+    { key: "end_date", title: "End Date" },
+    { key: "status", title: "Status" },
     { key: "action", title: "Action", className: "text-center" },
   ];
 
@@ -122,65 +69,53 @@ const Tasks = () => {
     <>
       <td
         onClick={() => {
-          handleTaskClick(task);
+          handleProjectClick(task);
         }}
-        className="px-2 py-3 text-sm flex flex-col gap-2"
+        className="px-2 py-3 text-sm text-primary font-bold "
       >
-        <div className="font-bold text-primary">{task.project_title}</div>
-        <div className="text-slate-700">{task.project_ownership}</div>
-        <div className="text-xs text-gray-500">{task.project_description}</div>
+        {task.task_title}
+      </td>
+      <td className="px-2 py-3 text-sm text-center">
+        {task.project_ownership || "No name available"}
+      </td>
+      <td className="px-2 py-3 text-sm text-center">
+        {task.estimated_hours || "not"}
+      </td>
+      <td className="px-2 py-3 text-sm">
+        {new Date(task.start_date).toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        }) || "not"}
+      </td>
+      <td className="px-2 py-3 text-sm">
+        {new Date(task.end_date).toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        }) || "not"}
       </td>
       <td className={`px-2 py-2 text-center text-xs font-semibold`}>
-        <span className={getpriority(task.priority)}>{task.priority}</span>
+        <span className={getstatus(task.status)}>{task.status || "not"}</span>
       </td>
       <td className={`px-2 py-2 text-center text-xs font-semibold`}>
-        <span className={getstatus(task.status)}>{task.status}</span>
+        <span className={getpriority(task.priority)}>
+          {task.priority || "not"}
+        </span>
       </td>
-      <td>{task.report_to?.name || "No name available"}</td>
-      <td className="px-2 py-3 text-sm text-gray-700">{task.start_date}</td>
-      <td className="px-2 py-3 text-sm text-blue-500 cursor-pointer">
-        <Action
-          task={task}
-          onEdit={handleEditTask}
-          onDelete={handleDeleteTask}
-        />
+      <td className="px-2 py-3 text-sm">
+        {/* <DeleteDialog
+          message="Are you sure you want to delete this project?"
+          onConfirm={() => handleDeleteProject(project._id)}
+          isLoading={deleteMutation.isPending}
+        /> */}
       </td>
     </>
   );
 
   return (
-    <div className="relative">
-      <div className="flex justify-start gap-2 relative">
-        <CreateTask />
-        <div className="flex gap-4 mb-4">
-          <select
-            name="priority"
-            value={filters.priority}
-            onChange={handleFilterChange}
-            className="border p-2 bg-transparent"
-          >
-            <option value="">All Priorities</option>
-            <option value="Critical">Critical</option>
-            <option value="High">High</option>
-            <option value="Regular">Regular</option>
-            <option value="Low">Low</option>
-          </select>
-
-          <select
-            name="status"
-            value={filters.status}
-            onChange={handleFilterChange}
-            className="border p-2 bg-transparent"
-          >
-            <option value="">All Status</option>
-            <option value="Pending">Pending</option>
-            <option value="In progress">In progress</option>
-            <option value="Not started">Not started</option>
-            <option value="Completed">Completed</option>
-          </select>
-        </div>
-      </div>
-
+    <div className="relative mt-0 flex flex-col gap-4">
+      <CreateTask />
       {isLoading ? (
         <div className="flex items-center justify-center w-full h-full">
           <CirclesWithBar
@@ -192,16 +127,11 @@ const Tasks = () => {
           />
         </div>
       ) : (
-        <Table columns={columns} data={filteredTasks} renderRow={renderRow} />
-      )}
-      {isModalOpen && (
-        <TaskDetailsModal
-          task={selectedTask}
-          onClose={() => setIsModalOpen(false)}
-        />
+        <div className="flex flex-col justify-start gap-2 relative">
+          <Table columns={columns} data={tasks} renderRow={renderRow} />
+        </div>
       )}
     </div>
   );
 };
-
 export default Tasks;

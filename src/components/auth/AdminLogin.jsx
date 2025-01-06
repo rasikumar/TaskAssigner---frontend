@@ -35,15 +35,12 @@ const UserLogin = () => {
       if (response.status === 200 && response.data.status) {
         localStorage.setItem("token", response.data.token);
 
-        toast.success(
-          response.data.message ||
-            "Login successful! Redirecting to the dashboard..."
-        );
+        toast.success("Login successful! Redirecting to the dashboard...");
 
         // Redirect to the dashboard with replace to prevent back navigation
         setTimeout(() => {
           navigate(`/admin/dashboard`, { replace: true });
-        });
+        }, 1000);
       } else if (response.status === 404 && response.data.status) {
         toast.error("Invalid email or password.");
       }

@@ -88,6 +88,7 @@ const UserDetails = () => {
 
   const columns = [
     { key: "name", title: "Name" },
+    { key: "department", title: "department" },
     { key: "starting_date", title: "Start Date", className: "text-center" },
     {
       key: "lastWorking_date",
@@ -104,16 +105,33 @@ const UserDetails = () => {
         onClick={() => handleUserClick(user)}
         className="px-2 py-3 text-sm flex flex-col gap-2 cursor-pointer"
       >
-        <span className="font-bold text-primary">{user.name}</span>
-        <span>{user.role}</span>
+        <span className="font-bold text-primary capitalize">{user.name}</span>
+        <span className="capitalize">{user.role}</span>
       </td>
-      <td className="px-2 py-2 text-center text-xs font-semibold">
+      <td
+        onClick={() => handleUserClick(user)}
+        className="px-2 py-3 text-sm gap-2 cursor-pointer"
+      >
+        <span className="font-bold text-primary capitalize">
+          {user.department}
+        </span>
+      </td>
+      <td
+        onClick={() => handleUserClick(user)}
+        className="px-2 py-2 text-center text-xs font-semibold"
+      >
         <span>{user.starting_date}</span>
       </td>
-      <td className="px-2 py-2 text-center text-xs font-semibold">
+      <td
+        onClick={() => handleUserClick(user)}
+        className="px-2 py-2 text-center text-xs font-semibold"
+      >
         <span>{user.lastWorking_date}</span>
       </td>
-      <td className="px-2 py-2 text-center text-xs font-semibold">
+      <td
+        onClick={() => handleUserClick(user)}
+        className="px-2 py-2 text-center text-xs font-semibold"
+      >
         <span>{user.phone}</span>
       </td>
       <td className="px-2 py-3 text-sm text-blue-500 cursor-pointer flex flex-col items-center">

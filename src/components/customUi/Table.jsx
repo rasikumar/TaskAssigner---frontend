@@ -27,17 +27,7 @@ const Table = ({ columns, data, renderRow }) => {
             </tr>
           </thead>
           <tbody role="rowgroup">
-            {data.length === 0 ? (
-              <tr role="row">
-                <td
-                  colSpan={columns.length}
-                  className="text-center py-4 text-gray-500"
-                  role="cell"
-                >
-                  No data available
-                </td>
-              </tr>
-            ) : (
+            {data.length > 0 ? (
               data.map((row, index) => (
                 <tr
                   key={row.id || index}
@@ -49,6 +39,12 @@ const Table = ({ columns, data, renderRow }) => {
                   {renderRow(row, index)}
                 </tr>
               ))
+            ) : (
+              <tr>
+                <td colSpan="100%" className="text-center py-4 text-gray-500">
+                  No data available
+                </td>
+              </tr>
             )}
           </tbody>
         </table>

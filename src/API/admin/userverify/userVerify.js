@@ -32,7 +32,6 @@ export const getAllUser = async (page = 1, limit = 10) => {
   }
 };
 
-
 export const deleteUser = async (userId) => {
   try {
     if (!userId) {
@@ -62,9 +61,11 @@ export const verifyUserSignup = async (userId) => {
   }
 };
 
-export const getLastEmployeeId = async () => {
+export const getLastEmployeeId = async (department) => {
   try {
-    const response = await Instance.get(`${API_URL}/lastEmployeeId`);
+    const response = await Instance.post(`${API_URL}/empid-generate`, {
+      department: department,
+    });
     return response.data;
   } catch (error) {
     throw error;

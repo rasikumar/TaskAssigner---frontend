@@ -15,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { Textarea } from "../ui/textarea";
 
 export const ProjectDetailModal = ({ project, onClose, onEdit }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -185,11 +186,20 @@ export const ProjectDetailModal = ({ project, onClose, onEdit }) => {
                 "Project Name",
                 formData.project_name
               )}
-              {renderInput(
+              {/* {renderInput(
                 "project_description",
                 "Project Description",
                 formData.project_description
-              )}
+              )} */}
+              <Textarea
+                value={formData.project_description}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    project_description: e.target.value,
+                  })
+                }
+              />
 
               {renderInput(
                 "project_status",

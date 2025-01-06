@@ -18,6 +18,7 @@ export const UserDetailModal = ({ user, onClose, onEdit }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState(user); // Editable fields
   const [errorMessage, setErrorMessage] = useState(""); // To display error messages
+  console.log(formData);
 
   const startDateRef = useRef(null);
   const endDateRef = useRef(null);
@@ -153,7 +154,7 @@ export const UserDetailModal = ({ user, onClose, onEdit }) => {
                     <SelectItem value="development">Development</SelectItem>
                     <SelectItem value="marketing">Marketing</SelectItem>
                     <SelectItem value="testing">Testing</SelectItem>
-                    <SelectItem value="humanresource">
+                    <SelectItem value="human-resource">
                       Human Resource
                     </SelectItem>
                   </SelectGroup>
@@ -180,7 +181,7 @@ export const UserDetailModal = ({ user, onClose, onEdit }) => {
                 <SelectContent>
                   <SelectGroup>
                     <SelectLabel>Roles</SelectLabel>
-                    <SelectItem value="employee">Member</SelectItem>
+                    <SelectItem value="member">Member</SelectItem>
                     {/* <SelectItem value="employee">Senior</SelectItem> */}
                     {/* <SelectItem value="hr">HR</SelectItem> */}
                     <SelectItem value="team lead">Team Leader</SelectItem>

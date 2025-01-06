@@ -1,6 +1,9 @@
 import { useState, useRef, useMemo } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createUser } from "@/API/admin/userverify/userVerify";
+import {
+  createUser,
+  getLastEmployeeId,
+} from "@/API/admin/userverify/userVerify";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Input } from "@/components/ui/input";
@@ -71,6 +74,28 @@ const CreateUser = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+  };
+
+  const handleDepartment = async (value) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      department: value, // Set selected department
+    }));
+
+    try {
+      // Fetch the last ID from the backend for the selected department
+      const response = await getLastEmployeeId(value);
+      const newId = response.employee_id;
+      // console.log(response.employee_id);
+
+      setFormData((prevData) => ({
+        ...prevData,
+        employee_id: newId, // Set the generated ID
+      }));
+    } catch (error) {
+      console.error("Error fetching last employee ID:", error);
+      toast.error("Failed to generate Employee ID.");
+    }
   };
 
   const handleSubmit = (e) => {
@@ -145,9 +170,7 @@ const CreateUser = () => {
             />
 
             <Select
-              onValueChange={(value) =>
-                setFormData({ ...formData, department: value })
-              }
+              onValueChange={(value) => handleDepartment(value)}
               value={memoizedFormData.department}
               required
               className="outline-none focus:ring-0 focus:ring-offset-0"
@@ -162,7 +185,7 @@ const CreateUser = () => {
                   <SelectItem value="development">Development</SelectItem>
                   <SelectItem value="marketing">Marketing</SelectItem>
                   <SelectItem value="testing">Testing</SelectItem>
-                  <SelectItem value="humanresource">Human Resource</SelectItem>
+                  <SelectItem value="human-resource">Human Resource</SelectItem>
                 </SelectGroup>
               </SelectContent>
             </Select>
@@ -179,12 +202,9 @@ const CreateUser = () => {
               <SelectContent>
                 <SelectGroup>
                   <SelectLabel>Roles</SelectLabel>
-                  <SelectItem value="employee">Member</SelectItem>
-                  {/* <SelectItem value="employee">Senior</SelectItem> */}
-                  {/* <SelectItem value="hr">HR</SelectItem> */}
+                  <SelectItem value="member">Member</SelectItem>
                   <SelectItem value="team lead">Team Leader</SelectItem>
                   <SelectItem value="manager">Manager</SelectItem>
-                  {/* <SelectItem value="tester">Tester</SelectItem> */}
                 </SelectGroup>
               </SelectContent>
             </Select>
@@ -194,6 +214,7 @@ const CreateUser = () => {
               name="employee_id"
               value={memoizedFormData.employee_id}
               readOnly
+              placeholder="Employee ID"
             />
             <Select
               onValueChange={(value) =>
@@ -233,7 +254,7 @@ const CreateUser = () => {
               className="flex items-center justify-between gap-6"
               onClick={() => endDateRef.current.showPicker()}
             >
-              <Input 
+              <Input
                 ref={endDateRef}
                 type="date"
                 name="lastWorking_date"
