@@ -9,7 +9,11 @@ export const createProject = async (projectData) => {
       `${API_URL}/createProject`,
       projectData
     );
-    return response.data;
+    if (response.status === 201) {
+      return response.data;
+    } else {
+      throw new Error("Failed to create project");
+    }
   } catch (error) {
     console.error("Error creating project:", error);
     throw error;
@@ -22,7 +26,7 @@ export const fetchAllProjects = async (page, limit) => {
     const response = await Instance.post(
       `${API_URL}/getAllProjects/?page=${page}&limit=${limit}&sort=-createdAt`
     );
-    
+
     // Validate response
     if (response.data && response.data.data) {
       return response.data.data; // Return the sorted project data
@@ -63,10 +67,25 @@ export const updateProject = async (updatedData) => {
 // Delete a project by ID
 export const deleteProject = async (projectId) => {
   try {
-    const response = await Instance.delete(`${API_URL}/deleteProject/${projectId}`);
+    const response = await Instance.delete(
+      `${API_URL}/deleteProject/${projectId}`
+    );
     return response.data;
   } catch (error) {
     console.error("Error deleting project:", error);
-    throw error; 
+    throw error;
+  }
+};
+
+export const getAllProjectList = async () => {
+  try {
+    const response = await Instance.get(`${API_URL}/getAllProjectList`);
+    return response.data.projects.map((item) => ({
+      value: item._id, // Map 'id' to 'value'
+      label: item.project_name, // Map 'name' to 'label'
+    }));
+  } catch (error) {
+    console.error("Error fetching project list:", error);
+    throw error;
   }
 };

@@ -10,34 +10,52 @@ export const fetchAllTasks = async () => {
   }
 };
 
-export const fetchPaginationTasks = async ({ queryKey }) => {
-  const [, { page, pageSize }] = queryKey;
-
+export const fetchAllTaskPagination = async (page, limit) => {
   try {
-    const response = await Instance.post("/admin/getAllTask", {
-      page,
-      pageSize,
-    });
-    return response.data.data;
+    const response = await Instance.post(
+      `/admin/getAllTask/?page=${page}&limit=${limit}&sort=-createdAt`
+    );
+    // Validate response
+    if (!response.data || !response.data.data) {
+      throw new Error("Invalid response structure");
+    }
+    // console.log(response.data.data);
+    return response.data.data || [];
   } catch (error) {
-    console.error("Error fetching Tasks:", error);
+    console.error("Error fetching projects:", error);
     throw error;
   }
 };
-// export const createTask = async (data) => {
-//   try {
-//     const response = await Instance.post("/admin/createTask", data);
 
-//     if (response.status === 200) {
-//       return response.data;
-//     } else {
-//       throw new Error(`Failed to create task: ${response.status}`);
-//     }
+// export const fetchPaginationTasks = async ({ queryKey }) => {
+//   const [, { page, pageSize }] = queryKey;
+
+//   try {
+//     const response = await Instance.post("/admin/getAllTask", {
+//       page,
+//       pageSize,
+//     });
+//     return response.data.data;
 //   } catch (error) {
-//     console.error("Error creating task:", error);
+//     console.error("Error fetching Tasks:", error);
 //     throw error;
 //   }
 // };
+
+export const createTask = async (taskData) => {
+  try {
+    const response = await Instance.post("/admin/createTask", taskData);
+
+    if (response.status === 201) {
+      return response.data;
+    } else {
+      throw new Error(`Failed to create task: ${response.status}`);
+    }
+  } catch (error) {
+    console.error("Error creating task:", error);
+    throw error;
+  }
+};
 
 export const editTask = async (taskId) => {
   try {
@@ -46,9 +64,8 @@ export const editTask = async (taskId) => {
     }
 
     console.log("Updating task with ID:", taskId);
-    // console.log("Updated task data:", id);
 
-    const response = await Instance.put(`/admin/updateTask/`, taskId);
+    const response = await Instance.put(`/admin/updateTask`, taskId);
 
     // Check the response and handle success
     if (response.status === 200) {

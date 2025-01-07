@@ -213,12 +213,10 @@ const CreateProject = () => {
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Dates</h3>
               <div className="flex items-center justify-between gap-6">
-                <div
-                  className="w-full cursor-pointer"
-                  onClick={() => startDateRef.current.showPicker()}
-                >
+                <div className="w-full cursor-pointer">
                   <Label htmlFor="start_date">Start Date</Label>
                   <Input
+                    onClick={() => startDateRef.current.showPicker()}
                     ref={startDateRef}
                     id="start_date"
                     name="start_date"
@@ -230,12 +228,10 @@ const CreateProject = () => {
                     required
                   />
                 </div>
-                <div
-                  className="w-full cursor-pointer"
-                  onClick={() => endDateRef.current.showPicker()}
-                >
+                <div className="w-full cursor-pointer">
                   <Label htmlFor="end_date">End Date</Label>
                   <Input
+                    onClick={() => endDateRef.current.showPicker()}
                     ref={endDateRef}
                     id="end_date"
                     name="end_date"

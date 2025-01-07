@@ -131,7 +131,7 @@ const App = () => {
           path="/dashboard"
           element={
             <ProtectedRoute
-              allowedRoles={["employee", "hr", "manager", "team lead"]}
+              allowedRoles={["member", "hr", "manager", "team lead"]}
             >
               <UserSidebar />
             </ProtectedRoute>
@@ -141,7 +141,7 @@ const App = () => {
             index
             element={
               <ProtectedRoute
-                allowedRoles={["employee", "hr", "manager", "team lead"]}
+                allowedRoles={["member", "hr", "manager", "team lead"]}
               >
                 <UserDashboard />
               </ProtectedRoute>
@@ -151,7 +151,7 @@ const App = () => {
             path="manager"
             element={
               <ProtectedRoute
-                allowedRoles={["employee", "hr", "manager", "team lead"]}
+                allowedRoles={["member", "hr", "manager", "team lead"]}
               >
                 <UserManager />
               </ProtectedRoute>
@@ -161,7 +161,7 @@ const App = () => {
             path="human-resource"
             element={
               <ProtectedRoute
-                allowedRoles={["employee", "hr", "manager", "team lead"]}
+                allowedRoles={["member", "hr", "manager", "team lead"]}
               >
                 <UserHumanResource />
               </ProtectedRoute>
@@ -171,19 +171,19 @@ const App = () => {
             path="team-leader"
             element={
               <ProtectedRoute
-                allowedRoles={["employee", "hr", "manager", "team lead"]}
+                allowedRoles={["member", "hr", "manager", "team lead"]}
               >
                 <UserTeamLeader />
               </ProtectedRoute>
             }
           />
           <Route
-            path="employees"
+            path="members"
             element={
               <ProtectedRoute
-                allowedRoles={["employee", "hr", "manager", "team lead"]}
+                allowedRoles={["member", "hr", "manager", "team lead"]}
               >
-                <UserEmployee />
+                <Usermember />
               </ProtectedRoute>
             }
           /> */}
@@ -191,7 +191,7 @@ const App = () => {
             path="tasks"
             element={
               <ProtectedRoute
-                allowedRoles={["employee", "hr", "manager", "team lead"]}
+                allowedRoles={["member", "hr", "manager", "team lead"]}
               >
                 <UserTask />
               </ProtectedRoute>
@@ -201,7 +201,7 @@ const App = () => {
             path="ticket"
             element={
               <ProtectedRoute
-                allowedRoles={["employee", "hr", "manager", "team lead"]}
+                allowedRoles={["member", "hr", "manager", "team lead"]}
               >
                 <UserTicket />
               </ProtectedRoute>
@@ -211,7 +211,7 @@ const App = () => {
             path="usermanagement"
             element={
               <ProtectedRoute
-                allowedRoles={["employee", "hr", "manager", "team lead"]}
+                allowedRoles={["member", "hr", "manager", "team lead"]}
               >
                 <UsersVerify />
               </ProtectedRoute>

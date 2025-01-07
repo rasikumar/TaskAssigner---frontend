@@ -68,6 +68,21 @@ export const getLastEmployeeId = async (department) => {
     });
     return response.data;
   } catch (error) {
+    console.error(error);
+    console.error("getLastEmployeeId", error);
+    throw error;
+  }
+};
+
+export const getEmpMails = async () => {
+  try {
+    const response = await Instance.get(`${API_URL}/getEmpMails`);
+    return response.data.data.map((item) => ({
+      value: item._id,
+      label: item.name,
+    }));
+  } catch (error) {
+    console.error("getEmpMails", error);
     throw error;
   }
 };

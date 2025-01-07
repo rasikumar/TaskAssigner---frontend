@@ -22,7 +22,7 @@ export const ProjectDetailModal = ({ project, onClose, onEdit }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState(project);
   const [errorMessage, setErrorMessage] = useState("");
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen] = useState(false);
   const [ownershipOptions, setOwnershipOptions] = useState([]);
 
   const EndDate = useRef(null);

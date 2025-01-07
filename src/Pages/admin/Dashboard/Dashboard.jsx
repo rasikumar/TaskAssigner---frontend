@@ -76,7 +76,7 @@ const Dashboard = () => {
     (project) => project.project_status === "Completed"
   );
   const InprogressProject = projects.filter(
-    (project) => project.project_status === "Pending"
+    (project) => project.project_status === "In Progress"
   );
   const NotStartedProject = projects.filter(
     (project) => project.project_status === "Not Started"

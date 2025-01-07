@@ -33,7 +33,8 @@ export function Combobox({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[200px] justify-between"
+          className="w-full justify-between"
+          onClick={() => setOpen(!open)} // Manually toggle open state on click
         >
           {value
             ? items.find((item) => item.value === value)?.label
@@ -41,7 +42,8 @@ export function Combobox({
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0">
+
+      <PopoverContent className="z-[9999] p-0">
         <Command>
           <CommandInput placeholder="Search..." />
           <CommandList>

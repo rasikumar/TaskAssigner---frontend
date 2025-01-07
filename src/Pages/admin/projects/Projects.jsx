@@ -70,6 +70,7 @@ const Projects = () => {
   const handleUpdateProject = (updateProject) => {
     updateMutation.mutate(updateProject);
   };
+
   // console.log(data);
 
   const handleDeleteProject = (projectId) => {
