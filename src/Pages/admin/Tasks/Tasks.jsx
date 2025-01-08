@@ -13,7 +13,11 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { editTask, fetchAllTaskPagination } from "@/API/admin/task/task_api";
+import {
+  deleteTask,
+  editTask,
+  fetchAllTaskPagination,
+} from "@/API/admin/task/task_api";
 import { TaskDetailsModal } from "@/components/customUi/TaskDetailModal";
 import { toast } from "react-toastify";
 
@@ -79,11 +83,25 @@ const Tasks = () => {
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: deleteTask,
+    onSuccess: () => {
+      queryClient.invalidateQueries(["tasks"]);
+      toast.success("Task deleted successfully!");
+    },
+    onError: (err) => {
+      console.log("Error deleting task", err);
+    },
+  });
+
   const handleUpdateTask = (taskId) => {
     updateMutation.mutate(taskId);
   };
 
-  console.log(data);
+  const handleDeleteTask = (taskId) => {
+    deleteMutation.mutate(taskId);
+  };
+  // console.log(data);
 
   if (isError) {
     console.error(error);
@@ -150,7 +168,11 @@ const Tasks = () => {
       </td>
       <td className="px-2 py-3 text-sm text-center">
         {/* Add Delete or Edit Actions */}
-        <DeleteDialog message="Are you sure you want to delete this task?" />
+        <DeleteDialog
+          message="Are you sure you want to delete this task?"
+          onConfirm={() => handleDeleteTask(task._id)}
+          isLoading={deleteMutation.isPending}
+        />
       </td>
     </>
   );

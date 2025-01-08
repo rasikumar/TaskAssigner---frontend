@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from "react";
 import { FaPen, FaRegWindowClose } from "react-icons/fa";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { getallEmployeeOwnerShip } from "@/API/admin/adminDashborad";
 import { useQuery } from "@tanstack/react-query";
 import { CirclesWithBar } from "react-loader-spinner";
 import {
@@ -16,14 +15,18 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Textarea } from "../ui/textarea";
+import { getAllEmployeeOwnerShip } from "@/API/admin/adminDashborad";
+import Selector from "./Selector";
 
 export const ProjectDetailModal = ({ project, onClose, onEdit }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState(project);
   const [errorMessage, setErrorMessage] = useState("");
-  const [isOpen] = useState(false);
+  // const [isOpen] = useState(false);
   const [ownershipOptions, setOwnershipOptions] = useState([]);
+
+  console.log(formData);
 
   const EndDate = useRef(null);
   const StartDate = useRef(null);
@@ -42,11 +45,11 @@ export const ProjectDetailModal = ({ project, onClose, onEdit }) => {
     isError,
     error,
   } = useQuery({
-    queryKey: ["userOwnership"],
-    queryFn: getallEmployeeOwnerShip,
-    enabled: isOpen, // Only fetch when the dialog is open
+    queryKey: ["userData"],
+    queryFn: getAllEmployeeOwnerShip,
   });
 
+  // console.log(userData);
   // Map user data into dropdown options when data is available
   useEffect(() => {
     if (userData) {
@@ -69,7 +72,7 @@ export const ProjectDetailModal = ({ project, onClose, onEdit }) => {
     }
   }, [userData]);
 
-  // console.log(userData);
+  console.log(ownershipOptions);
 
   if (isLoading) {
     return <CirclesWithBar />;
@@ -117,6 +120,13 @@ export const ProjectDetailModal = ({ project, onClose, onEdit }) => {
     </div>
   );
 
+  const statusOptions = [
+    { value: "Not Started", label: "Not Started" },
+    { value: "In Progress", label: "In Progress" },
+    { value: "Pending", label: "Pending" },
+    { value: "Completed", label: "Completed" },
+  ];
+
   return (
     <div
       id="modal-overlay"
@@ -160,10 +170,20 @@ export const ProjectDetailModal = ({ project, onClose, onEdit }) => {
               <Select
                 id="project_ownership"
                 name="project_ownership"
-                value={formData.project_ownership}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, project_ownership: value })
-                }
+                value={formData.project_ownership._id}
+                onValueChange={(value) => {
+                  const selectedOwnership = ownershipOptions.find(
+                    (option) => option.id === value
+                  );
+                  if (selectedOwnership) {
+                    console.log("Selected Ownership:", selectedOwnership); // Debugging log
+                    setFormData({
+                      ...formData,
+                      project_ownership: selectedOwnership,
+                    });
+                    console.log("Updated formData:", formData); // Debugging log
+                  }
+                }}
                 required
                 className="w-full p-2 border rounded-md"
               >
@@ -201,11 +221,15 @@ export const ProjectDetailModal = ({ project, onClose, onEdit }) => {
                 }
               />
 
-              {renderInput(
-                "project_status",
-                "Project Status",
-                formData.project_status
-              )}
+              <Selector
+                id="project_status"
+                label="project_status"
+                value={formData.project_status}
+                onChange={(e) =>
+                  setFormData({ ...formData, project_status: e.target.value })
+                }
+                options={statusOptions}
+              />
 
               {renderInput(
                 "estimated_hours",

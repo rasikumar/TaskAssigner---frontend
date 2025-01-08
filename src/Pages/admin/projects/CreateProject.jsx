@@ -96,7 +96,7 @@ const CreateProject = () => {
     enabled: isOpen, // Only fetch when the dialog is open
   });
 
-  // console.log(userData);
+  // console.log(formData);
   // Map user data into dropdown options when data is available
   useEffect(() => {
     if (userData) {
