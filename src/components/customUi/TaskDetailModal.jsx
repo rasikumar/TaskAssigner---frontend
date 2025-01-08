@@ -7,6 +7,7 @@ import { getEmpMails } from "@/API/admin/userverify/userVerify";
 import { getAllEmployeeOwnerShip } from "@/API/admin/adminDashborad";
 import { Combobox } from "./Handle";
 import { Button } from "../ui/button";
+import { Label } from "../ui/label";
 
 /* eslint-disable react/prop-types */
 export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
@@ -14,7 +15,6 @@ export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState(task);
   const [errorMessage, setErrorMessage] = useState("");
-  const [isOpen] = useState(false);
   const [ownershipOptions, setOwnershipOptions] = useState([]);
 
   const EndDate = useRef(null);
@@ -28,7 +28,6 @@ export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
   } = useQuery({
     queryKey: ["userList"],
     queryFn: getEmpMails,
-    enabled: isOpen,
   });
 
   const {
@@ -39,10 +38,10 @@ export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
   } = useQuery({
     queryKey: ["userData"],
     queryFn: getAllEmployeeOwnerShip,
-    enabled: isOpen, // Only fetch when the dialog is open
   });
 
-  // console.log(userData);
+  console.log(formData);
+  console.log(userList);
   // Map user data into dropdown options when data is available
   useEffect(() => {
     if (userData) {
@@ -82,7 +81,11 @@ export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
   };
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
 
   const handleSelectChange = (name, value) => {
@@ -182,7 +185,6 @@ export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
         </div>
 
         {/* Content */}
-        {setIsEditing}
         <div className="p-6 ">
           <h2 className="text-xl font-bold text-indigo-600 mb-2">
             {task.project?.project_name}
@@ -193,27 +195,37 @@ export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
           {isEditing ? (
             <>
               {renderInput("task_title", "Task Title", formData.task_title)}
+
               {renderInput(
                 "task_description",
                 "Task Description",
                 formData.task_description
               )}
-              <Selector
-                label="Priority"
-                id="priority"
-                value={formData.priority}
-                onChange={(e) => handleSelectChange("priority", e.target.value)}
-                options={priorityOptions}
-              />
-              <Selector
-                label="Status"
-                id="status"
-                value={formData.status}
-                onChange={(e) => handleSelectChange("status", e.target.value)}
-                options={statusOptions}
-              />
+
               <div className="mb-4">
-                Start Date
+                <Selector
+                  label="Priority"
+                  id="priority"
+                  value={formData.priority}
+                  onChange={(e) =>
+                    handleSelectChange("priority", e.target.value)
+                  }
+                  options={priorityOptions}
+                />
+              </div>
+
+              <div className="mb-4">
+                <Selector
+                  label="Status"
+                  id="status"
+                  value={formData.status}
+                  onChange={(e) => handleSelectChange("status", e.target.value)}
+                  options={statusOptions}
+                />
+              </div>
+
+              <div className="mb-4">
+                <Label>Start Date</Label>
                 <Input
                   onClick={() => StartDate.current.showPicker()}
                   ref={StartDate}
@@ -231,7 +243,7 @@ export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
               </div>
 
               <div className="mb-4">
-                End Date
+                <Label>End Date</Label>
                 <Input
                   onClick={() => EndDate.current.showPicker()}
                   ref={EndDate}
@@ -247,30 +259,54 @@ export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
                   required
                 />
               </div>
-              <Combobox
-                items={userList} // Array of projects
-                value={formData.assigned_to} // Controlled state
-                onChange={(value) => {
-                  setFormData((prevData) => ({
-                    ...prevData,
-                    assigned_to: value, // Update the project value in the form data
-                  }));
-                }}
-                placeholder="Assigned to"
-              />
-              <Combobox
-                items={ownershipOptions} // Array of projects
-                value={formData.report_to} // Controlled state
-                onChange={(value) => {
-                  setFormData((prevData) => ({
-                    ...prevData,
-                    report_to: value, // Update the project value in the form data
-                  }));
-                }}
-                placeholder="Report to"
-              />
+
+              <div className="mb-4">
+                <Label>Assigned to</Label>
+                <Combobox
+                  items={userList.map((user) => ({
+                    value: user._id,
+                    label: user.label,
+                  }))}
+                  value={formData.assigned_to?._id}
+                  onChange={(value) => {
+                    const selectedUser = userList.find(
+                      (user) => user._id === value
+                    );
+                    setFormData((prevData) => ({
+                      ...prevData,
+                      assigned_to: {
+                        _id: selectedUser._id,
+                        name: selectedUser.label,
+                      },
+                    }));
+                  }}
+                  placeholder="Assigned to"
+                />
+              </div>
+
+              <div className="mb-4">
+                <Label>Report to</Label>
+                <Combobox
+                  items={ownershipOptions}
+                  value={formData.report_to?._id}
+                  onChange={(value) => {
+                    const selectedOwner = ownershipOptions.find(
+                      (option) => option.value === value
+                    );
+                    setFormData((prevData) => ({
+                      ...prevData,
+                      report_to: {
+                        _id: selectedOwner.value,
+                        name: selectedOwner.label.split(" - ")[1],
+                      },
+                    }));
+                  }}
+                  placeholder="Report to"
+                />
+              </div>
+
               <Button onClick={handleSave} className="mb-4">
-                Update Project
+                Update Task
               </Button>
             </>
           ) : (
@@ -301,6 +337,10 @@ export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
                 </p>
                 <p className="text-sm text-taskBlack inline-flex items-center justify-between">
                   <span className="font-medium">Status:</span> {task.status}
+                </p>
+                <p className="text-sm text-taskBlack inline-flex items-center justify-between">
+                  <span className="font-medium">Assigned To:</span>{" "}
+                  {task.assigned_to?.name || "No name available"}
                 </p>
                 <p className="text-sm text-taskBlack inline-flex items-center justify-between">
                   <span className="font-medium">Report To:</span>{" "}

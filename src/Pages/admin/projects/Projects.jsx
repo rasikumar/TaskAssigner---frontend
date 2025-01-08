@@ -20,17 +20,21 @@ import {
 import CreateProject from "./CreateProject";
 import { ProjectDetailModal } from "@/components/customUi/ProjectDetailModal";
 import DeleteDialog from "@/components/DeleteDialog";
+import { getTaskRelatedToProject } from "@/API/admin/task/task_api";
 
 const Projects = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState(false);
+  const [taskList, setTaskList] = useState([]);
 
   const queryClient = useQueryClient();
 
-  const handleProjectClick = (project) => {
+  const handleProjectClick = (project, projectId) => {
     setSelectedProject(project);
+    handleClick(projectId);
     setIsModalOpen(true);
   };
+  // console.log(taskList);
 
   const [currentPage, setCurrentPage] = useState(1); // Track current page
 
@@ -42,6 +46,8 @@ const Projects = () => {
     staleTime: 30000,
     onError: () => toast.error("Error fetching projects"),
   });
+
+  console.log(data);
 
   const updateMutation = useMutation({
     mutationFn: updateProject,
@@ -66,6 +72,25 @@ const Projects = () => {
       console.log("Error deleting project", err);
     },
   });
+
+  const getRelatedMutations = useMutation({
+    mutationFn: getTaskRelatedToProject,
+    onSuccess: (data) => {
+      setTaskList(data.length > 0 ? data : ["No tasks available"]);
+    },
+    onError: (err) => {
+      console.log("Error fetching related tasks", err);
+      setTaskList([]); // Set task list to empty array on error
+    },
+  });
+
+  const handleClick = (projectId) => {
+    getRelatedMutations.mutate(projectId, {
+      onSuccess: (data) => {
+        setTaskList(data.length > 0 ? data : ["No tasks available"]);
+      },
+    });
+  };
 
   const handleUpdateProject = (updateProject) => {
     updateMutation.mutate(updateProject);
@@ -99,7 +124,7 @@ const Projects = () => {
     <>
       <td
         onClick={() => {
-          handleProjectClick(project);
+          handleProjectClick(project, project._id); // Pass projectId here
         }}
         className="px-2 py-3 text-sm text-primary font-bold "
       >
@@ -278,6 +303,7 @@ const Projects = () => {
           project={selectedProject}
           onClose={() => setIsModalOpen(false)}
           onEdit={handleUpdateProject}
+          taskList={taskList}
         />
       )}
     </div>

@@ -1,93 +1,55 @@
 /* eslint-disable react/prop-types */
-import { PieChart, Pie, Cell, Tooltip, Sector } from "recharts";
+import { Pie, PieChart, Cell } from "recharts";
 
-const ProjectSummaryChart = ({ data }) => {
-  const COLORS = ["#4CAF50", "#FFC107", "#F44336"];
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
 
-  const renderActiveShape = (props) => {
-    const RADIAN = Math.PI / 180;
-    const {
-      cx,
-      cy,
-      midAngle,
-      innerRadius,
-      outerRadius,
-      startAngle,
-      endAngle,
-      fill,
-      payload,
-      percent,
-    } = props;
-    const sin = Math.sin(-RADIAN * midAngle);
-    const cos = Math.cos(-RADIAN * midAngle);
-    const sx = cx + (outerRadius + 10) * cos;
-    const sy = cy + (outerRadius + 10) * sin;
-    const mx = cx + (outerRadius + 30) * cos;
-    const my = cy + (outerRadius + 30) * sin;
-    const ex = mx + (cos >= 0 ? 1 : -1) * 22;
-    const ey = my;
-    const textAnchor = cos >= 0 ? "start" : "end";
-
-    return (
-      <g>
-        <text x={cx} y={cy} dy={8} textAnchor="middle" fill={fill}>
-          {payload.name}
-        </text>
-        <Sector
-          cx={cx}
-          cy={cy}
-          innerRadius={innerRadius}
-          outerRadius={outerRadius}
-          startAngle={startAngle}
-          endAngle={endAngle}
-          fill={fill}
-        />
-        <Sector
-          cx={cx}
-          cy={cy}
-          startAngle={startAngle}
-          endAngle={endAngle}
-          innerRadius={outerRadius + 6}
-          outerRadius={outerRadius + 10}
-          fill={fill}
-        />
-        <path
-          d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`}
-          stroke={fill}
-          fill="none"
-        />
-        <circle cx={ex} cy={ey} r={2} fill={fill} stroke="none" />
-        <text
-          x={ex + (cos >= 0 ? 1 : -1) * 12}
-          y={ey}
-          dy={18}
-          textAnchor={textAnchor}
-          fill="#999"
-        >
-          {`(${(percent * 100).toFixed(2)}%)`}
-        </text>
-      </g>
-    );
-  };
-
+// Reusable component with props
+const SummaryCard = ({ title, description, chartData, chartConfig }) => {
   return (
-    <PieChart width={400} height={400}>
-      <Pie
-        data={data}
-        cy={200}
-        innerRadius={60}
-        outerRadius={100}
-        fill="#8884d8"
-        dataKey="value"
-        activeShape={renderActiveShape}
-      >
-        {data.map((entry, index) => (
-          <Cell key={`${index}`} fill={COLORS[index % COLORS.length]} />
-        ))}
-      </Pie>
-      <Tooltip />
-    </PieChart>
+    <Card className="flex flex-col rounded-lg shadow-lg hover:shadow-xl">
+      <CardHeader className="items-center pb-0 text-center">
+        <CardTitle className="text-xl font-semibold">{title}</CardTitle>
+        <CardDescription className="text-sm text-muted-foreground mt-2">
+          {description}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="flex-1 pb-0 flex justify-center items-center">
+        <ChartContainer
+          config={chartConfig}
+          className="aspect-square max-h-[300px] w-[100px] sm:w-[150px] lg:w-[250px]"
+        >
+          <PieChart>
+            <ChartTooltip
+              cursor={false}
+              content={<ChartTooltipContent hideLabel />}
+            />
+            <Pie
+              data={chartData}
+              dataKey="visitors"
+              nameKey="browser"
+              innerRadius={60}
+              outerRadius={100}
+            >
+              {chartData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.color} stroke={entry.color} />
+              ))}
+            </Pie>
+          </PieChart>
+        </ChartContainer>
+      </CardContent>
+    </Card>
   );
 };
 
-export default ProjectSummaryChart;
+export default SummaryCard;

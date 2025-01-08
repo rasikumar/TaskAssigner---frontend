@@ -18,7 +18,7 @@ import { Textarea } from "../ui/textarea";
 import { getAllEmployeeOwnerShip } from "@/API/admin/adminDashborad";
 import Selector from "./Selector";
 
-export const ProjectDetailModal = ({ project, onClose, onEdit }) => {
+export const ProjectDetailModal = ({ project, onClose, onEdit, taskList }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState(project);
@@ -26,7 +26,7 @@ export const ProjectDetailModal = ({ project, onClose, onEdit }) => {
   // const [isOpen] = useState(false);
   const [ownershipOptions, setOwnershipOptions] = useState([]);
 
-  console.log(formData);
+  // console.log(formData);
 
   const EndDate = useRef(null);
   const StartDate = useRef(null);
@@ -50,7 +50,6 @@ export const ProjectDetailModal = ({ project, onClose, onEdit }) => {
   });
 
   // console.log(userData);
-  // Map user data into dropdown options when data is available
   useEffect(() => {
     if (userData) {
       const options = [
@@ -72,7 +71,7 @@ export const ProjectDetailModal = ({ project, onClose, onEdit }) => {
     }
   }, [userData]);
 
-  console.log(ownershipOptions);
+  // console.log(ownershipOptions);
 
   if (isLoading) {
     return <CirclesWithBar />;
@@ -126,6 +125,8 @@ export const ProjectDetailModal = ({ project, onClose, onEdit }) => {
     { value: "Pending", label: "Pending" },
     { value: "Completed", label: "Completed" },
   ];
+
+  // console.log("dd", taskList);
 
   return (
     <div
@@ -332,23 +333,41 @@ export const ProjectDetailModal = ({ project, onClose, onEdit }) => {
                   </span>
                 </p>
                 <div className="mt-4">
-                  <h2 className="text-lg font-semibold text-taskBlack">
+                  <h2 className="text-lg font-semibold text-gray-800 mb-4">
                     Tasks
                   </h2>
-                  <ul className="mt-2 space-y-2">
-                    <li className="flex justify-between items-center bg-gray-100 p-2 rounded-md">
-                      <span className="text-sm">Task 1: Design Wireframe</span>
-                      <span className="text-xs text-gray-500">In Progress</span>
-                    </li>
-                    <li className="flex justify-between items-center bg-gray-100 p-2 rounded-md">
-                      <span className="text-sm">Task 2: Development</span>
-                      <span className="text-xs text-gray-500">Not Started</span>
-                    </li>
-                    <li className="flex justify-between items-center bg-gray-100 p-2 rounded-md">
-                      <span className="text-sm">Task 3: Testing</span>
-                      <span className="text-xs text-gray-500">Pending</span>
-                    </li>
-                  </ul>
+                  {taskList && taskList.length > 0 ? (
+                    <ul className="space-y-3">
+                      {taskList.map((task) => (
+                        <li
+                          key={task._id}
+                          className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg shadow-sm hover:shadow-md transition-shadow bg-white"
+                        >
+                          <div className="flex flex-col gap-1">
+                            <h3 className="text-base font-medium text-gray-700">
+                              {task.task_title}
+                            </h3>
+                            <p className="text-sm text-gray-500">
+                              {task.task_description}
+                            </p>
+                          </div>
+                          <span
+                            className={`mt-2 sm:mt-0 inline-block text-xs font-medium px-3 py-1 rounded-full ${
+                              task.status === "Completed"
+                                ? "bg-green-100 text-green-600"
+                                : task.status === "In-Progress"
+                                ? "bg-yellow-100 text-yellow-600"
+                                : "bg-red-100 text-red-600"
+                            }`}
+                          >
+                            {task.status}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-sm text-gray-500">No tasks available.</p>
+                  )}
                 </div>
               </div>
             </div>

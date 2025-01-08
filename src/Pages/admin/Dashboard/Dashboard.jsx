@@ -1,9 +1,7 @@
 import { adminDashboard } from "@/API/admin/adminDashborad";
 import { fetchAllProjects } from "@/API/admin/projects/project_api";
 import { fetchAllTasks } from "@/API/admin/task/task_api";
-import MotionSection from "@/components/MotionSection";
-import ProjectSummaryChart from "@/components/ProjectSummaryChart";
-// import MotionSection from "@/components/MotionSection";
+import SummaryCard from "@/components/ProjectSummaryChart";
 import MainCards from "@/components/ui/cards/MainCards";
 import { ProjectsCard } from "@/components/ui/cards/ProjectsCard";
 import { useQuery } from "@tanstack/react-query";
@@ -18,7 +16,7 @@ const Dashboard = () => {
       return fetchAllTasks();
     },
   });
-
+  // console.log(data);
   const {
     data: projectData,
     isError: isProjectError,
@@ -69,7 +67,7 @@ const Dashboard = () => {
     return <div>Error: {error.message}</div>;
   }
 
-  const tasks = data || {};
+  const tasks = data.tasks || {};
   const projects = projectData.projects || {};
 
   const CompletedProject = projects.filter(
@@ -80,6 +78,9 @@ const Dashboard = () => {
   );
   const NotStartedProject = projects.filter(
     (project) => project.project_status === "Not Started"
+  );
+  const PendingProjecct = projects.filter(
+    (project) => project.project_status === "Pending"
   );
 
   const CompletedTask =
@@ -92,18 +93,68 @@ const Dashboard = () => {
     tasks.length > 0
       ? tasks.filter((task) => task.status === "Not started")
       : [];
+  const PendingTask =
+    tasks.length > 0 ? tasks.filter((task) => task.status === "Pending") : [];
+  const CancelledTask =
+    tasks.length > 0 ? tasks.filter((task) => task.status === "Cancelled") : [];
 
   const projectDataForChart = [
-    { name: "Completed", value: CompletedProject.length },
-    { name: "In Progress", value: InprogressProject.length },
-    { name: "Not Started", value: NotStartedProject.length },
+    {
+      browser: "Completed",
+      visitors: CompletedProject.length,
+      color: "#4CAF50",
+    },
+    {
+      browser: "In Progress",
+      visitors: InprogressProject.length,
+      color: "#FFC107",
+    },
+    {
+      browser: "Pending",
+      visitors: PendingProjecct.length,
+      color: "#15B097",
+    },
+    {
+      browser: "Not Started",
+      visitors: NotStartedProject.length,
+      color: "#F44336",
+    },
   ];
 
-  const TaskDataForChart = [
-    { name: "Completed", value: CompletedTask.length },
-    { name: "In Progress", value: InprogressTask.length },
-    { name: "Not Started", value: NotStartedTask.length },
+  const taskDataForChart = [
+    {
+      browser: "Completed",
+      visitors: CompletedTask.length,
+      color: "#4CAF50",
+    },
+    {
+      browser: "In Progress",
+      visitors: InprogressTask.length,
+      color: "#FFC107",
+    },
+    {
+      browser: "Not Started",
+      visitors: NotStartedProject.length,
+      color: "#F44336",
+    },
+    {
+      browser: "Pending",
+      visitors: PendingTask.length,
+      color: "#F44336",
+    },
+    {
+      browser: "Cancelled",
+      visitors: CancelledTask.length,
+      color: "#F44336",
+    },
   ];
+
+  const chartConfig = {
+    Completed: { label: "Completed", color: "#4CAF50" },
+    "In Progress": { label: "In Progress", color: "#FFC107" },
+    "Not Started": { label: "Not Started", color: "#F44336" },
+  };
+
   return (
     <section className="flex flex-col gap-4">
       <header className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl shadow-lg p-6 text-center">
@@ -192,25 +243,35 @@ const Dashboard = () => {
         {/* Second Column */}
         <div className="grid grid-cols-1 mt-[3.7rem] bg-[#f9a065] rounded-xl h-[21.3rem] w-full gap-4">
           {/* Today's Tasks Section */}
-          <div className="flex items-center justify-center mt-5">
+          <div className="flex items-center justify-center mt-20">
             <div>
-              <MotionSection>
+              {/* <MotionSection>
                 <h1 className="text-white mt-6 text-lg font-medium z-50 text-center">
                   Project Summary
                 </h1>
-              </MotionSection>
+              </MotionSection> */}
               <div className="-mt-20">
-                <ProjectSummaryChart data={projectDataForChart} />
+                <SummaryCard
+                  title="Project Status"
+                  description="Project Completion Overview"
+                  chartData={projectDataForChart}
+                  chartConfig={chartConfig}
+                />
               </div>
             </div>
             <div>
-              <MotionSection>
+              {/* <MotionSection>
                 <h1 className="text-white mt-6 text-lg font-medium z-50 text-center">
                   Task Summary
                 </h1>
-              </MotionSection>
+              </MotionSection> */}
               <div className="-mt-20">
-                <ProjectSummaryChart data={TaskDataForChart} />
+                <SummaryCard
+                  title="Task Status"
+                  description="Task Completion Overview"
+                  chartData={taskDataForChart}
+                  chartConfig={chartConfig}
+                />
               </div>
             </div>
           </div>

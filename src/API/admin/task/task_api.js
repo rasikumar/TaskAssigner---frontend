@@ -27,21 +27,6 @@ export const fetchAllTaskPagination = async (page, limit) => {
   }
 };
 
-// export const fetchPaginationTasks = async ({ queryKey }) => {
-//   const [, { page, pageSize }] = queryKey;
-
-//   try {
-//     const response = await Instance.post("/admin/getAllTask", {
-//       page,
-//       pageSize,
-//     });
-//     return response.data.data;
-//   } catch (error) {
-//     console.error("Error fetching Tasks:", error);
-//     throw error;
-//   }
-// };
-
 export const createTask = async (taskData) => {
   try {
     const response = await Instance.post("/admin/createTask", taskData);
@@ -63,8 +48,6 @@ export const editTask = async (taskId) => {
       throw new Error("Task ID is missing or invalid");
     }
 
-    console.log("Updating task with ID:", taskId);
-
     const response = await Instance.put(`/admin/updateTask`, taskId);
 
     // Check the response and handle success
@@ -85,13 +68,9 @@ export const deleteTask = async (taskId) => {
       throw new Error("Task ID is missing or invalid");
     }
 
-    // console.log("Deleting task with ID:", taskId);
-
     const response = await Instance.delete(`/admin/deleteTask/${taskId}`, {
       data: { id: taskId, role: "admin" },
     });
-
-    // console.log("Response from server:", response);
 
     if (response.data.status) {
       return response.data;
@@ -100,6 +79,27 @@ export const deleteTask = async (taskId) => {
     }
   } catch (error) {
     console.error("Error deleting task:", error);
+    throw error;
+  }
+};
+
+export const getTaskRelatedToProject = async (projectId) => {
+  try {
+    if (!projectId) {
+      throw new Error("Project ID is missing or invalid");
+    }
+    const response = await Instance.post(`/admin/getTaskRelatedToProject`, {
+      projectId: projectId,
+    });
+    const tasks = response.data.tasks;
+    if (!tasks || tasks.length === 0) {
+      console.log("No tasks found for this project.");
+      return [];
+    }
+    console.log(tasks);
+    return tasks;
+  } catch (error) {
+    console.error("Error fetching tasks related to project:", error);
     throw error;
   }
 };
