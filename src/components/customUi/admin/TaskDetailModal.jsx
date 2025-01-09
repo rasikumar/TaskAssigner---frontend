@@ -1,13 +1,13 @@
 import { FaPen, FaRegWindowClose } from "react-icons/fa";
 import { useEffect, useRef, useState } from "react";
-import { Input } from "../ui/input";
-import Selector from "./Selector";
+import { Input } from "../../ui/input";
+import Selector from "../Selector";
 import { useQuery } from "@tanstack/react-query";
 import { getEmpMails } from "@/API/admin/userverify/userVerify";
 import { getAllEmployeeOwnerShip } from "@/API/admin/adminDashborad";
-import { Combobox } from "./Handle";
-import { Button } from "../ui/button";
-import { Label } from "../ui/label";
+import { Combobox } from "../Handle";
+import { Button } from "../../ui/button";
+import { Label } from "../../ui/label";
 
 /* eslint-disable react/prop-types */
 export const TaskDetailsModal = ({ task, onClose, onEdit }) => {

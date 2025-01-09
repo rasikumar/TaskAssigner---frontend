@@ -1,6 +1,6 @@
 import { FaPen, FaRegWindowClose } from "react-icons/fa";
 import { useEffect, useRef, useState } from "react";
-import { Input } from "../ui/Input";
+import { Input } from "../../ui/Input";
 import {
   Select,
   SelectContent,
@@ -9,7 +9,7 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
+} from "../../ui/select";
 import { Button } from "@/components/ui/button";
 
 /* eslint-disable react/prop-types */

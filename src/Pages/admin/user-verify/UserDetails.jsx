@@ -7,7 +7,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CirclesWithBar } from "react-loader-spinner";
 import Table from "@/components/customUi/Table";
 import { useState } from "react";
-import { UserDetailModal } from "@/components/customUi/UserDetailModal";
+import { UserDetailModal } from "@/components/customUi/admin/UserDetailModal";
 import { toast } from "react-toastify";
 import {
   Pagination,

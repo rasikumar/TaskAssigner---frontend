@@ -40,7 +40,7 @@ const AdminSidebar = () => {
     navigate("/", { replace: true });
   };
 
-  console.log(name);
+  // console.log(name);
 
   return (
     <div className="flex w-full p-4 absolute h-full bg-slate-100">

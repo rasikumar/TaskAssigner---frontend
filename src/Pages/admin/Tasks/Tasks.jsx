@@ -18,7 +18,7 @@ import {
   editTask,
   fetchAllTaskPagination,
 } from "@/API/admin/task/task_api";
-import { TaskDetailsModal } from "@/components/customUi/TaskDetailModal";
+import { TaskDetailsModal } from "@/components/customUi/admin/TaskDetailModal";
 import { toast } from "react-toastify";
 
 const getpriority = (priority) => {

@@ -18,7 +18,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination"; // Import ShadCN pagination components
 import CreateProject from "./CreateProject";
-import { ProjectDetailModal } from "@/components/customUi/ProjectDetailModal";
+import { ProjectDetailModal } from "@/components/customUi/admin/ProjectDetailModal";
 import DeleteDialog from "@/components/DeleteDialog";
 import { getTaskRelatedToProject } from "@/API/admin/task/task_api";
 

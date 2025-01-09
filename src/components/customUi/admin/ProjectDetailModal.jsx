@@ -1,8 +1,8 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useRef, useState } from "react";
 import { FaPen, FaRegWindowClose } from "react-icons/fa";
-import { Input } from "../ui/input";
-import { Button } from "../ui/button";
+import { Input } from "../../ui/input";
+import { Button } from "../../ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { CirclesWithBar } from "react-loader-spinner";
 import {
@@ -13,10 +13,10 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
-import { Textarea } from "../ui/textarea";
+} from "../../ui/select";
+import { Textarea } from "../../ui/textarea";
 import { getAllEmployeeOwnerShip } from "@/API/admin/adminDashborad";
-import Selector from "./Selector";
+import Selector from "../Selector";
 
 export const ProjectDetailModal = ({ project, onClose, onEdit, taskList }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -27,7 +27,7 @@ export const ProjectDetailModal = ({ project, onClose, onEdit, taskList }) => {
   const [ownershipOptions, setOwnershipOptions] = useState([]);
   const [milestoneData, setMilestoneData] = useState(project.milestones || []);
 
-  console.log(formData);
+  // console.log(formData);
 
   const EndDate = useRef(null);
   const StartDate = useRef(null);
@@ -265,7 +265,7 @@ export const ProjectDetailModal = ({ project, onClose, onEdit, taskList }) => {
                   onClick={() => StartDate.current.showPicker()}
                   ref={StartDate}
                   id="StartDate"
-                  name="StartDate"
+                  name="StartDate"  
                   type="date"
                   value={
                     formData.startDate ? formData.startDate.split("T")[0] : ""

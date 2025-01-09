@@ -1,5 +1,5 @@
 import { Route, Routes } from "react-router"; // Correct import from react-router-dom
-import ProtectedRoute from "./components/protected/ProtectedRoute";
+import ProtectedRoute from "./utils/ProtectedRoute";
 import Error from "./components/Error";
 
 // Admin
@@ -21,11 +21,8 @@ import RolePage from "./Pages/admin/roles/[roleName]";
 import UserSidebar from "./components/UserSidebar";
 import UserLogin from "./components/auth/UserLogin";
 import UserDashboard from "./Pages/user/Dashboard/Dashboard";
-// import UserManager from "./Pages/user/Manager/Manager";
-// import UserHumanResource from "./Pages/user/HumanResource/HumanResouce";
-// import UserTeamLeader from "./Pages/user/TeamLeader/TeamLeader";
-// import UserEmployee from "./Pages/user/Employees/Employee";
-import UserTask from "./Pages/user/Tasks/Tasks";
+import UserTasks from "./Pages/user/tasks/userTasks";
+import UserProjects from "./Pages/user/projects/userProjects";
 import UserTicket from "./Pages/user/Tickets/Tickets";
 import UsersVerify from "./Pages/user/user-verify/Userverify";
 import MemberDetailPage from "./Pages/admin/people/[peopleName]";
@@ -147,56 +144,27 @@ const App = () => {
               </ProtectedRoute>
             }
           />
-          {/* <Route
-            path="manager"
-            element={
-              <ProtectedRoute
-                allowedRoles={["member", "hr", "manager", "team lead"]}
-              >
-                <UserManager />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="human-resource"
-            element={
-              <ProtectedRoute
-                allowedRoles={["member", "hr", "manager", "team lead"]}
-              >
-                <UserHumanResource />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="team-leader"
-            element={
-              <ProtectedRoute
-                allowedRoles={["member", "hr", "manager", "team lead"]}
-              >
-                <UserTeamLeader />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="members"
-            element={
-              <ProtectedRoute
-                allowedRoles={["member", "hr", "manager", "team lead"]}
-              >
-                <Usermember />
-              </ProtectedRoute>
-            }
-          /> */}
           <Route
             path="tasks"
             element={
               <ProtectedRoute
                 allowedRoles={["member", "hr", "manager", "team lead"]}
               >
-                <UserTask />
+                <UserTasks />
               </ProtectedRoute>
             }
           />
+          <Route
+            path="projects"
+            element={
+              <ProtectedRoute
+                allowedRoles={["member", "hr", "manager", "team lead"]}
+              >
+                <UserProjects />
+              </ProtectedRoute>
+            }
+          />
+
           <Route
             path="ticket"
             element={
