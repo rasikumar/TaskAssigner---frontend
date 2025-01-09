@@ -264,18 +264,18 @@ export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
                 <Label>Assigned to</Label>
                 <Combobox
                   items={userList.map((user) => ({
-                    value: user._id,
+                    value: user.value,
                     label: user.label,
                   }))}
                   value={formData.assigned_to?._id}
                   onChange={(value) => {
                     const selectedUser = userList.find(
-                      (user) => user._id === value
+                      (user) => user.value === value
                     );
                     setFormData((prevData) => ({
                       ...prevData,
                       assigned_to: {
-                        _id: selectedUser._id,
+                        _id: selectedUser.value,
                         name: selectedUser.label,
                       },
                     }));

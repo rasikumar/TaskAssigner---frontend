@@ -24,6 +24,7 @@ import {
   SelectGroup,
   SelectLabel,
 } from "@/components/ui/select";
+import { PlusIcon } from "lucide-react";
 
 const CreateProject = () => {
   const [formData, setFormData] = useState({
@@ -34,11 +35,15 @@ const CreateProject = () => {
     start_date: "",
     end_date: "",
     estimated_hours: "",
+    milestones: [], // Add milestones to formData
   });
 
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
   const [ownershipOptions, setOwnershipOptions] = useState([]);
+  const [milestones, setMilestones] = useState([]);
+  const [showMilestoneInput, setShowMilestoneInput] = useState(false);
+  const [newMilestone, setNewMilestone] = useState("");
 
   const startDateRef = useRef(null);
   const endDateRef = useRef(null);
@@ -55,6 +60,7 @@ const CreateProject = () => {
         start_date: "",
         end_date: "",
         estimated_hours: "",
+        milestones: [], // Reset milestones in formData
       });
       setIsOpen(false);
       toast.success("Project Created Successfully");
@@ -135,6 +141,18 @@ const CreateProject = () => {
     }));
   };
 
+  const handleAddMilestone = () => {
+    if (newMilestone.trim() !== "") {
+      setMilestones([...milestones, newMilestone]);
+      setFormData((prevData) => ({
+        ...prevData,
+        milestones: [...prevData.milestones, newMilestone],
+      }));
+      setNewMilestone("");
+      setShowMilestoneInput(false);
+    }
+  };
+
   return (
     <>
       <Button onClick={() => setIsOpen(true)} className="w-fit">
@@ -179,7 +197,6 @@ const CreateProject = () => {
                 />
               </div>
             </div>
-
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Ownership</h3>
               <div>
@@ -209,7 +226,38 @@ const CreateProject = () => {
                 </Select>
               </div>
             </div>
-
+            <div>
+              <h3 className="text-lg font-semibold">MileStone</h3>
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={() => setShowMilestoneInput(true)}
+                  className="p-2"
+                >
+                  <PlusIcon className="h-5 w-5" />
+                </Button>
+                {showMilestoneInput && (
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="text"
+                      value={newMilestone}
+                      onChange={(e) => setNewMilestone(e.target.value)}
+                      placeholder="Enter milestone"
+                      className="w-full"
+                    />
+                    <Button onClick={handleAddMilestone} className="p-2">
+                      Add
+                    </Button>
+                  </div>
+                )}
+              </div>
+              <ul className="mt-2">
+                {milestones.map((milestone, index) => (
+                  <li key={index} className="list-disc ml-4">
+                    {milestone}
+                  </li>
+                ))}
+              </ul>
+            </div>
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Dates</h3>
               <div className="flex items-center justify-between gap-6">
@@ -262,7 +310,6 @@ const CreateProject = () => {
                 />
               </div>
             </div>
-
             <DialogFooter>
               <Button
                 type="submit"

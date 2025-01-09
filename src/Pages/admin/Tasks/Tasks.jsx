@@ -321,13 +321,6 @@ const Tasks = () => {
           onEdit={handleUpdateTask}
         />
       )}
-      {data?.tasks?.length > 0 && (
-        <TaskDetailsModal
-          task={data.tasks[0]}
-          onClose={() => setIsModalOpen(false)}
-          onEdit={handleUpdateTask}
-        />
-      )}
     </div>
   );
 };

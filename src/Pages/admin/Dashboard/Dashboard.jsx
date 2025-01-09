@@ -134,13 +134,13 @@ const Dashboard = () => {
     },
     {
       browser: "Not Started",
-      visitors: NotStartedProject.length,
-      color: "#F44336",
+      visitors: NotStartedTask.length,
+      color: "#2F195F",
     },
     {
       browser: "Pending",
       visitors: PendingTask.length,
-      color: "#F44336",
+      color: "#A2C5AC",
     },
     {
       browser: "Cancelled",
@@ -149,6 +149,7 @@ const Dashboard = () => {
     },
   ];
 
+  console.log(taskDataForChart);
   const chartConfig = {
     Completed: { label: "Completed", color: "#4CAF50" },
     "In Progress": { label: "In Progress", color: "#FFC107" },
@@ -241,9 +242,9 @@ const Dashboard = () => {
         </div>
 
         {/* Second Column */}
-        <div className="grid grid-cols-1 mt-[3.7rem] bg-[#f9a065] rounded-xl h-[21.3rem] w-full gap-4">
+        <div className="grid grid-cols-1 mt-[3.7rem] rounded-xl h-[21.3rem] w-full gap-4">
           {/* Today's Tasks Section */}
-          <div className="flex items-center justify-center mt-20">
+          <div className="flex items-center justify-center mt-20 gap-x-12">
             <div>
               {/* <MotionSection>
                 <h1 className="text-white mt-6 text-lg font-medium z-50 text-center">

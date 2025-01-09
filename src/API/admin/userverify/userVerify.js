@@ -78,7 +78,7 @@ export const getEmpMails = async () => {
   try {
     const response = await Instance.get(`${API_URL}/getEmpMails`);
     return response.data.data.map((item) => ({
-      _id: item._id,
+      value: item._id,
       label: item.name,
     }));
   } catch (error) {

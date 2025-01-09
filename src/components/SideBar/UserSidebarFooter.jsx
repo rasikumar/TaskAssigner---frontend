@@ -1,9 +1,10 @@
 /* eslint-disable react/prop-types */
 import { motion } from "framer-motion";
 
-const AdminSidebarFooter = ({
+const UserSidebarFooter = ({
   isCollapsed,
   name,
+  role,
   isOpen,
   toggleProfile,
   handleLogout,
@@ -21,17 +22,17 @@ const AdminSidebarFooter = ({
         } rounded-lg flex items-center justify-center text-sm font-semibold`}
       >
         <img
-          src={`https://ui-avatars.com/api/?name=${name?.mail}&background=random`}
-          alt={name?.mail}
+          src={`https://ui-avatars.com/api/?name=${name}&background=random`}
+          alt={name}
           className="rounded-lg"
         />
       </div>
       {!isCollapsed && (
         <div className="ml-2 2xl:text-xs text-[0.62rem] flex flex-col items-start leading-tight transition-all">
           <div className="font-semibold text-taskBlack">
-            {name?.mail || "Loading..."}
+            {name || "Loading..."}
           </div>
-          <div className="text-taskBlack">{name?.role || "Loading..."}</div>
+          <div className="text-taskBlack">{role || "Loading..."}</div>
         </div>
       )}
     </button>
@@ -55,4 +56,4 @@ const AdminSidebarFooter = ({
   </div>
 );
 
-export default AdminSidebarFooter;
+export default UserSidebarFooter;

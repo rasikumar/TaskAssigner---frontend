@@ -47,7 +47,7 @@ const Projects = () => {
     onError: () => toast.error("Error fetching projects"),
   });
 
-  console.log(data);
+  // console.log(data);
 
   const updateMutation = useMutation({
     mutationFn: updateProject,
@@ -151,7 +151,7 @@ const Projects = () => {
         })}
       </td>
       <td className="px-2 py-3 text-sm">{project.project_status}</td>
-      <td className="px-2 py-3 text-sm">
+      <td className="px-2 py-3 text-sm text-center">
         <DeleteDialog
           message="Are you sure you want to delete this project?"
           onConfirm={() => handleDeleteProject(project._id)}

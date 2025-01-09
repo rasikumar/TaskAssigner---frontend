@@ -25,8 +25,9 @@ export const ProjectDetailModal = ({ project, onClose, onEdit, taskList }) => {
   const [errorMessage, setErrorMessage] = useState("");
   // const [isOpen] = useState(false);
   const [ownershipOptions, setOwnershipOptions] = useState([]);
+  const [milestoneData, setMilestoneData] = useState(project.milestones || []);
 
-  // console.log(formData);
+  console.log(formData);
 
   const EndDate = useRef(null);
   const StartDate = useRef(null);
@@ -37,6 +38,7 @@ export const ProjectDetailModal = ({ project, onClose, onEdit, taskList }) => {
 
   useEffect(() => {
     setFormData(project);
+    setMilestoneData(project.milestones || []);
   }, [project]);
 
   const {
@@ -96,12 +98,31 @@ export const ProjectDetailModal = ({ project, onClose, onEdit, taskList }) => {
   const handleSave = (e) => {
     e.preventDefault();
 
-    if (JSON.stringify(formData) === JSON.stringify(project)) {
-      setErrorMessage("No changes were made.");
-    } else {
-      setErrorMessage(""); // Clear error message
-      onEdit(formData); // Submit changes if there are any
-    }
+    const updatedFormData = { ...formData, milestones: milestoneData };
+
+    setErrorMessage(""); // Clear error message
+    onEdit(updatedFormData); // Submit changes including milestones
+    console.log(updatedFormData);
+  };
+
+  const handleMilestoneChange = (index, field, value) => {
+    const updatedMilestones = [...milestoneData];
+    console.log(updatedMilestones);
+    updatedMilestones[index][field] = value;
+    setMilestoneData(updatedMilestones);
+  };
+
+  const handleMilestoneDelete = (index) => {
+    const updatedMilestones = milestoneData.filter((_, i) => i !== index);
+    setMilestoneData(updatedMilestones);
+  };
+
+  const handleMilestoneAdd = () => {
+    const newMilestone = {
+      name: "",
+      status: "Not Started",
+    };
+    setMilestoneData([...milestoneData, newMilestone]);
   };
 
   const renderInput = (name, label, value) => (
@@ -271,6 +292,56 @@ export const ProjectDetailModal = ({ project, onClose, onEdit, taskList }) => {
                   required
                 />
               </div>
+              <div className="flex gap-2 flex-col">
+                <h2 className="text-lg font-semibold text-gray-800 mb-4">
+                  Milestones
+                </h2>
+
+                {milestoneData.map((milestone, index) => (
+                  <div key={milestone._id} className="mb-2 flex gap-2">
+                    <Input
+                      type="text"
+                      value={milestone.name}
+                      onChange={(e) =>
+                        handleMilestoneChange(index, "name", e.target.value)
+                      }
+                      className="w-full p-2 border-b-2 focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                    <Select
+                      value={milestone.status}
+                      onValueChange={(value) =>
+                        handleMilestoneChange(index, "status", value)
+                      }
+                      className="w-full p-2 border rounded-md mt-2"
+                    >
+                      <SelectTrigger className="outline-none focus:ring-0 focus:ring-offset-0">
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectLabel>Select a Status</SelectLabel>
+                          <SelectItem value="Not Started">
+                            Not Started
+                          </SelectItem>
+                          <SelectItem value="In Progress">
+                            In Progress
+                          </SelectItem>
+                          <SelectItem value="Completed">Completed</SelectItem>
+                          <SelectItem value="Pending">Pending</SelectItem>
+                          <SelectItem value="On Hold">On Hold</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                    <Button onClick={() => handleMilestoneDelete(index)}>
+                      Delete
+                    </Button>
+                  </div>
+                ))}
+                <Button onClick={handleMilestoneAdd} className="mb-2">
+                  Add
+                </Button>
+              </div>
+
               <Button onClick={handleSave} className="mb-4">
                 Update Project
               </Button>
@@ -332,6 +403,67 @@ export const ProjectDetailModal = ({ project, onClose, onEdit, taskList }) => {
                     })}
                   </span>
                 </p>
+                <div className="mt-4">
+                  <h2 className="text-lg font-semibold text-gray-800 mb-4">
+                    Milestones
+                  </h2>
+                  {/* {project.milstones && project.milstones.length > 0 ? (
+                    <ul className="space-y-3">
+                      {project.milstones.map((milstone) => (
+                        <li key={milstone._id}>
+                          <h3 className="text-base font-medium text-gray-700">
+                            {milstone.name}
+                          </h3>
+                          <p className="text-sm text-gray-500">
+                            {milstone.status}
+                          </p>
+                          <span
+                            className={`inline-block text-xs font-medium px-3 py-1 rounded-full ${
+                              milstone.status === "Completed"
+                                ? "bg-green-100 text-green-600"
+                                : milstone.status === "In-Progress"
+                                ? "bg-yellow-100 text-yellow-600"
+                                : "bg-red-100 text-red-600"
+                            }`}
+                          >
+                            {milstone.status}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="text-sm text-gray-500">
+                      No milestones found.
+                    </p>
+                  )} */}
+                  <div className="space-y-4">
+                    {project.milestones.map((milestone) => (
+                      <div
+                        key={milestone._id}
+                        className="flex items-center justify-between p-3 border rounded-lg shadow-md bg-white"
+                      >
+                        <div>
+                          <h3 className="text-sm font-semibold text-gray-800">
+                            {milestone.name}
+                          </h3>
+                        </div>
+                        <div>
+                          <span
+                            className={`px-3 py-1 text-xs font-medium rounded-full ${
+                              milestone.status === "Completed"
+                                ? "bg-green-100 text-green-600"
+                                : milestone.status === "In Progress"
+                                ? "bg-yellow-100 text-yellow-600"
+                                : "bg-red-100 text-red-600"
+                            }`}
+                          >
+                            {milestone.status}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
                 <div className="mt-4">
                   <h2 className="text-lg font-semibold text-gray-800 mb-4">
                     Tasks

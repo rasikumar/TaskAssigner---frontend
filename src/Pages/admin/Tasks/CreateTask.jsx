@@ -26,7 +26,7 @@ const CreateTask = () => {
     start_date: "",
     end_date: "",
   });
-  // console.log(formData);
+  console.log(formData);
 
   const queryClient = new QueryClient();
   const startDateRef = useRef(null);
@@ -78,7 +78,7 @@ const CreateTask = () => {
     enabled: isOpen, // Only fetch when the dialog is open
   });
 
-  // console.log(userData);
+  // console.log(userList);
   // Map user data into dropdown options when data is available
   useEffect(() => {
     if (userData) {
@@ -145,8 +145,8 @@ const CreateTask = () => {
       console.error("Error creating project:", err);
     },
   });
-  // console.log(userList);
-  // console.log(ownershipOptions);
+  console.log(userList);
+  console.log(ownershipOptions);
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -175,7 +175,6 @@ const CreateTask = () => {
   const handleSumbit = async (e) => {
     e.preventDefault();
     Taskmutations.mutate(formData);
-    // Add your form submission logic here
   };
 
   return (
@@ -229,6 +228,31 @@ const CreateTask = () => {
                 />
               )}
               {step === 2 && (
+                <div className="flex flex-col gap-2">
+                  {/* <Combobox
+                    items={userList} // Array of projects
+                    value={formData.assigned_to} // Controlled state
+                    onChange={(value) => {
+                      setFormData((prevData) => ({
+                        ...prevData,
+                        assigned_to: value, // Update the project value in the form data
+                      }));
+                      setStep(3);
+                    }}
+                    placeholder="Assigned to"
+                  /> */}
+                  <div className="flex gap-x-2">
+                    <Button variant="outline" onClick={() => setStep(1)}>
+                      Back
+                    </Button>
+
+                    <Button type="button" onClick={() => setStep(3)}>
+                      Next
+                    </Button>
+                  </div>
+                </div>
+              )}
+              {step === 3 && (
                 <div>
                   <div className="flex flex-col gap-4">
                     <Combobox
@@ -239,7 +263,6 @@ const CreateTask = () => {
                           ...prevData,
                           assigned_to: value, // Update the project value in the form data
                         }));
-                        setStep(2);
                       }}
                       placeholder="Assigned to"
                     />
@@ -252,21 +275,21 @@ const CreateTask = () => {
                           ...prevData,
                           report_to: value, // Update the project value in the form data
                         }));
-                        setStep(2); // Move to the next step
+                        setStep(3); // Move to the next step
                       }}
                       placeholder="Report to"
                     />
                     <div className="flex gap-x-2">
-                      <Button variant="outline" onClick={() => setStep(1)}>
+                      <Button variant="outline" onClick={() => setStep(2)}>
                         Back
                       </Button>
-                      <Button onClick={() => setStep(3)}>Next</Button>
+                      <Button onClick={() => setStep(4)}>Next</Button>
                     </div>
                   </div>
                 </div>
               )}
               {/* Step 2: Task Details */}
-              {step === 3 && (
+              {step === 4 && (
                 <form onSubmit={handleSumbit} className="space-y-6">
                   <div>
                     <label
@@ -364,7 +387,7 @@ const CreateTask = () => {
                   <div className="flex gap-4 mt-6">
                     <Button
                       type="button"
-                      onClick={() => setStep(2)}
+                      onClick={() => setStep(3)}
                       variant="outline"
                     >
                       Back
