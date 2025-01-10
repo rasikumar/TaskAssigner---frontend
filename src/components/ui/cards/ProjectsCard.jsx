@@ -11,16 +11,16 @@ export const ProjectsCard = ({ title, subtitle, priority, progressBar }) => {
   };
 
   return (
-    <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-6 rounded-xl shadow-lg w-80 hover:shadow-xl">
+    <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-6 rounded-xl shadow-lg w-80 min-h-52 max-h-52 hover:shadow-xl">
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
         <div>
-          <h1 className="text-2xl font-semibold text-white">{title}</h1>
-          <p className="text-sm text-gray-300">{subtitle}</p>
+          <h1 className="text-lg font-semibold text-white">{title}</h1>
+          <p className="text-sm text-gray-300 line-clamp-2">{subtitle}</p>
         </div>
         <div className="flex items-center gap-3">
           <span className="text-sm font-semibold text-white flex items-center gap-1">
-            {priority === "High" ? (
+            {priority === "Pending" ? (
               <FaExclamationCircle className="text-red-500" />
             ) : (
               <FaCheckCircle className="text-green-500" />

@@ -118,7 +118,7 @@ const AdminSidebar = () => {
       />
 
       <div
-        className={`grid rounded-xl p-8 shadow-bottom bg-bg transition-all overflow-x-hidden w-full relative ${
+        className={`grid rounded-xl p-8 shadow-bottom bg-bg transition-all overflow-x-scroll w-full relative ${
           isCollapsed ? "ml-20" : "2xl:ml-64 ml-48"
         }`}
       >

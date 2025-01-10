@@ -5,12 +5,13 @@ import { useState, useEffect } from "react";
 
 export default function MainCards({
   title,
-  subtitle,
   btn,
   totaltasks,
   Icon,
-  bgColor,
+  subtitle,
   path,
+  bgColor,
+  onClick,
 }) {
   const count = useMotionValue(0); // Initialize motion value
   const roundedCount = useTransform(count, (value) => Math.round(value)); // Transform count to rounded values
@@ -38,6 +39,7 @@ export default function MainCards({
     <div
       className="w-full text-white p-6 rounded-xl flex flex-col gap-8 hover:shadow-xl"
       style={{ backgroundColor: bgColor || "#f8f9fa" }}
+      onClick={onClick}
     >
       {/* Header */}
       <div className="flex items-end justify-between">

@@ -26,7 +26,7 @@ const CreateTask = () => {
     start_date: "",
     end_date: "",
   });
-  console.log(formData);
+  // console.log(formData);
 
   const queryClient = new QueryClient();
   const startDateRef = useRef(null);
@@ -145,8 +145,8 @@ const CreateTask = () => {
       console.error("Error creating project:", err);
     },
   });
-  console.log(userList);
-  console.log(ownershipOptions);
+  // console.log(userList);
+  // console.log(ownershipOptions);
 
   if (isLoading) {
     return <div>Loading...</div>;

@@ -28,35 +28,54 @@ import UsersVerify from "./Pages/user/user-verify/Userverify";
 import MemberDetailPage from "./Pages/admin/people/[peopleName]";
 import ScrollToTop from "./hooks/scrollToTop";
 import Projects from "./Pages/admin/projects/Projects";
+import { useEffect, useState } from "react";
+import ScreenError from "./components/ScreenError";
 
 const App = () => {
+  const [isDesktop, setIsDesktop] = useState(true);
+
+  const checkScreenSize = () => {
+    setIsDesktop(window.innerWidth > 768); // Adjust 768px based on your needs
+  };
+
+  useEffect(() => {
+    checkScreenSize(); // Check on mount
+    window.addEventListener("resize", checkScreenSize); // Check on resize
+
+    return () => {
+      window.removeEventListener("resize", checkScreenSize); // Clean up event listener
+    };
+  }, []);
+
   return (
     <>
-      <ScrollToTop />
-      <Routes>
-        <Route path="/" element={<UserLogin />} />
-        {/* Login Route */}
-        <Route path="/admin" element={<AdminLogin />} />
+      {isDesktop ? (
+        <>
+          <ScrollToTop />
+          <Routes>
+            <Route path="/" element={<UserLogin />} />
+            {/* Login Route */}
+            <Route path="/admin" element={<AdminLogin />} />
 
-        {/* Protected Route for Dashboard */}
-        {/* AdminRoute */}
-        <Route
-          path="/admin/dashboard"
-          element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <AdminSidebars />
-            </ProtectedRoute>
-          }
-        >
-          <Route
-            index
-            element={
-              <ProtectedRoute allowedRoles={["admin"]}>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          {/* <Route
+            {/* Protected Route for Dashboard */}
+            {/* AdminRoute */}
+            <Route
+              path="/admin/dashboard"
+              element={
+                <ProtectedRoute allowedRoles={["admin"]}>
+                  <AdminSidebars />
+                </ProtectedRoute>
+              }
+            >
+              <Route
+                index
+                element={
+                  <ProtectedRoute allowedRoles={["admin"]}>
+                    <Dashboard />
+                  </ProtectedRoute>
+                }
+              />
+              {/* <Route
             path="teams"
             element={
               <ProtectedRoute allowedRoles={["admin"]}>
@@ -64,132 +83,136 @@ const App = () => {
               </ProtectedRoute>
             }
           /> */}
-          <Route
-            path="teams/:teamName"
-            element={
-              <ProtectedRoute allowedRoles={["admin"]}>
-                <TeamPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="teams/:teamName/:roleName"
-            element={
-              <ProtectedRoute allowedRoles={["admin"]}>
-                <RolePage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="teams/:teamName/:roleName/:memberName"
-            element={
-              <ProtectedRoute allowedRoles={["admin"]}>
-                <MemberDetailPage />
-              </ProtectedRoute>
-            }
-          />
+              <Route
+                path="teams/:teamName"
+                element={
+                  <ProtectedRoute allowedRoles={["admin"]}>
+                    <TeamPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="teams/:teamName/:roleName"
+                element={
+                  <ProtectedRoute allowedRoles={["admin"]}>
+                    <RolePage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="teams/:teamName/:roleName/:memberName"
+                element={
+                  <ProtectedRoute allowedRoles={["admin"]}>
+                    <MemberDetailPage />
+                  </ProtectedRoute>
+                }
+              />
 
-          <Route
-            path="tasks" // Relative path
-            element={
-              <ProtectedRoute allowedRoles={["admin"]}>
-                <Tasks />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="projects" // Relative path
-            element={
-              <ProtectedRoute allowedRoles={["admin"]}>
-                <Projects />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="ticket" // Relative path
-            element={
-              <ProtectedRoute allowedRoles={["admin"]}>
-                <Tickets />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="usermanagement" // Relative path
-            element={
-              <ProtectedRoute allowedRoles={["admin"]}>
-                <Userverify />
-              </ProtectedRoute>
-            }
-          />
-        </Route>
+              <Route
+                path="tasks" // Relative path
+                element={
+                  <ProtectedRoute allowedRoles={["admin"]}>
+                    <Tasks />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="projects" // Relative path
+                element={
+                  <ProtectedRoute allowedRoles={["admin"]}>
+                    <Projects />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="ticket" // Relative path
+                element={
+                  <ProtectedRoute allowedRoles={["admin"]}>
+                    <Tickets />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="usermanagement" // Relative path
+                element={
+                  <ProtectedRoute allowedRoles={["admin"]}>
+                    <Userverify />
+                  </ProtectedRoute>
+                }
+              />
+            </Route>
 
-        {/* UserRoutes */}
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute
-              allowedRoles={["member", "hr", "manager", "team lead"]}
+            {/* UserRoutes */}
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute
+                  allowedRoles={["member", "hr", "manager", "team lead"]}
+                >
+                  <UserSidebar />
+                </ProtectedRoute>
+              }
             >
-              <UserSidebar />
-            </ProtectedRoute>
-          }
-        >
-          <Route
-            index
-            element={
-              <ProtectedRoute
-                allowedRoles={["member", "hr", "manager", "team lead"]}
-              >
-                <UserDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="tasks"
-            element={
-              <ProtectedRoute
-                allowedRoles={["member", "hr", "manager", "team lead"]}
-              >
-                <UserTasks />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="projects"
-            element={
-              <ProtectedRoute
-                allowedRoles={["member", "hr", "manager", "team lead"]}
-              >
-                <UserProjects />
-              </ProtectedRoute>
-            }
-          />
+              <Route
+                index
+                element={
+                  <ProtectedRoute
+                    allowedRoles={["member", "hr", "manager", "team lead"]}
+                  >
+                    <UserDashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="tasks"
+                element={
+                  <ProtectedRoute
+                    allowedRoles={["member", "hr", "manager", "team lead"]}
+                  >
+                    <UserTasks />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="projects"
+                element={
+                  <ProtectedRoute
+                    allowedRoles={["member", "hr", "manager", "team lead"]}
+                  >
+                    <UserProjects />
+                  </ProtectedRoute>
+                }
+              />
 
-          <Route
-            path="ticket"
-            element={
-              <ProtectedRoute
-                allowedRoles={["member", "hr", "manager", "team lead"]}
-              >
-                <UserTicket />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="usermanagement"
-            element={
-              <ProtectedRoute
-                allowedRoles={["member", "hr", "manager", "team lead"]}
-              >
-                <UsersVerify />
-              </ProtectedRoute>
-            }
-          />
-        </Route>
+              <Route
+                path="ticket"
+                element={
+                  <ProtectedRoute
+                    allowedRoles={["member", "hr", "manager", "team lead"]}
+                  >
+                    <UserTicket />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="usermanagement"
+                element={
+                  <ProtectedRoute
+                    allowedRoles={["member", "hr", "manager", "team lead"]}
+                  >
+                    <UsersVerify />
+                  </ProtectedRoute>
+                }
+              />
+            </Route>
 
-        {/* Catch-all Route for 404 */}
-        <Route path="*" element={<Error />} />
-      </Routes>
+            {/* Catch-all Route for 404 */}
+            <Route path="*" element={<Error />} />
+          </Routes>
+        </>
+      ) : (
+        <ScreenError />
+      )}
     </>
   );
 };

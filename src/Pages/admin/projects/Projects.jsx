@@ -21,13 +21,23 @@ import CreateProject from "./CreateProject";
 import { ProjectDetailModal } from "@/components/customUi/admin/ProjectDetailModal";
 import DeleteDialog from "@/components/DeleteDialog";
 import { getTaskRelatedToProject } from "@/API/admin/task/task_api";
+import Selector from "@/components/customUi/Selector";
+import { Label } from "@/components/ui/label";
 
 const Projects = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState(false);
   const [taskList, setTaskList] = useState([]);
+  const [appliedSearchTerm, setAppliedSearchTerm] = useState(""); // For query key
+  const [searchTerm, setSearchTerm] = useState(""); // State for search term
+  const [filterStatus, setFilterStatus] = useState(""); // State for filter status
 
   const queryClient = useQueryClient();
+
+  const handleSearch = () => {
+    setCurrentPage(1); // Reset to first page
+    setAppliedSearchTerm(searchTerm); // Update appliedSearchTerm when button is clicked
+  };
 
   const handleProjectClick = (project, projectId) => {
     setSelectedProject(project);
@@ -41,8 +51,14 @@ const Projects = () => {
   const [itemsPerPage] = useState(15);
   // Fetch Projects using React Query with pagination support
   const { data, isLoading, error, isError } = useQuery({
-    queryKey: ["projects", currentPage],
-    queryFn: () => fetchAllProjects(currentPage, itemsPerPage),
+    queryKey: ["projects", currentPage, appliedSearchTerm, filterStatus],
+    queryFn: () =>
+      fetchAllProjects(
+        currentPage,
+        itemsPerPage,
+        appliedSearchTerm,
+        filterStatus
+      ),
     staleTime: 30000,
     onError: () => toast.error("Error fetching projects"),
   });
@@ -118,6 +134,14 @@ const Projects = () => {
     { key: "end_date", title: "End Date" },
     { key: "status", title: "Status" },
     { key: "action", title: "Action", className: "text-center" },
+  ];
+
+  const statusoption = [
+    { value: "", label: "All" }, // Add this line
+    { value: "Not Started", label: "Not Started" },
+    { value: "In Progress", label: "In Progress" },
+    { value: "Completed", label: "Completed" },
+    { value: "Pending", label: "Pending" },
   ];
 
   const renderRow = (project) => (
@@ -264,6 +288,33 @@ const Projects = () => {
       ) : (
         <div className="flex flex-col justify-start gap-2 relative">
           <CreateProject />
+          <div className="flex justify-between items-center mb-4 gap-4">
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                placeholder="Search projects..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)} // Update only searchTerm
+                className="p-2 border rounded w-64"
+              />
+              <button
+                onClick={handleSearch}
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-300"
+              >
+                Search
+              </button>
+            </div>
+            <div className="flex items-center gap-x-2">
+              <Label>Status</Label>
+              <Selector
+                id="status"
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                options={statusoption}
+                className="w-48"
+              />
+            </div>
+          </div>
           <Table
             columns={columns}
             data={data?.projects || []}

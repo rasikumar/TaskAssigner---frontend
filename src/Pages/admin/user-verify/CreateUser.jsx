@@ -100,11 +100,26 @@ const CreateUser = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    // Basic validation
+    if (formData.password !== formData.confirmPassword) {
+      toast.error("Passwords do not match.");
+      return;
+    }
+    if (!/^\d{10}$/.test(formData.phone)) {
+      toast.error("Invalid phone number.");
+      return;
+    }
+    if (!/\S+@\S+\.\S+/.test(formData.mail)) {
+      toast.error("Invalid email address.");
+      return;
+    }
+    
     mutation.mutate(formData);
   };
 
   const startDateRef = useRef(null);
-  const endDateRef = useRef(null);
+  // const endDateRef = useRef(null);
 
   // Memoizing form data to avoid unnecessary re-renders
   const memoizedFormData = useMemo(() => formData, [formData]);
@@ -250,7 +265,7 @@ const CreateUser = () => {
                 required
               />
             </div>
-            <div
+            {/* <div
               className="flex items-center justify-between gap-6"
               onClick={() => endDateRef.current.showPicker()}
             >
@@ -262,7 +277,7 @@ const CreateUser = () => {
                 onChange={handleChange}
                 placeholder="Last Working Date"
               />
-            </div>
+            </div> */}
 
             <Button type="submit">Create User</Button>
           </form>

@@ -23,7 +23,7 @@ const UserProjects = () => {
     queryFn: fetchAllUserProjects,
   });
   const projectData = userProjectsData?.data;
-  console.log(projectData);
+  // console.log(projectData);
 
   if (isUserProjectsLoading) return <div>Loading...</div>;
   if (isUserProjectsError) return <div>Error: {userProjectsError.message}</div>;
