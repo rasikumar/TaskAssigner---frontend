@@ -13,11 +13,9 @@ import { getEmpMails } from "@/API/admin/userverify/userVerify";
 import { getAllEmployeeOwnerShip } from "@/API/admin/adminDashborad";
 import { createTask } from "@/API/admin/task/task_api";
 import { toast, ToastContainer } from "react-toastify";
-import { getMilestonesForProject } from "@/API/admin/milestone/milestone";
-const CreateTask = () => {
+const CreateTaskUser = () => {
   const [formData, setFormData] = useState({
     project: null,
-    milestone: "",
     task_title: "",
     task_description: "",
     assigned_to: "",
@@ -37,9 +35,6 @@ const CreateTask = () => {
   const [step, setStep] = useState(1); // Step 1: Project selection, Step 2: Task details
   const [isOpen, setIsOpen] = useState(false);
   const [ownershipOptions, setOwnershipOptions] = useState([]);
-  const [milestones, setMilestones] = useState([]);
-
-  // console.log(milestones);
 
   const priorityOptions = [
     { value: "Low", label: "Low" },
@@ -88,12 +83,12 @@ const CreateTask = () => {
   useEffect(() => {
     if (userData) {
       const options = [
-        // ...userData.teamLeads
-        //   .filter((lead) => lead.admin_verify === "true") // Check admin_verify for team leads
-        //   .map((lead) => ({
-        //     value: lead.id,
-        //     label: `Team Lead - ${lead.name}`,
-        //   })),
+        ...userData.teamLeads
+          .filter((lead) => lead.admin_verify === "true") // Check admin_verify for team leads
+          .map((lead) => ({
+            value: lead.id,
+            label: `Team Lead - ${lead.name}`,
+          })),
 
         ...userData.managers
           .filter((manager) => manager.admin_verify === "true") // Check admin_verify for managers
@@ -112,7 +107,6 @@ const CreateTask = () => {
       queryClient.invalidateQueries(["tasks"]);
       setFormData({
         project: null,
-        milestone: "",
         task_title: "",
         task_description: "",
         assigned_to: "",
@@ -178,17 +172,6 @@ const CreateTask = () => {
     }));
   };
 
-  const sendProjectId = async (projectId) => {
-    try {
-      // Replace with your API call to send the project ID
-      const response = await getMilestonesForProject(projectId);
-      setMilestones(response);
-      console.log("Project ID sent successfully");
-    } catch (error) {
-      console.error("Error sending project ID:", error);
-    }
-  };
-
   const handleSumbit = async (e) => {
     e.preventDefault();
     Taskmutations.mutate(formData);
@@ -239,7 +222,6 @@ const CreateTask = () => {
                       ...prevData,
                       project: value, // Update the project value in the form data
                     }));
-                    sendProjectId(value); // Send the project ID to the API
                     setStep(2); // Move to the next step
                   }}
                   placeholder="Select a project..."
@@ -247,18 +229,18 @@ const CreateTask = () => {
               )}
               {step === 2 && (
                 <div className="flex flex-col gap-2">
-                  <Selector
-                    label="Milestone"
-                    id="milestone"
-                    value={formData.milestone}
-                    onChange={(e) =>
-                      handleSelectChange("milestone", e.target.value)
-                    }
-                    options={milestones.map((milestone) => ({
-                      value: milestone._id,
-                      label: milestone.name,
-                    }))}
-                  />
+                  {/* <Combobox
+                    items={userList} // Array of projects
+                    value={formData.assigned_to} // Controlled state
+                    onChange={(value) => {
+                      setFormData((prevData) => ({
+                        ...prevData,
+                        assigned_to: value, // Update the project value in the form data
+                      }));
+                      setStep(3);
+                    }}
+                    placeholder="Assigned to"
+                  /> */}
                   <div className="flex gap-x-2">
                     <Button variant="outline" onClick={() => setStep(1)}>
                       Back
@@ -423,4 +405,4 @@ const CreateTask = () => {
   );
 };
 
-export default CreateTask;
+export default CreateTaskUser;

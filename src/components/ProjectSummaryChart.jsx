@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/chart";
 
 // Reusable component with props
-const SummaryCard = ({ title, description, chartData, chartConfig }) => {
+const SummaryCard = ({ title, description, chartData = [], chartConfig }) => {
   return (
     <Card className="flex flex-col rounded-lg shadow-lg hover:shadow-xl">
       <CardHeader className="items-center pb-0 text-center">
@@ -25,28 +25,38 @@ const SummaryCard = ({ title, description, chartData, chartConfig }) => {
         </CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-0 flex justify-center items-center">
-        <ChartContainer
-          config={chartConfig}
-          className="aspect-square max-h-[300px] w-[100px] sm:w-[150px] lg:w-[250px]"
-        >
-          <PieChart>
-            <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent hideLabel />}
-            />
-            <Pie
-              data={chartData}
-              dataKey="visitors"
-              nameKey="browser"
-              innerRadius={60}
-              outerRadius={100}
-            >
-              {chartData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.color} stroke={entry.color} />
-              ))}
-            </Pie>
-          </PieChart>
-        </ChartContainer>
+        {chartData.length > 0 ? (
+          <ChartContainer
+            config={chartConfig}
+            className="aspect-square max-h-[300px] w-[100px] sm:w-[150px] lg:w-[250px]"
+          >
+            <PieChart>
+              <ChartTooltip
+                cursor={false}
+                content={<ChartTooltipContent hideLabel />}
+              />
+              <Pie
+                data={chartData}
+                dataKey="visitors"
+                nameKey="browser"
+                innerRadius={60}
+                outerRadius={100}
+              >
+                {chartData.map((entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={entry.color}
+                    stroke={entry.color}
+                  />
+                ))}
+              </Pie>
+            </PieChart>
+          </ChartContainer>
+        ) : (
+          <div className="text-center text-muted-foreground">
+            No data available.
+          </div>
+        )}
       </CardContent>
     </Card>
   );

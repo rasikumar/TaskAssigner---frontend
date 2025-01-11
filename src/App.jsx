@@ -21,7 +21,7 @@ import RolePage from "./Pages/admin/roles/[roleName]";
 import UserSidebar from "./components/UserSidebar";
 import UserLogin from "./components/auth/UserLogin";
 import UserDashboard from "./Pages/user/Dashboard/Dashboard";
-import UserTasks from "./Pages/user/tasks/userTasks";
+import UserTasks from "./Pages/user/tasks/UserTasks";
 import UserProjects from "./Pages/user/projects/userProjects";
 import UserTicket from "./Pages/user/Tickets/Tickets";
 import UsersVerify from "./Pages/user/user-verify/Userverify";
@@ -163,6 +163,16 @@ const App = () => {
                   </ProtectedRoute>
                 }
               />
+
+              <Route
+                path="projects"
+                element={
+                  <ProtectedRoute allowedRoles={["hr", "manager", "team lead"]}>
+                    <UserProjects />
+                  </ProtectedRoute>
+                }
+              />
+
               <Route
                 path="tasks"
                 element={
@@ -170,16 +180,6 @@ const App = () => {
                     allowedRoles={["member", "hr", "manager", "team lead"]}
                   >
                     <UserTasks />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="projects"
-                element={
-                  <ProtectedRoute
-                    allowedRoles={["member", "hr", "manager", "team lead"]}
-                  >
-                    <UserProjects />
                   </ProtectedRoute>
                 }
               />
@@ -197,9 +197,7 @@ const App = () => {
               <Route
                 path="usermanagement"
                 element={
-                  <ProtectedRoute
-                    allowedRoles={["member", "hr", "manager", "team lead"]}
-                  >
+                  <ProtectedRoute allowedRoles={["hr"]}>
                     <UsersVerify />
                   </ProtectedRoute>
                 }

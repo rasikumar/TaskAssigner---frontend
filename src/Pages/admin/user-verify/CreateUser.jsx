@@ -86,7 +86,7 @@ const CreateUser = () => {
       // Fetch the last ID from the backend for the selected department
       const response = await getLastEmployeeId(value);
       const newId = response.employee_id;
-      // console.log(response.employee_id);
+      // console.log(response);
 
       setFormData((prevData) => ({
         ...prevData,

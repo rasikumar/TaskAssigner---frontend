@@ -17,6 +17,7 @@ import {
 import { Textarea } from "../../ui/textarea";
 // import { getAllEmployeeOwnerShip } from "@/API/admin/adminDashborad";
 import Selector from "../Selector";
+import RoleChecker from "@/hooks/RoleChecker";
 
 export const UserProjectDetailModal = ({
   project,
@@ -172,20 +173,22 @@ export const UserProjectDetailModal = ({
             Project Overview
           </h1>
           <div className="flex gap-x-2">
-            <button
-              onClick={() => setIsEditing((prev) => !prev)}
-              className="p-2 text-blue-500 hover:text-blue-700 transition-colors"
-            >
-              {isEditing ? (
-                <>
-                  <FaRedo size={20} />
-                </>
-              ) : (
-                <>
-                  <FaPen size={20} />
-                </>
-              )}
-            </button>
+            <RoleChecker allowedRoles={["manager"]}>
+              <button
+                onClick={() => setIsEditing((prev) => !prev)}
+                className="p-2 text-blue-500 hover:text-blue-700 transition-colors"
+              >
+                {isEditing ? (
+                  <>
+                    <FaRedo size={20} />
+                  </>
+                ) : (
+                  <>
+                    <FaPen size={20} />
+                  </>
+                )}
+              </button>
+            </RoleChecker>
             <button
               onClick={onClose}
               className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
