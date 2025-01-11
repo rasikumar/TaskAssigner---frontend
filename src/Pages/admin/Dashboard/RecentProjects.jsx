@@ -26,14 +26,14 @@ export const RecentProjects = ({ projectData }) => {
       </div>
 
       {/* Projects Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="flex flex-wrap w-full mx-auto gap-6">
         {recentProjects.map((project) => (
-          <div key={project.id} className=" transition duration-300">
+          <div key={project.id} className="flex transition duration-300">
             <ProjectsCard
               title={project.project_name}
               subtitle={project.project_description}
               priority={project.project_status}
-              progressBar={21}
+              progressBar={100}
             />
           </div>
         ))}

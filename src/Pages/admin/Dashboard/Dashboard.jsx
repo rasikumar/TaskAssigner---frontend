@@ -60,7 +60,7 @@ const Dashboard = () => {
   const tasks = data.tasks || [];
   const projects = projectData.projects || [];
 
-  console.log(projects);
+  // console.log(projects);
 
   const CompletedProject = projects.filter(
     (project) => project.project_status === "Completed"

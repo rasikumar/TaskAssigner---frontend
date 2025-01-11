@@ -14,6 +14,7 @@ import { GrUserManager } from "react-icons/gr";
 import { teams } from "@/data/teams";
 import { Outlet, useNavigate } from "react-router";
 import UserSidebarFooter from "./SideBar/UserSidebarFooter";
+import RoleChecker from "@/hooks/RoleChecker";
 
 const AdminSidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -60,22 +61,26 @@ const AdminSidebar = () => {
             label="Dashboard"
             isCollapsed={isCollapsed}
           />
-          <Dropdown
-            isCollapsed={isCollapsed}
-            label="Team Management"
-            Icon={GrUserManager}
-            links={teams.map((team) => ({
-              to: `./teams/${team.name.toLowerCase().replace(/\s+/g, "-")}`,
-              icon: team.icon,
-              label: team.name,
-            }))}
-          />
-          <SidebarLink
-            to="/dashboard/projects"
-            Icon={FaTasks}
-            label="Project Management"
-            isCollapsed={isCollapsed}
-          />
+          <RoleChecker allowedRoles={["hr"]}>
+            <Dropdown
+              isCollapsed={isCollapsed}
+              label="Team Management"
+              Icon={GrUserManager}
+              links={teams.map((team) => ({
+                to: `./teams/${team.name.toLowerCase().replace(/\s+/g, "-")}`,
+                icon: team.icon,
+                label: team.name,
+              }))}
+            />
+          </RoleChecker>
+          <RoleChecker allowedRoles={["manager", "team lead"]}>
+            <SidebarLink
+              to="/dashboard/projects"
+              Icon={FaTasks}
+              label="Project Management"
+              isCollapsed={isCollapsed}
+            />
+          </RoleChecker>
           <SidebarLink
             to="/dashboard/tasks"
             Icon={FaProjectDiagram}
@@ -89,12 +94,14 @@ const AdminSidebar = () => {
             label="Tickets Management"
             isCollapsed={isCollapsed}
           />
-          <SidebarLink
-            to="/dashboard/usermanagement"
-            Icon={FaCheck}
-            label="User Management"
-            isCollapsed={isCollapsed}
-          />
+          <RoleChecker allowedRoles={["hr"]}>
+            <SidebarLink
+              to="/dashboard/usermanagement"
+              Icon={FaCheck}
+              label="User Management"
+              isCollapsed={isCollapsed}
+            />
+          </RoleChecker>
         </div>
         <UserSidebarFooter
           isCollapsed={isCollapsed}

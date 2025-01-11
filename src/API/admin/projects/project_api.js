@@ -21,7 +21,7 @@ export const createProject = async (projectData) => {
 };
 
 export const fetchAllProjects = async (page, limit, searchTerm, status) => {
-  try {
+  try { 
     // Construct the query parameters, including status and search term
     const statusQuery = status ? `&status=${status}` : "";
     const searchQuery = searchTerm ? `&search=${searchTerm}` : "";

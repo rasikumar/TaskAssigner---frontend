@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 export default function MainCards({
   title,
   btn,
-  totaltasks,
+  totaltasks = [],
   Icon,
   subtitle,
   path,

@@ -124,7 +124,7 @@ const Tasks = () => {
       <td
         className="px-2 py-3 text-sm"
         onClick={() => {
-          handleTaskClick(task);
+          handleTaskClick(task, task.project?._id);
         }}
       >
         <div className="inline-flex flex-col">

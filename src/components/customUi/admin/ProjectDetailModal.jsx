@@ -55,12 +55,12 @@ export const ProjectDetailModal = ({ project, onClose, onEdit, taskList }) => {
   useEffect(() => {
     if (userData) {
       const options = [
-        ...userData.teamLeads
-          .filter((lead) => lead.admin_verify === "true") // Check admin_verify for team leads
-          .map((lead) => ({
-            id: lead.id,
-            name: `Team Lead - ${lead.name}`,
-          })),
+        // ...userData.teamLeads
+        //   .filter((lead) => lead.admin_verify === "true") // Check admin_verify for team leads
+        //   .map((lead) => ({
+        //     id: lead.id,
+        //     name: `Team Lead - ${lead.name}`,
+        //   })),
 
         ...userData.managers
           .filter((manager) => manager.admin_verify === "true") // Check admin_verify for managers
@@ -265,7 +265,7 @@ export const ProjectDetailModal = ({ project, onClose, onEdit, taskList }) => {
                   onClick={() => StartDate.current.showPicker()}
                   ref={StartDate}
                   id="StartDate"
-                  name="StartDate"  
+                  name="StartDate"
                   type="date"
                   value={
                     formData.startDate ? formData.startDate.split("T")[0] : ""

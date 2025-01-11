@@ -1,4 +1,4 @@
-import { FaPen, FaRegWindowClose } from "react-icons/fa";
+import { FaPen, FaRedo, FaRegWindowClose } from "react-icons/fa";
 import { useEffect, useRef, useState } from "react";
 import { Input } from "../../ui/input";
 import Selector from "../Selector";
@@ -41,17 +41,17 @@ export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
   });
 
   console.log(formData);
-  console.log(userList);
+  // console.log(userList);
   // Map user data into dropdown options when data is available
   useEffect(() => {
     if (userData) {
       const options = [
-        ...userData.teamLeads
-          .filter((lead) => lead.admin_verify === "true") // Check admin_verify for team leads
-          .map((lead) => ({
-            value: lead.id,
-            label: `Team Lead - ${lead.name}`,
-          })),
+        // ...userData.teamLeads
+        //   .filter((lead) => lead.admin_verify === "true") // Check admin_verify for team leads
+        //   .map((lead) => ({
+        //     value: lead.id,
+        //     label: `Team Lead - ${lead.name}`,
+        //   })),
 
         ...userData.managers
           .filter((manager) => manager.admin_verify === "true") // Check admin_verify for managers
@@ -169,10 +169,18 @@ export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
           <div className="flex gap-x-4">
             {!isEditing && (
               <button
-                onClick={() => setIsEditing(true)}
-                className="p-2 rounded-md hover:bg-white hover:text-indigo-600 transition-colors"
+                onClick={() => setIsEditing((prev) => !prev)}
+                className="p-2 text-blue-500 hover:text-blue-700 transition-colors"
               >
-                <FaPen size={18} />
+                {isEditing ? (
+                  <>
+                    <FaRedo size={20} />
+                  </>
+                ) : (
+                  <>
+                    <FaPen size={20} />
+                  </>
+                )}
               </button>
             )}
             <button
@@ -194,6 +202,17 @@ export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
 
           {isEditing ? (
             <>
+              <div className="mb-4">
+                <Selector
+                  label="Priority"
+                  id="priority"
+                  value={formData.priority}
+                  onChange={(e) =>
+                    handleSelectChange("priority", e.target.value)
+                  }
+                  options={priorityOptions}
+                />
+              </div>
               {renderInput("task_title", "Task Title", formData.task_title)}
 
               {renderInput(

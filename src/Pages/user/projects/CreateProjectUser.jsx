@@ -13,8 +13,10 @@ import { Button } from "../../../components/ui/button";
 import { Label } from "../../../components/ui/label";
 import { toast, ToastContainer } from "react-toastify";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
 import { createProject } from "@/API/admin/projects/project_api";
 import { getAllEmployeeOwnerShip } from "@/API/admin/adminDashborad";
+
 import {
   Select,
   SelectItem,
@@ -26,7 +28,7 @@ import {
 } from "@/components/ui/select";
 import { PlusIcon } from "lucide-react";
 
-const CreateProject = () => {
+const CreateProjectUser = () => {
   const [formData, setFormData] = useState({
     project_name: "",
     project_description: "",
@@ -107,12 +109,12 @@ const CreateProject = () => {
   useEffect(() => {
     if (userData) {
       const options = [
-        // ...userData.teamLeads
-        //   .filter((lead) => lead.admin_verify === "true") // Check admin_verify for team leads
-        //   .map((lead) => ({
-        //     id: lead.id,
-        //     name: `Team Lead - ${lead.name}`,
-        //   })),
+        ...userData.teamLeads
+          .filter((lead) => lead.admin_verify === "true") // Check admin_verify for team leads
+          .map((lead) => ({
+            id: lead.id,
+            name: `Team Lead - ${lead.name}`,
+          })),
 
         ...userData.managers
           .filter((manager) => manager.admin_verify === "true") // Check admin_verify for managers
@@ -327,4 +329,4 @@ const CreateProject = () => {
   );
 };
 
-export default CreateProject;
+export default CreateProjectUser;
