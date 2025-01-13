@@ -20,36 +20,9 @@ import {
 } from "@/API/admin/task/task_api";
 import { TaskDetailsModal } from "@/components/customUi/admin/TaskDetailModal";
 import { toast } from "react-toastify";
+import { getStatus } from "@/utils/statusUtils";
+import { getpriority } from "@/utils/prorityUtils";
 
-const getpriority = (priority) => {
-  switch (priority) {
-    case "Critical":
-      return "text-red-600 bg-red-50 rounded-md";
-    case "High":
-      return "text-orange-600 bg-orange-50 rounded-md";
-    case "Regular":
-      return "text-blue-600 bg-blue-50 rounded-md";
-    case "Low":
-      return "text-green-600 bg-green-50 rounded-md";
-    default:
-      return "text-gray-600 bg-gray-50 rounded-md";
-  }
-};
-
-const getstatus = (status) => {
-  switch (status) {
-    case "Pending":
-      return "text-red-600 rounded-md bg-red-50";
-    case "In progress":
-      return "text-yellow-600 rounded-md bg-yellow-50";
-    case "Not started":
-      return "text-blue-600 rounded-md bg-blue-50";
-    case "Completed":
-      return "text-green-600 rounded-md bg-green-50";
-    default:
-      return "text-gray-600 rounded-md bg-gray-50";
-  }
-};
 const Tasks = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState(false);
@@ -134,7 +107,9 @@ const Tasks = () => {
           <span className="text-primary font-bold">
             {task.task_title || "N/A"}
           </span>
-          <span>{task.task_description || "N/A"}</span>
+          <span className="line-clamp-3 w-64">
+            {task.task_description || "N/A"}
+          </span>
         </div>
       </td>
       <td className="px-2 py-3 text-sm text-center">
@@ -162,7 +137,7 @@ const Tasks = () => {
         }) || "N/A"}
       </td>
       <td className="px-2 py-2 text-center text-xs font-semibold">
-        <span className={getstatus(task.status)}>{task.status || "N/A"}</span>
+        <span className={getStatus(task.status)}>{task.status || "N/A"}</span>
       </td>
       <td className="px-2 py-2 text-center text-xs font-semibold">
         <span className={getpriority(task.priority)}>

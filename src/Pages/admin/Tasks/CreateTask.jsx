@@ -38,6 +38,7 @@ const CreateTask = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [ownershipOptions, setOwnershipOptions] = useState([]);
   const [milestones, setMilestones] = useState([]);
+  const [milestonesError, setMilestoneError] = useState("");
 
   // console.log(milestones);
 
@@ -183,7 +184,7 @@ const CreateTask = () => {
       // Replace with your API call to send the project ID
       const response = await getMilestonesForProject(projectId);
       setMilestones(response);
-      console.log("Project ID sent successfully");
+      // console.log("Project ID sent successfully");
     } catch (error) {
       console.error("Error sending project ID:", error);
     }
@@ -251,25 +252,48 @@ const CreateTask = () => {
                     label="Milestone"
                     id="milestone"
                     value={formData.milestone}
-                    onChange={(e) =>
-                      handleSelectChange("milestone", e.target.value)
-                    }
+                    onChange={(e) => {
+                      const selectedMilestone = e.target.value;
+                      handleSelectChange("milestone", selectedMilestone);
+
+                      if (selectedMilestone) {
+                        setMilestoneError("");
+                      }
+                    }}
                     options={milestones.map((milestone) => ({
                       value: milestone._id,
                       label: milestone.name,
                     }))}
+                    required={true}
                   />
+                  {milestonesError && (
+                    <div className="text-sm text-red-500">
+                      {milestonesError}
+                    </div>
+                  )}
                   <div className="flex gap-x-2">
                     <Button variant="outline" onClick={() => setStep(1)}>
                       Back
                     </Button>
 
-                    <Button type="button" onClick={() => setStep(3)}>
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        if (!formData.milestone) {
+                          setMilestoneError(
+                            "Please select a milestone before proceeding."
+                          );
+                          return;
+                        }
+                        setStep(3);
+                      }}
+                    >
                       Next
                     </Button>
                   </div>
                 </div>
               )}
+
               {step === 3 && (
                 <div>
                   <div className="flex flex-col gap-4">

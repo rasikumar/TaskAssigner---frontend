@@ -107,7 +107,7 @@ export const ProjectDetailModal = ({ project, onClose, onEdit, taskList }) => {
 
   const handleMilestoneChange = (index, field, value) => {
     const updatedMilestones = [...milestoneData];
-    console.log(updatedMilestones);
+    // console.log(updatedMilestones);
     updatedMilestones[index][field] = value;
     setMilestoneData(updatedMilestones);
   };

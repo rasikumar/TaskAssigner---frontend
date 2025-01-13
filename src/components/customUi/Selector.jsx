@@ -1,7 +1,14 @@
 /* eslint-disable react/prop-types */
 import { motion } from "framer-motion";
 
-const Selector = ({ label, id, value, onChange, options }) => {
+const Selector = ({
+  label,
+  id,
+  value,
+  onChange,
+  options,
+  required = false,
+}) => {
   const dropdownVariants = {
     hidden: { opacity: 0, y: -10 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
@@ -28,7 +35,7 @@ const Selector = ({ label, id, value, onChange, options }) => {
         value={value}
         onChange={onChange}
         className="mt-2 p-2 border rounded-md w-full bg-white"
-        required
+        required={required}
         initial="hidden"
         animate="visible"
         variants={dropdownVariants}

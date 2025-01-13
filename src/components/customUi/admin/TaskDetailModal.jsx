@@ -8,6 +8,10 @@ import { getAllEmployeeOwnerShip } from "@/API/admin/adminDashborad";
 import { Combobox } from "../Handle";
 import { Button } from "../../ui/button";
 import { Label } from "../../ui/label";
+import { Calendar1Icon } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { getStatus } from "@/utils/statusUtils";
+import { getpriority } from "@/utils/prorityUtils";
 
 /* eslint-disable react/prop-types */
 export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
@@ -40,7 +44,7 @@ export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
     queryFn: getAllEmployeeOwnerShip,
   });
 
-  console.log(formData);
+  // console.log(formData);
   // console.log(userList);
   // Map user data into dropdown options when data is available
   useEffect(() => {
@@ -159,12 +163,12 @@ export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
       onClick={handleOutsideClick}
     >
       <div
-        className={`bg-white absolute right-4 bottom-4 overflow-scroll 2xl:w-[30rem] w-[25rem] h-[85%] rounded-sm shadow-lg transform transition-transform duration-300 ease-in-out ${
+        className={`bg-white absolute right-4 bottom-4 overflow-scroll 2xl:w-[30rem] w-[25rem] h-[85%] rounded-xl shadow-lg transform transition-transform duration-300 ease-in-out ${
           isVisible ? "translate-x-0" : "translate-x-full"
         }`}
       >
         {/* Header */}
-        <div className="bg-gradient-to-r from-taskBlack to-bg text-white h-14 flex items-center justify-between px-6 rounded-t-sm sticky top-0 z-50">
+        <div className="bg-slate-400 text-white h-14 flex items-center justify-between px-6 rounded-t-xl sticky top-0 z-50">
           <h1 className="text-lg font-semibold">Task Overview</h1>
           <div className="flex gap-x-4">
             {!isEditing && (
@@ -215,11 +219,18 @@ export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
               </div>
               {renderInput("task_title", "Task Title", formData.task_title)}
 
-              {renderInput(
-                "task_description",
-                "Task Description",
-                formData.task_description
-              )}
+              <Textarea
+                value={formData.task_description}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    task_description: e.target.value,
+                  })
+                }
+                label="Task Description"
+                rows="5"
+                className="w-full"
+              />
 
               <div className="mb-4">
                 <Selector
@@ -330,15 +341,32 @@ export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
             </>
           ) : (
             <>
-              <div className="py-4">
-                <h3 className="text-lg font-semibold text-gray-800">
+              <div className="py-4 p-2">
+                <h3 className="text-xl font-semibold text-blue-800">
                   {task.task_title}
                 </h3>
-                <p className="text-gray-600">{task.task_description}</p>
+                <p className="text-gray-600 text-sm">{task.task_description}</p>
               </div>
-              <div className="space-y-2 flex flex-col">
+              <div className="space-y-2 flex flex-col border border-blue-300 bg-slate-50 shadow-minimal py-4 px-2 rounded-xl">
                 <p className="text-sm text-taskBlack inline-flex items-center justify-between">
-                  <span className="font-medium">Priority:</span> {task.priority}
+                  <span className="font-medium">Assigned To:</span>{" "}
+                  {task.assigned_to?.name || "No name available"}
+                </p>
+                <p className="text-sm text-taskBlack inline-flex items-center justify-between">
+                  <span className="font-medium">Report To:</span>{" "}
+                  {task.report_to?.name || "No name available"}
+                </p>
+                <p className="text-sm inline-flex items-center justify-between">
+                  Priority:
+                  <span className={`font-medium ${getpriority(task.priority)}`}>
+                    {task.priority}
+                  </span>
+                </p>
+                <p className="text-sm inline-flex items-center justify-between">
+                  Status:
+                  <span className={`font-medium ${getStatus(task.status)}`}>
+                    {task.status}
+                  </span>{" "}
                 </p>
                 <p className="text-sm text-taskBlack inline-flex items-center justify-between">
                   <span className="font-medium">Timeline:</span>
@@ -354,17 +382,28 @@ export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
                     year: "numeric",
                   })}
                 </p>
-                <p className="text-sm text-taskBlack inline-flex items-center justify-between">
-                  <span className="font-medium">Status:</span> {task.status}
-                </p>
-                <p className="text-sm text-taskBlack inline-flex items-center justify-between">
-                  <span className="font-medium">Assigned To:</span>{" "}
-                  {task.assigned_to?.name || "No name available"}
-                </p>
-                <p className="text-sm text-taskBlack inline-flex items-center justify-between">
-                  <span className="font-medium">Report To:</span>{" "}
-                  {task.report_to?.name || "No name available"}
-                </p>
+              </div>
+              <div className="flex flex-col gap-4 mt-3 overflow-y-auto h-40 p-2">
+                <h2 className="flex items-center text-lg font-semibold text-gray-800">
+                  Daily Updates <Calendar1Icon className="ml-2 text-gray-500" />
+                </h2>
+                {task.daily_updates && task.daily_updates.length > 0 ? (
+                  <ul className="space-y-2 text-sm text-gray-700">
+                    {task.daily_updates.map((daily_update) => (
+                      <li
+                        key={daily_update._id}
+                        className="flex justify-between"
+                      >
+                        <span>{daily_update.description}</span>
+                        <span className="text-gray-500 text-xs">
+                          {new Date(daily_update.date).toLocaleString()}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-sm text-gray-500">No Updates Yet</p>
+                )}
               </div>
             </>
           )}

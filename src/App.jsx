@@ -1,5 +1,5 @@
 import { Route, Routes } from "react-router"; // Correct import from react-router-dom
-import ProtectedRoute from "./utils/ProtectedRoute";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 import Error from "./components/Error";
 
 // Admin
