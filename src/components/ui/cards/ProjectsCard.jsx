@@ -1,5 +1,9 @@
 /* eslint-disable react/prop-types */
-import { FaExclamationCircle, FaCheckCircle } from "react-icons/fa";
+import {
+  FaExclamationCircle,
+  FaCheckCircle,
+  FaQuestionCircle,
+} from "react-icons/fa";
 import { motion } from "framer-motion";
 
 export const ProjectsCard = ({ title, subtitle, priority, progressBar }) => {
@@ -22,8 +26,14 @@ export const ProjectsCard = ({ title, subtitle, priority, progressBar }) => {
           <span className="text-sm font-semibold text-white flex items-center gap-1">
             {priority === "Pending" ? (
               <FaExclamationCircle className="text-red-500" />
-            ) : (
+            ) : priority === "In Progress" ? (
               <FaCheckCircle className="text-green-500" />
+            ) : priority === "Completed" ? (
+              <FaCheckCircle className="text-green-500" />
+            ) : priority === "Not Started" ? (
+              <FaExclamationCircle className="text-blue-500" />
+            ) : (
+              <FaQuestionCircle className="text-gray-500" />
             )}
             {priority}
           </span>

@@ -69,6 +69,10 @@ const Tasks = () => {
     queryFn: () => fetchAllTaskPagination(currentPage, itemsPerPage), // Use a function reference
     staleTime: 1000 * 60, // 1 minute
   });
+  const sortedTasks = (data?.tasks || []).sort(
+    (a, b) => new Date(b.start_date) - new Date(a.start_date)
+  );
+  console.log(sortedTasks);
 
   const updateMutation = useMutation({
     mutationFn: editTask,
@@ -101,7 +105,6 @@ const Tasks = () => {
   const handleDeleteTask = (taskId) => {
     deleteMutation.mutate(taskId);
   };
-  // console.log(data);
 
   if (isError) {
     console.error(error);
@@ -282,7 +285,7 @@ const Tasks = () => {
         <div className="flex flex-col justify-start gap-2 relative">
           <Table
             columns={columns}
-            data={data?.tasks || []}
+            data={sortedTasks || []}
             renderRow={renderRow}
           />
           <div className="mt-4">

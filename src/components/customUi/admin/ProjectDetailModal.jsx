@@ -102,7 +102,7 @@ export const ProjectDetailModal = ({ project, onClose, onEdit, taskList }) => {
 
     setErrorMessage(""); // Clear error message
     onEdit(updatedFormData); // Submit changes including milestones
-    console.log(updatedFormData);
+    // console.log(updatedFormData);
   };
 
   const handleMilestoneChange = (index, field, value) => {

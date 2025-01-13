@@ -6,7 +6,7 @@ export const RecentProjects = ({ projectData }) => {
   const recentProjects = projectData.slice(-4); // Get the last four projects
 
   return (
-    <section className="bg-gray-400 py-8 w-full mx-auto rounded-xl px-6">
+    <section className="bg-gray-400 flex flex-col py-8 mx-auto rounded-xl px-6">
       {/* Header */}
       <div className="text-center mb-6">
         <h1 className="text-3xl text-white font-semibold mb-2">

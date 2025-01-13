@@ -1,13 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  deleteProject,
-  fetchAllProjects,
-  updateProject,
-} from "@/API/admin/projects/project_api";
 import { CirclesWithBar } from "react-loader-spinner";
 import { toast } from "react-toastify";
-import Table from "@/components/customUi/Table"; // Import the reusable Table component
 import {
   Pagination,
   PaginationContent,
@@ -17,12 +11,19 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination"; // Import ShadCN pagination components
+import { Label } from "@/components/ui/label";
+
+import {
+  deleteProject,
+  fetchAllProjects,
+  updateProject,
+} from "@/API/admin/projects/project_api";
+import Table from "@/components/customUi/Table"; // Import the reusable Table component
 import CreateProject from "./CreateProject";
 import { ProjectDetailModal } from "@/components/customUi/admin/ProjectDetailModal";
 import DeleteDialog from "@/components/DeleteDialog";
 import { getTaskRelatedToProject } from "@/API/admin/task/task_api";
 import Selector from "@/components/customUi/Selector";
-import { Label } from "@/components/ui/label";
 
 const Projects = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);

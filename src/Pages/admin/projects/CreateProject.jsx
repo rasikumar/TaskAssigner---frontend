@@ -131,6 +131,10 @@ const CreateProject = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (formData.milestones.length === 0) {
+      toast.error("Please add at least one milestone.");
+      return;
+    }
     mutations.mutate(formData);
   };
 
@@ -257,6 +261,9 @@ const CreateProject = () => {
                   </li>
                 ))}
               </ul>
+              {formData.milestones.length === 0 && (
+                <p className="text-red-500 text-sm">At least one milestone is required.</p>
+              )}
             </div>
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Dates</h3>

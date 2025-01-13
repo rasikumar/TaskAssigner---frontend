@@ -150,11 +150,16 @@ const Dashboard = () => {
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* First Column */}
         <div className="flex flex-col gap-6">
-          <h1 className="text-lg font-semibold">Projects</h1>
+          <h1 className="text-lg font-semibold inline-flex items-center gap-10 w-full">
+            Projects{" "}
+            <span className="bg-emerald-600 w-10 items-center justify-center flex h-10 rounded-full">
+              {projects.length}
+            </span>
+          </h1>
           {projects.length === 0 ? (
             <div className="flex items-center justify-center w-full h-40 bg-gray-100 rounded-lg shadow">
               <p className="text-gray-500 text-lg font-medium">
-                No tasks available
+                No Projects available
               </p>
             </div>
           ) : (
@@ -189,7 +194,12 @@ const Dashboard = () => {
             </div>
           )}
 
-          <h1 className="text-lg font-semibold">Tasks</h1>
+          <h1 className="text-lg font-semibold inline-flex items-center gap-10 w-full">
+            Tasks{" "}
+            <span className="bg-emerald-600 w-10 items-center justify-center flex h-10 rounded-full">
+              {tasks.length}
+            </span>
+          </h1>
           {tasks.length === 0 ? (
             <div className="flex items-center justify-center w-full h-40 bg-gray-100 rounded-lg shadow">
               <p className="text-gray-500 text-lg font-medium">
