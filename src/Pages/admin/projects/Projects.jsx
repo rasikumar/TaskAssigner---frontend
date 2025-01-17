@@ -24,6 +24,9 @@ import { ProjectDetailModal } from "@/components/customUi/admin/ProjectDetailMod
 import DeleteDialog from "@/components/DeleteDialog";
 import { getTaskRelatedToProject } from "@/API/admin/task/task_api";
 import Selector from "@/components/customUi/Selector";
+import { getStatus } from "@/utils/statusUtils";
+import MainCards from "@/components/ui/cards/MainCards";
+import { FaTasks } from "react-icons/fa";
 
 const Projects = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -119,6 +122,19 @@ const Projects = () => {
     deleteMutation.mutate(projectId);
   };
 
+  const CompletedProject = data?.projects.filter(
+    (project) => project.project_status === "Completed"
+  );
+  const InprogressProject = data?.projects.filter(
+    (project) => project.project_status === "In Progress"
+  );
+  const NotStartedProject = data?.projects.filter(
+    (project) => project.project_status === "Not Started"
+  );
+  const PendingProject = data?.projects.filter(
+    (project) => project.project_status === "Pending"
+  );
+
   if (isError) {
     return <div>Error: {error.message}</div>;
   }
@@ -175,7 +191,9 @@ const Projects = () => {
           year: "numeric",
         })}
       </td>
-      <td className="px-2 py-3 text-sm">{project.project_status}</td>
+      <td className={`px-2 py-3 text-sm ${getStatus(project.project_status)}`}>
+        {project.project_status}
+      </td>
       <td className="px-2 py-3 text-sm text-center">
         <DeleteDialog
           message="Are you sure you want to delete this project?"
@@ -315,6 +333,36 @@ const Projects = () => {
                 className="w-48"
               />
             </div>
+          </div>
+          <div className="flex gap-2">
+            <MainCards
+              title="Yet to Start"
+              totaltasks={NotStartedProject.length}
+              Icon={FaTasks}
+              subtitle="Task"
+              bgColor="#B23A48"
+            />
+            <MainCards
+              title="Yet to Start"
+              totaltasks={InprogressProject.length}
+              Icon={FaTasks}
+              subtitle="Task"
+              bgColor="#B23A48"
+            />
+            <MainCards
+              title="Yet to Start"
+              totaltasks={PendingProject.length}
+              Icon={FaTasks}
+              subtitle="Task"
+              bgColor="#B23A48"
+            />
+            <MainCards
+              title="Yet to Start"
+              totaltasks={CompletedProject.length}
+              Icon={FaTasks}
+              subtitle="Task"
+              bgColor="#B23A48"
+            />
           </div>
           <Table
             columns={columns}

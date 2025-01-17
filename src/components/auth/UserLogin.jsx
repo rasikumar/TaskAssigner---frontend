@@ -31,19 +31,17 @@ const UserLogin = () => {
         localStorage.setItem("name", JSON.stringify(response.data.data.name));
         localStorage.setItem("mail", JSON.stringify(response.data.data.mail));
 
-        toast.success(
-          response.data.message ||
-            "Login successful! Redirecting to the dashboard..."
-        );
+        toast.success(response.data.message);
         setTimeout(() => {
           navigate(`/dashboard`);
         }, 1000);
-      } else if (response.status === 404 && response.data.status) {
-        toast.error("Invalid email or password.");
       }
     } catch (error) {
-      console.error(error);
-      toast.error("An error occurred while trying to login.");
+      console.log(error);
+      toast.error(
+        error.response.data.message ||
+          "An error occurred while trying to login."
+      );
     }
   };
 

@@ -1,18 +1,20 @@
-import { getAllProjectList } from "@/API/admin/projects/project_api";
-import { Button } from "@/components/ui/button"; // Custom button component
-import { Input } from "@/components/ui/input"; // Custom input component
-import { Textarea } from "@/components/ui/textarea"; // Custom textarea component
 import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { Combobox } from "@/components/customUi/Handle";
+
 import { GrClose } from "react-icons/gr";
-import Modal from "@/components/customUi/Modal";
-// import { Label } from "@/components/ui/label";
-import Selector from "@/components/customUi/Selector";
-import { getEmpMails } from "@/API/admin/userverify/userVerify";
+import { Textarea } from "@/components/ui/textarea"; // Custom textarea component
+import { Input } from "@/components/ui/input"; // Custom input component
+import { Button } from "@/components/ui/button"; // Custom button component
+import { toast, ToastContainer } from "react-toastify";
+
 import { getAllEmployeeOwnerShip } from "@/API/admin/adminDashborad";
 import { createTask } from "@/API/admin/task/task_api";
-import { toast, ToastContainer } from "react-toastify";
+import { userGetAllProjectList } from "@/API/user/projects/project";
+import { getEmpMails } from "@/API/user/userVerify/userVerfiy";
+
+import Selector from "@/components/customUi/Selector";
+import Modal from "@/components/customUi/Modal";
+import { Combobox } from "@/components/customUi/Handle";
 const CreateTaskUser = () => {
   const [formData, setFormData] = useState({
     project: null,
@@ -50,7 +52,7 @@ const CreateTaskUser = () => {
     data: projectlist = [],
   } = useQuery({
     queryKey: ["projectsList"],
-    queryFn: getAllProjectList,
+    queryFn: userGetAllProjectList,
     enabled: isOpen,
   });
 
@@ -83,12 +85,12 @@ const CreateTaskUser = () => {
   useEffect(() => {
     if (userData) {
       const options = [
-        ...userData.teamLeads
-          .filter((lead) => lead.admin_verify === "true") // Check admin_verify for team leads
-          .map((lead) => ({
-            value: lead.id,
-            label: `Team Lead - ${lead.name}`,
-          })),
+        // ...userData.teamLeads
+        //   .filter((lead) => lead.admin_verify === "true") // Check admin_verify for team leads
+        //   .map((lead) => ({
+        //     value: lead.id,
+        //     label: `Team Lead - ${lead.name}`,
+        //   })),
 
         ...userData.managers
           .filter((manager) => manager.admin_verify === "true") // Check admin_verify for managers

@@ -262,7 +262,9 @@ const CreateProject = () => {
                 ))}
               </ul>
               {formData.milestones.length === 0 && (
-                <p className="text-red-500 text-sm">At least one milestone is required.</p>
+                <p className="text-red-500 text-sm">
+                  At least one milestone is required.
+                </p>
               )}
             </div>
             <div className="space-y-4">

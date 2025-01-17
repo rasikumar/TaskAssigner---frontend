@@ -1,8 +1,6 @@
-import Table from "@/components/customUi/Table";
 // import DeleteDialog from "@/components/DeleteDialog";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CirclesWithBar } from "react-loader-spinner";
-import CreateTask from "./CreateTasksUser";
 import { useState } from "react";
 import {
   Pagination,
@@ -13,46 +11,21 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { toast } from "react-toastify";
+
 import {
   // deleteTask,
   editTask,
   fetchAllTaskPagination,
 } from "@/API/admin/task/task_api";
-import { TaskDetailsModal } from "@/components/customUi/admin/TaskDetailModal";
-import { toast } from "react-toastify";
+
 import RoleChecker from "@/hooks/RoleChecker";
+import { UserTaskDetailsModal } from "@/components/customUi/user/UserTaskDetailsModal";
+import Table from "@/components/customUi/Table";
+import { getpriority } from "@/utils/prorityUtils";
+import { getStatus } from "@/utils/statusUtils";
+import CreateTaskUser from "./CreateTasksUser";
 
-const getpriority = (priority) => {
-  switch (priority) {
-    case "Critical":
-      return "text-red-600 bg-red-50 rounded-md";
-    case "High":
-      return "text-orange-600 bg-orange-50 rounded-md";
-    case "Regular":
-      return "text-blue-600 bg-blue-50 rounded-md";
-    case "Low":
-      return "text-green-600 bg-green-50 rounded-md";
-    default:
-      return "text-gray-600 bg-gray-50 rounded-md";
-  }
-};
-
-const getstatus = (status) => {
-  switch (status) {
-    case "Pending":
-      return "text-red-600 rounded-md bg-red-50";
-    case "Cancelled":
-      return "text-orange-600 rounded-md bg-orange-50";
-    case "In progress":
-      return "text-yellow-600 rounded-md bg-yellow-50";
-    case "Not started":
-      return "text-blue-600 rounded-md bg-blue-50";
-    case "Completed":
-      return "text-green-600 rounded-md bg-green-50";
-    default:
-      return "text-gray-600 rounded-md bg-gray-50";
-  }
-};
 const UserTasks = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState(false);
@@ -134,7 +107,9 @@ const UserTasks = () => {
           <span className="text-primary font-bold">
             {task.task_title || "N/A"}
           </span>
-          <span>{task.task_description || "N/A"}</span>
+          <span className="line-clamp-3 w-80">
+            {task.task_description || "N/A"}
+          </span>
         </div>
       </td>
       <td className="px-2 py-3 text-sm text-center">
@@ -162,7 +137,7 @@ const UserTasks = () => {
         }) || "N/A"}
       </td>
       <td className="px-2 py-2 text-center text-xs font-semibold">
-        <span className={getstatus(task.status)}>{task.status || "N/A"}</span>
+        <span className={getStatus(task.status)}>{task.status || "N/A"}</span>
       </td>
       <td className="px-2 py-2 text-center text-xs font-semibold">
         <span className={getpriority(task.priority)}>
@@ -271,7 +246,7 @@ const UserTasks = () => {
   return (
     <div className="relative mt-0 flex flex-col gap-4">
       <RoleChecker allowedRoles={["team lead", "manager"]}>
-        <CreateTask />
+        <CreateTaskUser />
       </RoleChecker>
       {isLoading ? (
         <div className="flex items-center justify-center w-full h-full">
@@ -320,7 +295,7 @@ const UserTasks = () => {
         </div>
       )}
       {isModalOpen && (
-        <TaskDetailsModal
+        <UserTaskDetailsModal
           task={selectedProject}
           onClose={() => setIsModalOpen(false)}
           onEdit={handleUpdateTask}

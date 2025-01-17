@@ -18,6 +18,7 @@ import { Textarea } from "../../ui/textarea";
 // import { getAllEmployeeOwnerShip } from "@/API/admin/adminDashborad";
 import Selector from "../Selector";
 import RoleChecker from "@/hooks/RoleChecker";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const UserProjectDetailModal = ({
   project,
@@ -308,6 +309,7 @@ export const UserProjectDetailModal = ({
                   required
                 />
               </div>
+
               <div className="flex gap-2 flex-col">
                 <h2 className="text-lg font-semibold text-gray-800 mb-4">
                   Milestones
@@ -420,9 +422,6 @@ export const UserProjectDetailModal = ({
                   </span>
                 </p>
                 <div className="mt-4">
-                  <h2 className="text-lg font-semibold text-gray-800 mb-4">
-                    Milestones
-                  </h2>
                   {/* {project.milstones && project.milstones.length > 0 ? (
                     <ul className="space-y-3">
                       {project.milstones.map((milstone) => (
@@ -452,70 +451,79 @@ export const UserProjectDetailModal = ({
                       No milestones found.
                     </p>
                   )} */}
-                  <div className="space-y-4">
-                    {project.milestones.map((milestone) => (
-                      <div
-                        key={milestone._id}
-                        className="flex items-center justify-between p-3 border rounded-lg shadow-md bg-white"
-                      >
-                        <div>
-                          <h3 className="text-sm font-semibold text-gray-800">
-                            {milestone.name}
-                          </h3>
-                        </div>
-                        <div>
-                          <span
-                            className={`px-3 py-1 text-xs font-medium rounded-full ${
-                              milestone.status === "Completed"
-                                ? "bg-green-100 text-green-600"
-                                : milestone.status === "In Progress"
-                                ? "bg-yellow-100 text-yellow-600"
-                                : "bg-red-100 text-red-600"
-                            }`}
+                  <Tabs defaultValue="milestones">
+                    <TabsList className="grid w-full grid-cols-2 bg-bg">
+                      <TabsTrigger value="milestones">Milestones</TabsTrigger>
+                      <TabsTrigger value="tasks">Tasks</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="milestones">
+                      <div className="space-y-4">
+                        {project.milestones.map((milestone) => (
+                          <div
+                            key={milestone._id}
+                            className="flex items-center justify-between p-3 border rounded-lg shadow-md bg-white"
                           >
-                            {milestone.status}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div className="mt-4">
-                  <h2 className="text-lg font-semibold text-gray-800 mb-4">
-                    Tasks
-                  </h2>
-                  {taskList && taskList.length > 0 ? (
-                    <ul className="space-y-3">
-                      {taskList.map((task) => (
-                        <li
-                          key={task._id}
-                          className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg shadow-sm hover:shadow-md transition-shadow bg-white"
-                        >
-                          <div className="flex flex-col gap-1">
-                            <h3 className="text-base font-medium text-gray-700">
-                              {task.task_title}
-                            </h3>
-                            <p className="text-sm text-gray-500">
-                              {task.task_description}
-                            </p>
+                            <div>
+                              <h3 className="text-sm font-semibold text-gray-800">
+                                {milestone.name}
+                              </h3>
+                            </div>
+                            <div>
+                              <span
+                                className={`px-3 py-1 text-xs font-medium rounded-full ${
+                                  milestone.status === "Completed"
+                                    ? "bg-green-100 text-green-600"
+                                    : milestone.status === "In Progress"
+                                    ? "bg-yellow-100 text-yellow-600"
+                                    : "bg-red-100 text-red-600"
+                                }`}
+                              >
+                                {milestone.status}
+                              </span>
+                            </div>
                           </div>
-                          <span
-                            className={`mt-2 sm:mt-0 inline-block text-xs font-medium px-3 py-1 rounded-full ${
-                              task.status === "Completed"
-                                ? "bg-green-100 text-green-600"
-                                : task.status === "In-Progress"
-                                ? "bg-yellow-100 text-yellow-600"
-                                : "bg-red-100 text-red-600"
-                            }`}
-                          >
-                            {task.status}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="text-sm text-gray-500">No tasks available.</p>
-                  )}
+                        ))}
+                      </div>
+                    </TabsContent>
+                    <TabsContent value="tasks">
+                      <div className="mt-4">
+                        {taskList && taskList.length > 0 ? (
+                          <ul className="space-y-3">
+                            {taskList.map((task) => (
+                              <li
+                                key={task._id}
+                                className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg shadow-sm hover:shadow-md transition-shadow bg-white"
+                              >
+                                <div className="flex flex-col gap-1">
+                                  <h3 className="text-base font-medium text-gray-700">
+                                    {task.task_title}
+                                  </h3>
+                                  <p className="text-sm text-gray-500">
+                                    {task.task_description}
+                                  </p>
+                                </div>
+                                <span
+                                  className={`mt-2 sm:mt-0 inline-block text-xs font-medium px-3 py-1 rounded-full ${
+                                    task.status === "Completed"
+                                      ? "bg-green-100 text-green-600"
+                                      : task.status === "In-Progress"
+                                      ? "bg-yellow-100 text-yellow-600"
+                                      : "bg-red-100 text-red-600"
+                                  }`}
+                                >
+                                  {task.status}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p className="text-sm text-gray-500">
+                            No tasks available.
+                          </p>
+                        )}
+                      </div>
+                    </TabsContent>
+                  </Tabs>
                 </div>
               </div>
             </div>

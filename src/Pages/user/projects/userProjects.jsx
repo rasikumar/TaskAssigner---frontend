@@ -1,7 +1,10 @@
-import { fetchAllUserProjects } from "@/API/user/projects/project";
+import {
+  fetchAllUserProjects,
+  userUpdateProject,
+} from "@/API/user/projects/project";
 import Table from "@/components/customUi/Table";
 import { UserProjectDetailModal } from "@/components/customUi/user/UserProjectDetailModal";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import CreateProjectUser from "./CreateProjectUser";
 import { CirclesWithBar } from "react-loader-spinner";
@@ -30,7 +33,7 @@ const UserProjects = () => {
   const [currentPage, setCurrentPage] = useState(1); // Track current page
   const [itemsPerPage] = useState(15);
 
-  // const queryClient = useQueryClient();
+  const queryClient = useQueryClient();
 
   const handleProjectClick = (project) => {
     setSelectedProject(project);
@@ -63,8 +66,17 @@ const UserProjects = () => {
   const projectData = userProjectsData?.data;
   // console.log(projectData);
 
+  const updateMutation = useMutation({
+    mutationFn: userUpdateProject,
+    onSuccess: () => {
+      queryClient.invalidateQueries(["userProjects"]);
+      setIsModalOpen(false);
+      toast.success("Project updated successfully!");
+    },
+  });
+
   const handleUpdateProject = (updateProject) => {
-    // updateMutation.mutate(updateProject);
+    updateMutation.mutate(updateProject);
     console.log(updateProject);
   };
 

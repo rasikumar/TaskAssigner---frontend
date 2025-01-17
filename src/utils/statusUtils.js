@@ -1,9 +1,9 @@
 // statusUtils.js
 export const getStatus = (status) => {
   switch (status) {
-    case "Not Started":
+    case "Not started":
       return "text-gray-500";
-    case "In Progress":
+    case "In progress":
       return "text-blue-500";
     case "Pending":
       return "text-yellow-500";

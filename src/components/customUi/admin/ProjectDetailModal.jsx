@@ -17,6 +17,7 @@ import {
 import { Textarea } from "../../ui/textarea";
 import { getAllEmployeeOwnerShip } from "@/API/admin/adminDashborad";
 import Selector from "../Selector";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const ProjectDetailModal = ({ project, onClose, onEdit, taskList }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -358,149 +359,128 @@ export const ProjectDetailModal = ({ project, onClose, onEdit, taskList }) => {
               <p className="text-taskBlack text-sm ">
                 {project.project_description}
               </p>
-              <div className="flex flex-col gap-2 mt-2">
-                <p className="text-sm text-taskBlack inline-flex items-center justify-between">
-                  Status{" "}
-                  <span
-                    className={`${
-                      project.project_status === "Not Started"
-                        ? "bg-emerald-400 px-2 py-1 rounded-full"
-                        : project.project_status === "In Progress"
-                        ? "bg-red-500 px-2 py-1 rounded-full"
-                        : project.project_status === "Pending"
-                        ? "bg-blue-400 px-2 py-1 rounded-full"
-                        : project.project_status === "Completed"
-                        ? "bg-slate-500 px-2 py-1 rounded-full"
-                        : "bg-white px-2 py-1 rounded-full"
-                    } text-black md:text-xs 2xl:text-sm`}
-                  >
-                    {project.project_status}
-                  </span>
-                </p>
-                <p className="text-sm text-taskBlack inline-flex items-center justify-between">
-                  Estimated Hours{" "}
-                  <span className="text-black">
-                    {project.estimated_hours} hours
-                  </span>
-                </p>
-                <p className="text-sm text-taskBlack inline-flex items-center justify-between">
-                  Start Date{" "}
-                  <span className="text-black">
-                    {new Date(project.startDate).toLocaleDateString("en-GB", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                    })}
-                  </span>
-                </p>
-                <p className="text-sm text-taskBlack inline-flex items-center justify-between">
-                  Due Date{" "}
-                  <span className="text-black">
-                    {new Date(project.endDate).toLocaleDateString("en-GB", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                    })}
-                  </span>
-                </p>
-                <div className="mt-4">
-                  <h2 className="text-lg font-semibold text-gray-800 mb-4">
-                    Milestones
-                  </h2>
-                  {/* {project.milstones && project.milstones.length > 0 ? (
-                    <ul className="space-y-3">
-                      {project.milstones.map((milstone) => (
-                        <li key={milstone._id}>
-                          <h3 className="text-base font-medium text-gray-700">
-                            {milstone.name}
-                          </h3>
-                          <p className="text-sm text-gray-500">
-                            {milstone.status}
-                          </p>
-                          <span
-                            className={`inline-block text-xs font-medium px-3 py-1 rounded-full ${
-                              milstone.status === "Completed"
-                                ? "bg-green-100 text-green-600"
-                                : milstone.status === "In-Progress"
-                                ? "bg-yellow-100 text-yellow-600"
-                                : "bg-red-100 text-red-600"
-                            }`}
-                          >
-                            {milstone.status}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="text-sm text-gray-500">
-                      No milestones found.
-                    </p>
-                  )} */}
-                  <div className="space-y-4">
-                    {project.milestones.map((milestone) => (
-                      <div
-                        key={milestone._id}
-                        className="flex items-center justify-between p-3 border rounded-lg shadow-md bg-white"
-                      >
-                        <div>
-                          <h3 className="text-sm font-semibold text-gray-800">
-                            {milestone.name}
-                          </h3>
-                        </div>
-                        <div>
-                          <span
-                            className={`px-3 py-1 text-xs font-medium rounded-full ${
-                              milestone.status === "Completed"
-                                ? "bg-green-100 text-green-600"
-                                : milestone.status === "In Progress"
-                                ? "bg-yellow-100 text-yellow-600"
-                                : "bg-red-100 text-red-600"
-                            }`}
-                          >
-                            {milestone.status}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+              <div>
+                <div className="flex flex-col gap-2 my-4 border p-2 rounded-lg border-blue-300 shadow-minimal">
+                  <p className="text-sm text-taskBlack inline-flex items-center justify-between">
+                    Status{" "}
+                    <span
+                      className={`${
+                        project.project_status === "Not Started"
+                          ? "bg-emerald-400 px-2 py-1 rounded-full"
+                          : project.project_status === "In Progress"
+                          ? "bg-red-500 px-2 py-1 rounded-full"
+                          : project.project_status === "Pending"
+                          ? "bg-blue-400 px-2 py-1 rounded-full"
+                          : project.project_status === "Completed"
+                          ? "bg-slate-500 px-2 py-1 rounded-full"
+                          : "bg-white px-2 py-1 rounded-full"
+                      } text-black md:text-xs 2xl:text-sm`}
+                    >
+                      {project.project_status}
+                    </span>
+                  </p>
+                  <p className="text-sm text-taskBlack inline-flex items-center justify-between">
+                    Estimated Hours{" "}
+                    <span className="text-black">
+                      {project.estimated_hours} hours
+                    </span>
+                  </p>
+                  <p className="text-sm text-taskBlack inline-flex items-center justify-between">
+                    Start Date{" "}
+                    <span className="text-black">
+                      {new Date(project.startDate).toLocaleDateString("en-GB", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                      })}
+                    </span>
+                  </p>
+                  <p className="text-sm text-taskBlack inline-flex items-center justify-between">
+                    Due Date{" "}
+                    <span className="text-black">
+                      {new Date(project.endDate).toLocaleDateString("en-GB", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                      })}
+                    </span>
+                  </p>
                 </div>
-                <div className="mt-4">
-                  <h2 className="text-lg font-semibold text-gray-800 mb-4">
-                    Tasks
-                  </h2>
-                  {taskList && taskList.length > 0 ? (
-                    <ul className="space-y-3">
-                      {taskList.map((task) => (
-                        <li
-                          key={task._id}
-                          className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg shadow-sm hover:shadow-md transition-shadow bg-white"
-                        >
-                          <div className="flex flex-col gap-1">
-                            <h3 className="text-base font-medium text-gray-700">
-                              {task.task_title}
-                            </h3>
-                            <p className="text-sm text-gray-500">
-                              {task.task_description}
-                            </p>
+                <Tabs defaultValue="milestones">
+                  <TabsList className="grid w-full grid-cols-2 bg-bg">
+                    <TabsTrigger value="milestones">Milestones</TabsTrigger>
+                    <TabsTrigger value="tasks">Tasks</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="milestones">
+                    <div className="mt-4">
+                      <div className="space-y-4">
+                        {project.milestones.map((milestone) => (
+                          <div
+                            key={milestone._id}
+                            className="flex items-center justify-between p-3 border rounded-lg  bg-white"
+                          >
+                            <div>
+                              <h3 className="text-sm font-semibold text-gray-800">
+                                {milestone.name}
+                              </h3>
+                            </div>
+                            <div>
+                              <span
+                                className={`px-3 py-1 text-xs font-medium rounded-full ${
+                                  milestone.status === "Completed"
+                                    ? "bg-green-100 text-green-600"
+                                    : milestone.status === "In Progress"
+                                    ? "bg-yellow-100 text-yellow-600"
+                                    : "bg-red-100 text-red-600"
+                                }`}
+                              >
+                                {milestone.status}
+                              </span>
+                            </div>
                           </div>
-                          <span
-                            className={`mt-2 sm:mt-0 inline-block text-xs font-medium px-3 py-1 rounded-full ${
-                              task.status === "Completed"
-                                ? "bg-green-100 text-green-600"
-                                : task.status === "In-Progress"
-                                ? "bg-yellow-100 text-yellow-600"
-                                : "bg-red-100 text-red-600"
-                            }`}
-                          >
-                            {task.status}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="text-sm text-gray-500">No tasks available.</p>
-                  )}
-                </div>
+                        ))}
+                      </div>
+                    </div>
+                  </TabsContent>
+                  <TabsContent value="tasks">
+                    <div className="mt-4">
+                      {taskList && taskList.length > 0 ? (
+                        <ul className="space-y-3">
+                          {taskList.map((task) => (
+                            <li
+                              key={task._id}
+                              className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg shadow-sm hover:shadow-md transition-shadow bg-white"
+                            >
+                              <div className="flex flex-col gap-1">
+                                <h3 className="text-sm font-semibold text-gray-800">
+                                  {task.task_title}
+                                </h3>
+                                {/* <p className="text-sm text-gray-500">
+                                  {task.task_description}
+                                </p> */}
+                              </div>
+                              <span
+                                className={`mt-2 sm:mt-0 inline-block text-xs font-medium px-3 py-1 rounded-full ${
+                                  task.status === "Completed"
+                                    ? "bg-green-100 text-green-600"
+                                    : task.status === "In-Progress"
+                                    ? "bg-yellow-100 text-yellow-600"
+                                    : "bg-red-100 text-red-600"
+                                }`}
+                              >
+                                {task.status}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="text-sm text-gray-500">
+                          No tasks available.
+                        </p>
+                      )}
+                    </div>
+                  </TabsContent>
+                </Tabs>
               </div>
             </div>
           )}

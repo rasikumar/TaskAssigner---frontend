@@ -3,20 +3,18 @@ import { useEffect, useRef, useState } from "react";
 import { Input } from "../../ui/input";
 import Selector from "../Selector";
 import { useQuery } from "@tanstack/react-query";
-import { getEmpMails } from "@/API/admin/userverify/userVerify";
 import { getAllEmployeeOwnerShip } from "@/API/admin/adminDashborad";
 import { Combobox } from "../Handle";
 import { Button } from "../../ui/button";
 import { Label } from "../../ui/label";
 import { Calendar1Icon } from "lucide-react";
-import { VscMilestone } from "react-icons/vsc";
-
 import { Textarea } from "@/components/ui/textarea";
 import { getStatus } from "@/utils/statusUtils";
 import { getpriority } from "@/utils/prorityUtils";
+import { getEmpMails } from "@/API/user/userVerify/userVerfiy";
 
 /* eslint-disable react/prop-types */
-export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
+export const UserTaskDetailsModal = ({ task, onClose, onEdit }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState(task);
@@ -25,7 +23,7 @@ export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
 
   const EndDate = useRef(null);
   const StartDate = useRef(null);
-
+  
   const {
     isError: isUserListError,
     isLoading: isUserListLoading,
@@ -344,10 +342,6 @@ export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
           ) : (
             <>
               <div className="py-4 p-2">
-                <h3 className="text-lg font-semibold border border-blue-400 rounded-md px-2 mb-4 inline-flex items-center gap-4 w-full">
-                  <VscMilestone />
-                  {task.milestone?.name || "No Milestone"}
-                </h3>
                 <h3 className="text-xl font-semibold text-blue-800">
                   {task.task_title}
                 </h3>

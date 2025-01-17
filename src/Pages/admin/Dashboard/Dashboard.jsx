@@ -152,9 +152,6 @@ const Dashboard = () => {
         <div className="flex flex-col gap-6">
           <h1 className="text-lg font-semibold inline-flex items-center gap-10 w-full">
             Projects{" "}
-            <span className="bg-emerald-600 w-10 items-center justify-center flex h-10 rounded-full">
-              {projects.length}
-            </span>
           </h1>
           {projects.length === 0 ? (
             <div className="flex items-center justify-center w-full h-40 bg-gray-100 rounded-lg shadow">
@@ -165,13 +162,11 @@ const Dashboard = () => {
           ) : (
             <div className="grid grid-cols-1 2xl:grid-cols-3 xl:grid-cols-2 gap-4">
               <MainCards
-                title="Yet to Start"
-                btn="View All"
-                totaltasks={NotStartedProject.length}
+                title="Total Projects"
+                totaltasks={projects.length}
                 Icon={FaTasks}
                 subtitle="Projects"
                 bgColor="#B23A48"
-                path="./projects"
               />
               <MainCards
                 title="In-progress"
@@ -196,9 +191,6 @@ const Dashboard = () => {
 
           <h1 className="text-lg font-semibold inline-flex items-center gap-10 w-full">
             Tasks{" "}
-            <span className="bg-emerald-600 w-10 items-center justify-center flex h-10 rounded-full">
-              {tasks.length}
-            </span>
           </h1>
           {tasks.length === 0 ? (
             <div className="flex items-center justify-center w-full h-40 bg-gray-100 rounded-lg shadow">
@@ -209,9 +201,8 @@ const Dashboard = () => {
           ) : (
             <div className="grid grid-cols-1 2xl:grid-cols-3 xl:grid-cols-2 gap-4">
               <MainCards
-                title="Yet to Start"
-                btn="View All"
-                totaltasks={NotStartedTask.length}
+                title="Total Tasks"
+                totaltasks={tasks.length}
                 Icon={FaTasks}
                 subtitle="Task"
                 bgColor="#B23A48"

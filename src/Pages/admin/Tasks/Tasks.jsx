@@ -22,6 +22,9 @@ import { TaskDetailsModal } from "@/components/customUi/admin/TaskDetailModal";
 import { toast } from "react-toastify";
 import { getStatus } from "@/utils/statusUtils";
 import { getpriority } from "@/utils/prorityUtils";
+import { Input } from "@/components/ui/input";
+import MainCards from "@/components/ui/cards/MainCards";
+import { FaTasks } from "react-icons/fa";
 
 const Tasks = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -30,6 +33,8 @@ const Tasks = () => {
   const [currentPage, setCurrentPage] = useState(1); // Track current page
 
   const [itemsPerPage] = useState(10);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
   const handleTaskClick = (task) => {
     setSelectedProject(task);
     setIsModalOpen(true);
@@ -45,7 +50,7 @@ const Tasks = () => {
   const sortedTasks = (data?.tasks || []).sort(
     (a, b) => new Date(b.start_date) - new Date(a.start_date)
   );
-  console.log(sortedTasks);
+  // console.log(sortedTasks);
 
   const updateMutation = useMutation({
     mutationFn: editTask,
@@ -83,11 +88,41 @@ const Tasks = () => {
     console.error(error);
   }
 
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const handleStatusChange = (e) => {
+    setStatusFilter(e.target.value);
+  };
+
+  const filteredTasks = sortedTasks.filter((task) => {
+    const matchesSearch = task.task_title
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter ? task.status === statusFilter : true;
+    return matchesSearch && matchesStatus;
+  });
+
+  const CompletedTask = filteredTasks.filter(
+    (task) => task.status === "Completed"
+  );
+  const InprogressTask = filteredTasks.filter(
+    (task) => task.status === "In progress"
+  );
+  const NotStartedTask = filteredTasks.filter(
+    (task) => task.status === "Not started"
+  );
+  const PendingTask = filteredTasks.filter((task) => task.status === "Pending");
+  const CancelledTask = filteredTasks.filter(
+    (task) => task.status === "Cancelled"
+  );
+
   const columns = [
     { key: "task_title", title: "Task Title" },
+    { key: "project_name", title: "Project", className: "text-center" },
     { key: "assigned_by", title: "Assigned By", className: "text-center" },
     { key: "assigned_to", title: "Assigned To", className: "text-center" },
-    { key: "project_name", title: "Project", className: "text-center" },
     { key: "start_date", title: "Start Date", className: "text-center" },
     { key: "end_date", title: "End Date", className: "text-center" },
     { key: "status", title: "Status", className: "text-center" },
@@ -113,13 +148,13 @@ const Tasks = () => {
         </div>
       </td>
       <td className="px-2 py-3 text-sm text-center">
+        {task.project?.project_name || "N/A"} {/* Access nested field */}
+      </td>
+      <td className="px-2 py-3 text-sm text-center">
         {task.assigned_by?.name || "N/A"} {/* Access nested field */}
       </td>
       <td className="px-2 py-3 text-sm text-center">
         {task.assigned_to?.name || "N/A"} {/* Access nested field */}
-      </td>
-      <td className="px-2 py-3 text-sm text-center">
-        {task.project?.project_name || "N/A"} {/* Access nested field */}
       </td>
 
       <td className="px-2 py-3 text-sm text-center">
@@ -246,6 +281,61 @@ const Tasks = () => {
   return (
     <div className="relative mt-0 flex flex-col gap-4">
       <CreateTask />
+      {/* Add filter search and status dropdown */}
+      <div className="flex gap-4 mb-4">
+        <Input
+          type="text"
+          placeholder="Search tasks..."
+          value={searchTerm}
+          onChange={handleSearchChange}
+          className="w-1/4"
+        />
+        <select value={statusFilter} onChange={handleStatusChange}>
+          <option value="">All Statuses</option>
+          <option value="Not started">Not Started</option>
+          <option value="In progress">In Progress</option>
+          <option value="Pending">Pending</option>
+          <option value="Completed">Completed</option>
+          <option value="Cancelled">Cancelled</option>
+        </select>
+      </div>
+      <div className="flex lg:flex-nowrap gap-2">
+        <MainCards
+          title="Yet to Start"
+          totaltasks={NotStartedTask.length}
+          Icon={FaTasks}
+          subtitle="Task"
+          bgColor="#B23A48"
+        />
+        <MainCards
+          title="Pending"
+          totaltasks={PendingTask.length}
+          Icon={FaTasks}
+          subtitle="Task"
+          bgColor="#B23A48"
+        />
+        <MainCards
+          title="Cancelled"
+          totaltasks={CancelledTask.length}
+          Icon={FaTasks}
+          subtitle="Task"
+          bgColor="#B23A48"
+        />
+        <MainCards
+          title="In-Progress"
+          totaltasks={InprogressTask.length}
+          Icon={FaTasks}
+          subtitle="Task"
+          bgColor="#B23A48"
+        />
+        <MainCards
+          title="Completed"
+          totaltasks={CompletedTask.length}
+          Icon={FaTasks}
+          subtitle="Task"
+          bgColor="#B23A48"
+        />
+      </div>
       {isLoading ? (
         <div className="flex items-center justify-center w-full h-full">
           <CirclesWithBar
@@ -260,7 +350,7 @@ const Tasks = () => {
         <div className="flex flex-col justify-start gap-2 relative">
           <Table
             columns={columns}
-            data={sortedTasks || []}
+            data={filteredTasks || []} // Use filteredTasks instead of sortedTasks
             renderRow={renderRow}
           />
           <div className="mt-4">

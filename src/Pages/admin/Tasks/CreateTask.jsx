@@ -30,7 +30,6 @@ const CreateTask = () => {
   });
   // console.log(formData);
 
-  const queryClient = new QueryClient();
   const startDateRef = useRef(null);
   const endDateRef = useRef(null);
 
@@ -41,6 +40,7 @@ const CreateTask = () => {
   const [milestonesError, setMilestoneError] = useState("");
 
   // console.log(milestones);
+  const queryClient = new QueryClient();
 
   const priorityOptions = [
     { value: "Low", label: "Low" },
@@ -107,7 +107,7 @@ const CreateTask = () => {
     }
   }, [userData]);
 
-  const Taskmutations = useMutation({
+  const taskmutations = useMutation({
     mutationFn: createTask,
     onSuccess: () => {
       queryClient.invalidateQueries(["tasks"]);
@@ -181,10 +181,8 @@ const CreateTask = () => {
 
   const sendProjectId = async (projectId) => {
     try {
-      // Replace with your API call to send the project ID
       const response = await getMilestonesForProject(projectId);
       setMilestones(response);
-      // console.log("Project ID sent successfully");
     } catch (error) {
       console.error("Error sending project ID:", error);
     }
@@ -192,7 +190,7 @@ const CreateTask = () => {
 
   const handleSumbit = async (e) => {
     e.preventDefault();
-    Taskmutations.mutate(formData);
+    taskmutations.mutate(formData);
   };
 
   return (

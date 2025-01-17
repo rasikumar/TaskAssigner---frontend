@@ -30,3 +30,29 @@ export const createUserProject = async (ProjectData) => {
     throw err;
   }
 };
+
+export const userUpdateProject = async (updatedData) => {
+  try {
+    const response = await Instance.put(
+      `${API_URL}/updateProject`,
+      updatedData
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error updating project:", error);
+    throw error;
+  }
+};
+
+export const userGetAllProjectList = async () => {
+  try {
+    const response = await Instance.get(`${API_URL}/getAllProjectList`);
+    return response.data.projects.map((item) => ({
+      value: item._id, // Map 'id' to 'value'
+      label: item.project_name, // Map 'name' to 'label'
+    }));
+  } catch (error) {
+    console.error("Error fetching project list:", error);
+    throw error;
+  }
+};
