@@ -1,4 +1,4 @@
-import { FaPen, FaRedo, FaRegWindowClose } from "react-icons/fa";
+import { FaPen, FaRedo, FaRegWindowClose, FaTrash } from "react-icons/fa";
 import { useEffect, useRef, useState } from "react";
 import { Input } from "../../ui/input";
 import Selector from "../Selector";
@@ -9,11 +9,12 @@ import { Combobox } from "../Handle";
 import { Button } from "../../ui/button";
 import { Label } from "../../ui/label";
 import { Calendar1Icon } from "lucide-react";
-import { VscMilestone } from "react-icons/vsc";
+import { VscLoading, VscMilestone } from "react-icons/vsc";
 
 import { Textarea } from "@/components/ui/textarea";
 import { getStatus } from "@/utils/statusUtils";
 import { getpriority } from "@/utils/prorityUtils";
+import DeleteDialog from "@/components/DeleteDialog";
 
 /* eslint-disable react/prop-types */
 export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
@@ -38,9 +39,9 @@ export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
 
   const {
     data: userData,
-    isLoading,
-    isError,
-    error,
+    isLoading: isUserDataLoading,
+    isError: isUserDataError,
+    error: userDataError,
   } = useQuery({
     queryKey: ["userData"],
     queryFn: getAllEmployeeOwnerShip,
@@ -131,21 +132,6 @@ export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
     { value: "Cancelled", label: "Cancelled" },
   ];
 
-  if (isError) {
-    return <p>Error fetching user list{error}</p>;
-  }
-  if (isLoading) {
-    return <p>Loading...</p>;
-  }
-
-  if (isUserListError) {
-    return <p>Error fetching user list{UserListError}</p>;
-  }
-
-  if (isUserListLoading) {
-    return <p>Loading user list...</p>;
-  }
-
   const handleSave = (e) => {
     e.preventDefault();
     if (JSON.stringify(formData) === JSON.stringify(task)) {
@@ -154,6 +140,11 @@ export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
       setErrorMessage(""); // Clear error message
       onEdit(formData); // Submit changes if there are any
     }
+  };
+
+  const handleDeleteDailyUpdate = async (taskId, updateId) => {
+    console.log("ff", updateId);
+    console.log("gg", taskId);
   };
 
   return (
@@ -178,17 +169,19 @@ export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
                 onClick={() => setIsEditing((prev) => !prev)}
                 className="p-2 text-blue-500 hover:text-blue-700 transition-colors"
               >
-                {isEditing ? (
-                  <>
-                    <FaRedo size={20} />
-                  </>
-                ) : (
-                  <>
-                    <FaPen size={20} />
-                  </>
-                )}
+                <FaPen size={20} />
               </button>
             )}
+
+            {isEditing && (
+              <button
+                onClick={() => setIsEditing((prev) => !prev)}
+                className="p-2 text-blue-500 hover:text-blue-700 transition-colors"
+              >
+                <FaRedo size={20} />
+              </button>
+            )}
+
             <button
               onClick={onClose}
               className="p-2 rounded-md hover:bg-white hover:text-red-600 transition-colors"
@@ -203,22 +196,9 @@ export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
           <h2 className="text-xl font-bold text-indigo-600 mb-2">
             {task.project?.project_name}
           </h2>
-
           <hr className="bg-taskBlack h-[0.1rem] border-0" />
-
           {isEditing ? (
             <>
-              <div className="mb-4">
-                <Selector
-                  label="Priority"
-                  id="priority"
-                  value={formData.priority}
-                  onChange={(e) =>
-                    handleSelectChange("priority", e.target.value)
-                  }
-                  options={priorityOptions}
-                />
-              </div>
               {renderInput("task_title", "Task Title", formData.task_title)}
 
               <Textarea
@@ -294,47 +274,66 @@ export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
 
               <div className="mb-4">
                 <Label>Assigned to</Label>
-                <Combobox
-                  items={userList.map((user) => ({
-                    value: user.value,
-                    label: user.label,
-                  }))}
-                  value={formData.assigned_to?._id}
-                  onChange={(value) => {
-                    const selectedUser = userList.find(
-                      (user) => user.value === value
-                    );
-                    setFormData((prevData) => ({
-                      ...prevData,
-                      assigned_to: {
-                        _id: selectedUser.value,
-                        name: selectedUser.label,
-                      },
-                    }));
-                  }}
-                  placeholder="Assigned to"
-                />
+                {isUserListError ? (
+                  <>Error fetching user list{UserListError}</>
+                ) : isUserListLoading ? (
+                  <>
+                    <p className="animate-spin fixed">
+                      <VscLoading />
+                    </p>
+                  </>
+                ) : (
+                  <Combobox
+                    items={userList.map((user) => ({
+                      value: user.value,
+                      label: user.label,
+                    }))}
+                    value={formData.assigned_to?._id}
+                    onChange={(value) => {
+                      const selectedUser = userList.find(
+                        (user) => user.value === value
+                      );
+                      setFormData((prevData) => ({
+                        ...prevData,
+                        assigned_to: {
+                          _id: selectedUser.value,
+                          name: selectedUser.label,
+                        },
+                      }));
+                    }}
+                    placeholder="Assigned to"
+                  />
+                )}
               </div>
-
               <div className="mb-4">
                 <Label>Report to</Label>
-                <Combobox
-                  items={ownershipOptions}
-                  value={formData.report_to?._id}
-                  onChange={(value) => {
-                    const selectedOwner = ownershipOptions.find(
-                      (option) => option.value === value
-                    );
-                    setFormData((prevData) => ({
-                      ...prevData,
-                      report_to: {
-                        _id: selectedOwner.value,
-                        name: selectedOwner.label.split(" - ")[1],
-                      },
-                    }));
-                  }}
-                  placeholder="Report to"
-                />
+                {isUserDataError ? (
+                  <>Error fetching user list{userDataError}</>
+                ) : isUserDataLoading ? (
+                  <>
+                    <p className="animate-spin fixed">
+                      <VscLoading />
+                    </p>
+                  </>
+                ) : (
+                  <Combobox
+                    items={ownershipOptions}
+                    value={formData.report_to?._id}
+                    onChange={(value) => {
+                      const selectedOwner = ownershipOptions.find(
+                        (option) => option.value === value
+                      );
+                      setFormData((prevData) => ({
+                        ...prevData,
+                        report_to: {
+                          _id: selectedOwner.value,
+                          name: selectedOwner.label.split(" - ")[1],
+                        },
+                      }));
+                    }}
+                    placeholder="Report to"
+                  />
+                )}
               </div>
 
               <Button onClick={handleSave} className="mb-4">
@@ -389,23 +388,53 @@ export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
                   })}
                 </p>
               </div>
-              <div className="flex flex-col gap-4 mt-3 overflow-y-auto h-40 p-2">
-                <h2 className="flex items-center text-lg font-semibold text-gray-800">
+              <div className="flex flex-col gap-4 mt-3 overflow-y-scroll overflow-x-hidden p-2">
+                <h2 className="flex items-center gap-4 text-lg font-semibold text-gray-800">
                   Daily Updates <Calendar1Icon className="ml-2 text-gray-500" />
                 </h2>
                 {task.daily_updates && task.daily_updates.length > 0 ? (
                   <ul className="space-y-2 text-sm text-gray-700">
-                    {task.daily_updates.map((daily_update) => (
-                      <li
-                        key={daily_update._id}
-                        className="flex justify-between"
-                      >
-                        <span>{daily_update.description}</span>
-                        <span className="text-gray-500 text-xs">
-                          {new Date(daily_update.date).toLocaleString()}
-                        </span>
-                      </li>
-                    ))}
+                    {task.daily_updates
+                      .sort((a, b) => new Date(b.date) - new Date(a.date))
+                      .map((daily_update) => (
+                        <li
+                          key={daily_update._id}
+                          className="flex justify-between"
+                        >
+                          <span className="w-52 text-justify overflow-x-scroll h-20 break-words">
+                            {daily_update.description}
+                          </span>
+
+                          <span className="text-gray-500 text-xs inline-flex items-center gap-2">
+                            <p className="text-gray-500 text-xs inline-flex items-center justify-end gap-2 border-r-2 pr-2">
+                              <span className="text-primary text-sm">
+                                {daily_update.hours_spent}
+                              </span>
+                              Hours
+                            </p>
+                            {new Date(daily_update.date).toLocaleString(
+                              "en-US",
+                              {
+                                hour: "numeric",
+                                minute: "2-digit",
+                              }
+                            )}
+
+                            <DeleteDialog
+                              message="Are you sure you want to delete this task?"
+                              onConfirm={() =>
+                                handleDeleteDailyUpdate(
+                                  task._id,
+                                  daily_update._id
+                                )
+                              }
+                              triggerLabel={<FaTrash />}
+                              // isLoading={deleteMutation.isPending}
+                              className="w-4 h-8"
+                            />
+                          </span>
+                        </li>
+                      ))}
                   </ul>
                 ) : (
                   <p className="text-sm text-gray-500">No Updates Yet</p>

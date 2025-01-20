@@ -175,20 +175,23 @@ export const UserProjectDetailModal = ({
           </h1>
           <div className="flex gap-x-2">
             <RoleChecker allowedRoles={["manager"]}>
-              <button
-                onClick={() => setIsEditing((prev) => !prev)}
-                className="p-2 text-blue-500 hover:text-blue-700 transition-colors"
-              >
-                {isEditing ? (
-                  <>
-                    <FaRedo size={20} />
-                  </>
-                ) : (
-                  <>
-                    <FaPen size={20} />
-                  </>
-                )}
-              </button>
+              {!isEditing && (
+                <button
+                  onClick={() => setIsEditing((prev) => !prev)}
+                  className="p-2 text-blue-500 hover:text-blue-700 transition-colors"
+                >
+                  <FaPen size={20} />
+                </button>
+              )}
+
+              {isEditing && (
+                <button
+                  onClick={() => setIsEditing((prev) => !prev)}
+                  className="p-2 text-blue-500 hover:text-blue-700 transition-colors"
+                >
+                  <FaRedo size={20} />
+                </button>
+              )}
             </RoleChecker>
             <button
               onClick={onClose}

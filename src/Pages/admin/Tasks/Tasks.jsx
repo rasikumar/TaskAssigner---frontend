@@ -290,7 +290,11 @@ const Tasks = () => {
           onChange={handleSearchChange}
           className="w-1/4"
         />
-        <select value={statusFilter} onChange={handleStatusChange}>
+        <select
+          className="appearance-none w-32 text-center rounded-xl"
+          value={statusFilter}
+          onChange={handleStatusChange}
+        >
           <option value="">All Statuses</option>
           <option value="Not started">Not Started</option>
           <option value="In progress">In Progress</option>

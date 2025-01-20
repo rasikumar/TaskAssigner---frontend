@@ -2,7 +2,7 @@ import { FaPen, FaRedo, FaRegWindowClose } from "react-icons/fa";
 import { useEffect, useRef, useState } from "react";
 import { Input } from "../../ui/input";
 import Selector from "../Selector";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getAllEmployeeOwnerShip } from "@/API/admin/adminDashborad";
 import { Combobox } from "../Handle";
 import { Button } from "../../ui/button";
@@ -12,6 +12,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { getStatus } from "@/utils/statusUtils";
 import { getpriority } from "@/utils/prorityUtils";
 import { getEmpMails } from "@/API/user/userVerify/userVerfiy";
+import { VscLoading, VscMilestone } from "react-icons/vsc";
+import UserDailyUpdateTask from "../../../Pages/user/tasks/UserDailyUpdateTask";
+import { dailyUpdate } from "@/API/user/task/tasks";
+import { toast, ToastContainer } from "react-toastify";
+import RoleChecker from "@/hooks/RoleChecker";
 
 /* eslint-disable react/prop-types */
 export const UserTaskDetailsModal = ({ task, onClose, onEdit }) => {
@@ -21,9 +26,11 @@ export const UserTaskDetailsModal = ({ task, onClose, onEdit }) => {
   const [errorMessage, setErrorMessage] = useState("");
   const [ownershipOptions, setOwnershipOptions] = useState([]);
 
+  const queryClient = useQueryClient();
+
   const EndDate = useRef(null);
   const StartDate = useRef(null);
-  
+
   const {
     isError: isUserListError,
     isLoading: isUserListLoading,
@@ -36,12 +43,23 @@ export const UserTaskDetailsModal = ({ task, onClose, onEdit }) => {
 
   const {
     data: userData,
-    isLoading,
-    isError,
-    error,
+    isLoading: isUserDataLoading,
+    isError: isUserDataError,
+    error: UserDataError,
   } = useQuery({
     queryKey: ["userData"],
     queryFn: getAllEmployeeOwnerShip,
+  });
+
+  const DailyTaskmutation = useMutation({
+    mutationFn: dailyUpdate,
+    onError: () => {
+      toast.error("Failed to send daily update!");
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["tasks"]); // Refresh the data
+      toast.success("Daily update sent successfully!");
+    },
   });
 
   // console.log(formData);
@@ -129,21 +147,6 @@ export const UserTaskDetailsModal = ({ task, onClose, onEdit }) => {
     { value: "Cancelled", label: "Cancelled" },
   ];
 
-  if (isError) {
-    return <p>Error fetching user list{error}</p>;
-  }
-  if (isLoading) {
-    return <p>Loading...</p>;
-  }
-
-  if (isUserListError) {
-    return <p>Error fetching user list{UserListError}</p>;
-  }
-
-  if (isUserListLoading) {
-    return <p>Loading user list...</p>;
-  }
-
   const handleSave = (e) => {
     e.preventDefault();
     if (JSON.stringify(formData) === JSON.stringify(task)) {
@@ -152,6 +155,11 @@ export const UserTaskDetailsModal = ({ task, onClose, onEdit }) => {
       setErrorMessage(""); // Clear error message
       onEdit(formData); // Submit changes if there are any
     }
+  };
+
+  const onUpdate = (onUpdate) => {
+    console.log(onUpdate);
+    DailyTaskmutation.mutate(onUpdate);
   };
 
   return (
@@ -171,22 +179,25 @@ export const UserTaskDetailsModal = ({ task, onClose, onEdit }) => {
         <div className="bg-slate-400 text-white h-14 flex items-center justify-between px-6 rounded-t-xl sticky top-0 z-50">
           <h1 className="text-lg font-semibold">Task Overview</h1>
           <div className="flex gap-x-4">
-            {!isEditing && (
-              <button
-                onClick={() => setIsEditing((prev) => !prev)}
-                className="p-2 text-blue-500 hover:text-blue-700 transition-colors"
-              >
-                {isEditing ? (
-                  <>
-                    <FaRedo size={20} />
-                  </>
-                ) : (
-                  <>
-                    <FaPen size={20} />
-                  </>
-                )}
-              </button>
-            )}
+            <RoleChecker allowedRoles={["team lead", "manager"]}>
+              {!isEditing && (
+                <button
+                  onClick={() => setIsEditing((prev) => !prev)}
+                  className="p-2 text-blue-500 hover:text-blue-700 transition-colors"
+                >
+                  <FaPen size={20} />
+                </button>
+              )}
+
+              {isEditing && (
+                <button
+                  onClick={() => setIsEditing((prev) => !prev)}
+                  className="p-2 text-blue-500 hover:text-blue-700 transition-colors"
+                >
+                  <FaRedo size={20} />
+                </button>
+              )}
+            </RoleChecker>
             <button
               onClick={onClose}
               className="p-2 rounded-md hover:bg-white hover:text-red-600 transition-colors"
@@ -206,17 +217,6 @@ export const UserTaskDetailsModal = ({ task, onClose, onEdit }) => {
 
           {isEditing ? (
             <>
-              <div className="mb-4">
-                <Selector
-                  label="Priority"
-                  id="priority"
-                  value={formData.priority}
-                  onChange={(e) =>
-                    handleSelectChange("priority", e.target.value)
-                  }
-                  options={priorityOptions}
-                />
-              </div>
               {renderInput("task_title", "Task Title", formData.task_title)}
 
               <Textarea
@@ -292,47 +292,71 @@ export const UserTaskDetailsModal = ({ task, onClose, onEdit }) => {
 
               <div className="mb-4">
                 <Label>Assigned to</Label>
-                <Combobox
-                  items={userList.map((user) => ({
-                    value: user.value,
-                    label: user.label,
-                  }))}
-                  value={formData.assigned_to?._id}
-                  onChange={(value) => {
-                    const selectedUser = userList.find(
-                      (user) => user.value === value
-                    );
-                    setFormData((prevData) => ({
-                      ...prevData,
-                      assigned_to: {
-                        _id: selectedUser.value,
-                        name: selectedUser.label,
-                      },
-                    }));
-                  }}
-                  placeholder="Assigned to"
-                />
+                {isUserListError ? (
+                  <>
+                    <p>userListFetch Error {UserListError.message}</p>
+                  </>
+                ) : isUserListLoading ? (
+                  <>
+                    <p className="animate-spin fixed">
+                      <VscLoading />
+                    </p>
+                  </>
+                ) : (
+                  <Combobox
+                    items={userList.map((user) => ({
+                      value: user.value,
+                      label: user.label,
+                    }))}
+                    value={formData.assigned_to?._id}
+                    onChange={(value) => {
+                      const selectedUser = userList.find(
+                        (user) => user.value === value
+                      );
+                      setFormData((prevData) => ({
+                        ...prevData,
+                        assigned_to: {
+                          _id: selectedUser.value,
+                          name: selectedUser.label,
+                        },
+                      }));
+                    }}
+                    placeholder="Assigned to"
+                  />
+                )}
               </div>
 
               <div className="mb-4">
                 <Label>Report to</Label>
-                <Combobox
-                  items={ownershipOptions}
-                  value={formData.report_to?._id}
-                  onChange={(value) => {
-                    const selectedOwner = ownershipOptions.find(
-                      (option) => option.value === value
-                    );
-                    setFormData((prevData) => ({
-                      ...prevData,
-                      report_to: {
-                        _id: selectedOwner.value,
-                        name: selectedOwner.label.split(" - ")[1],
-                      },
-                    }));
-                  }}
-                  placeholder="Report to"
-                />
+                {isUserDataError ? (
+                  <>
+                    <p>UserDataFetch Error {UserDataError.message}</p>
+                  </>
+                ) : isUserDataLoading ? (
+                  <>
+                    <p className="animate-spin fixed">
+                      <VscLoading />
+                    </p>
+                  </>
+                ) : (
+                  <Combobox
+                    items={ownershipOptions}
+                    value={formData.report_to?._id}
+                    onChange={(value) => {
+                      const selectedOwner = ownershipOptions.find(
+                        (option) => option.value === value
+                      );
+                      setFormData((prevData) => ({
+                        ...prevData,
+                        report_to: {
+                          _id: selectedOwner.value,
+                          name: selectedOwner.label.split(" - ")[1],
+                        },
+                      }));
+                    }}
+                    placeholder="Report to"
+                  />
+                )}
               </div>
 
               <Button onClick={handleSave} className="mb-4">
@@ -342,6 +366,10 @@ export const UserTaskDetailsModal = ({ task, onClose, onEdit }) => {
           ) : (
             <>
               <div className="py-4 p-2">
+                <h3 className="text-lg font-semibold border border-blue-400 rounded-md px-2 mb-4 inline-flex items-center gap-4 w-full">
+                  <VscMilestone />
+                  {task.milestone?.name || "No Milestone"}
+                </h3>
                 <h3 className="text-xl font-semibold text-blue-800">
                   {task.task_title}
                 </h3>
@@ -383,23 +411,40 @@ export const UserTaskDetailsModal = ({ task, onClose, onEdit }) => {
                   })}
                 </p>
               </div>
-              <div className="flex flex-col gap-4 mt-3 overflow-y-auto h-40 p-2">
-                <h2 className="flex items-center text-lg font-semibold text-gray-800">
+              <div className="flex flex-col gap-4 mt-3 overflow-y-scroll overflow-x-hidden p-2">
+                <h2 className="flex items-center gap-4 text-lg font-semibold text-gray-800">
                   Daily Updates <Calendar1Icon className="ml-2 text-gray-500" />
                 </h2>
+                <UserDailyUpdateTask _id={task._id} onUpdate={onUpdate} />
                 {task.daily_updates && task.daily_updates.length > 0 ? (
                   <ul className="space-y-2 text-sm text-gray-700">
-                    {task.daily_updates.map((daily_update) => (
-                      <li
-                        key={daily_update._id}
-                        className="flex justify-between"
-                      >
-                        <span>{daily_update.description}</span>
-                        <span className="text-gray-500 text-xs">
-                          {new Date(daily_update.date).toLocaleString()}
-                        </span>
-                      </li>
-                    ))}
+                    {task.daily_updates
+                      .sort((a, b) => new Date(b.date) - new Date(a.date))
+                      .map((daily_update) => (
+                        <li
+                          key={daily_update._id}
+                          className="flex justify-between items-start"
+                        >
+                          <span className="w-52 text-justify overflow-x-scroll h-20 break-words">
+                            {daily_update.description}
+                          </span>
+                          <p className="text-gray-500 text-xs inline-flex items-center gap-4">
+                            <span className="text-primary text-base">
+                              {daily_update.hours_spent}
+                            </span>
+                            Hours spent
+                          </p>
+                          {/* <span className="text-gray-500 text-xs">
+                              {new Date(daily_update.date).toLocaleString(
+                                "en-US",
+                                {
+                                  hour: "numeric",
+                                  minute: "2-digit",
+                                }
+                              )}
+                            </span> */}
+                        </li>
+                      ))}
                   </ul>
                 ) : (
                   <p className="text-sm text-gray-500">No Updates Yet</p>
@@ -414,6 +459,7 @@ export const UserTaskDetailsModal = ({ task, onClose, onEdit }) => {
           </div>
         )}
       </div>
+      <ToastContainer />
     </div>
   );
 };

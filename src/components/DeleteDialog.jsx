@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import  { useState } from "react";
+import { useState } from "react";
 import {
   Popover,
   PopoverContent,
@@ -12,6 +12,7 @@ const DeleteDialog = ({
   onConfirm, // Callback function for confirmation
   isLoading, // Loading state
   triggerLabel = "Delete", // Button label for triggering dialog
+  className,
 }) => {
   const [open, setOpen] = useState(false); // Control popover state
 
@@ -24,9 +25,14 @@ const DeleteDialog = ({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="destructive">{triggerLabel}</Button>
+        <Button
+          variant="destructive"
+          className={`${className} hover:bg-red-600`}
+        >
+          {triggerLabel}
+        </Button>
       </PopoverTrigger>
-      <PopoverContent className="p-4 space-y-4">
+      <PopoverContent className="p-4 space-y-4 relative border border-blue-500">
         <p>{message}</p>
         <div className="flex justify-end gap-2">
           <Button variant="secondary" onClick={() => setOpen(false)}>

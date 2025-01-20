@@ -27,6 +27,7 @@ import {
   SelectLabel,
 } from "@/components/ui/select";
 import { PlusIcon } from "lucide-react";
+import { VscLoading } from "react-icons/vsc";
 
 const CreateProjectUser = () => {
   const [formData, setFormData] = useState({
@@ -318,7 +319,13 @@ const CreateProjectUser = () => {
                 className="mt-4 w-full"
                 disabled={isLoading}
               >
-                {isLoading ? "Creating..." : "Create Project"}
+                {isLoading ? (
+                  <p className="animate-spin fixed inline-flex gap-2 items-center">
+                    Creating <VscLoading />
+                  </p>
+                ) : (
+                  "Create Project"
+                )}
               </Button>
             </DialogFooter>
           </form>

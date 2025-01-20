@@ -206,7 +206,6 @@ const Dashboard = () => {
                 Icon={FaTasks}
                 subtitle="Task"
                 bgColor="#B23A48"
-                path="./tasks"
               />
               <MainCards
                 title="In-progress"

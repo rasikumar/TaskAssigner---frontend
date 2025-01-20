@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useRef, useState } from "react";
-import { FaPen, FaRegWindowClose } from "react-icons/fa";
+import { FaPen, FaRedo, FaRegWindowClose } from "react-icons/fa";
 import { Input } from "../../ui/input";
 import { Button } from "../../ui/button";
 import { useQuery } from "@tanstack/react-query";
@@ -168,12 +168,24 @@ export const ProjectDetailModal = ({ project, onClose, onEdit, taskList }) => {
             Project Overview
           </h1>
           <div className="flex gap-x-2">
-            <button
-              onClick={() => setIsEditing(true)}
-              className="p-2 text-blue-500 hover:text-blue-700 transition-colors"
-            >
-              <FaPen size={20} />
-            </button>
+            {!isEditing && (
+              <button
+                onClick={() => setIsEditing((prev) => !prev)}
+                className="p-2 text-blue-500 hover:text-blue-700 transition-colors"
+              >
+                <FaPen size={20} />
+              </button>
+            )}
+
+            {isEditing && (
+              <button
+                onClick={() => setIsEditing((prev) => !prev)}
+                className="p-2 text-blue-500 hover:text-blue-700 transition-colors"
+              >
+                <FaRedo size={20} />
+              </button>
+            )}
+
             <button
               onClick={onClose}
               className="p-2 text-gray-500 hover:text-gray-700 transition-colors"

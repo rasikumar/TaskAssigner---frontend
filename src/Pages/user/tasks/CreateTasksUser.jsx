@@ -1,4 +1,4 @@
-import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 
 import { GrClose } from "react-icons/gr";
@@ -6,17 +6,18 @@ import { Textarea } from "@/components/ui/textarea"; // Custom textarea componen
 import { Input } from "@/components/ui/input"; // Custom input component
 import { Button } from "@/components/ui/button"; // Custom button component
 import { toast, ToastContainer } from "react-toastify";
+import { FaPlus } from "react-icons/fa";
+import { VscLoading } from "react-icons/vsc";
 
-import { getAllEmployeeOwnerShip } from "@/API/admin/adminDashborad";
 import { createTask } from "@/API/admin/task/task_api";
 import { userGetAllProjectList } from "@/API/user/projects/project";
 import { getEmpMails } from "@/API/user/userVerify/userVerfiy";
+import { getMilestonesForProject } from "@/API/user/milestone/milestone";
+import { getAllEmployeeOwnerShip } from "@/API/user/userDashboard";
 
 import Selector from "@/components/customUi/Selector";
 import Modal from "@/components/customUi/Modal";
 import { Combobox } from "@/components/customUi/Handle";
-import { FaPlus } from "react-icons/fa";
-import { VscLoading } from "react-icons/vsc";
 const CreateTaskUser = () => {
   const [formData, setFormData] = useState({
     project: null,
@@ -32,13 +33,16 @@ const CreateTaskUser = () => {
   });
   // console.log(formData);
 
-  const queryClient = new QueryClient();
+  const queryClient = useQueryClient();
+
   const startDateRef = useRef(null);
   const endDateRef = useRef(null);
 
   const [step, setStep] = useState(1); // Step 1: Project selection, Step 2: Task details
   const [isOpen, setIsOpen] = useState(false);
   const [ownershipOptions, setOwnershipOptions] = useState([]);
+  const [milestones, setMilestones] = useState([]);
+  const [milestonesError, setMilestoneError] = useState("");
 
   const priorityOptions = [
     { value: "Low", label: "Low" },
@@ -152,26 +156,20 @@ const CreateTaskUser = () => {
   // console.log(userList);
   // console.log(ownershipOptions);
 
-  if (isUserDataLoading) {
-    return <div>Loading...</div>;
-  }
-  if (isUserDataError) {
-    return <div>Error: {UserDataError.message}</div>;
-  }
-  // console.log(userList);
-
-  if (isUserListLoading) return <div>Loading...</div>;
-  if (isUserListError) {
-    return <div>Error fetching data: {UserListError.message}</div>;
-  }
-
-  // if (isProjectLoading) return <div>Loading...s</div>;
-
   const handleSelectChange = (name, value) => {
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
+  };
+
+  const sendProjectId = async (projectId) => {
+    try {
+      const response = await getMilestonesForProject(projectId);
+      setMilestones(response);
+    } catch (error) {
+      console.error("Error sending project ID:", error);
+    }
   };
 
   const handleSumbit = async (e) => {
@@ -220,7 +218,7 @@ const CreateTaskUser = () => {
                 <>
                   {isProjectError ? (
                     <>
-                      <p>UserData Fetch {projectError}</p>
+                      <p>UserData Fetch {projectError.message}</p>
                     </>
                   ) : isProjectLoading ? (
                     <>
@@ -237,6 +235,7 @@ const CreateTaskUser = () => {
                           ...prevData,
                           project: value, // Update the project value in the form data
                         }));
+                        sendProjectId(value); // Send the project ID to the API
                         setStep(2); // Move to the next step
                       }}
                       placeholder="Select a project..."
@@ -259,12 +258,46 @@ const CreateTaskUser = () => {
                     }}
                     placeholder="Assigned to"
                   /> */}
+                  <Selector
+                    label="Milestone"
+                    id="milestone"
+                    value={formData.milestone}
+                    onChange={(e) => {
+                      const selectedMilestone = e.target.value;
+                      handleSelectChange("milestone", selectedMilestone);
+
+                      if (selectedMilestone) {
+                        setMilestoneError("");
+                      }
+                    }}
+                    options={milestones.map((milestone) => ({
+                      value: milestone._id,
+                      label: milestone.name,
+                    }))}
+                    required={true}
+                  />
+                  {milestonesError && (
+                    <div className="text-sm text-red-500">
+                      {milestonesError}
+                    </div>
+                  )}
                   <div className="flex gap-x-2">
                     <Button variant="outline" onClick={() => setStep(1)}>
                       Back
                     </Button>
 
-                    <Button type="button" onClick={() => setStep(3)}>
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        if (!formData.milestone) {
+                          setMilestoneError(
+                            "Please select a milestone before proceeding."
+                          );
+                          return;
+                        }
+                        setStep(3);
+                      }}
+                    >
                       Next
                     </Button>
                   </div>
@@ -273,15 +306,17 @@ const CreateTaskUser = () => {
               {step === 3 && (
                 <div>
                   <div className="flex flex-col gap-4">
-                    {isUserDataError ? (
+                    {isUserListError ? (
                       <>
-                        <p>UserData Fetch Error</p>
+                        <p>UserData Fetch {UserListError.message}</p>
                       </>
                     ) : (
                       <>
-                        {isUserDataLoading ? (
+                        {isUserListLoading ? (
                           <>
-                            <p>Loading User Data...</p>
+                            <p className="animate-spin fixed">
+                              <VscLoading />
+                            </p>
                           </>
                         ) : (
                           <Combobox
@@ -298,19 +333,30 @@ const CreateTaskUser = () => {
                         )}
                       </>
                     )}
-
-                    <Combobox
-                      items={ownershipOptions} // Array of projects
-                      value={formData.report_to} // Controlled state
-                      onChange={(value) => {
-                        setFormData((prevData) => ({
-                          ...prevData,
-                          report_to: value, // Update the project value in the form data
-                        }));
-                        setStep(3); // Move to the next step
-                      }}
-                      placeholder="Report to"
-                    />
+                    {isUserDataError ? (
+                      <>
+                        <p>UserList Error {UserDataError.message}</p>
+                      </>
+                    ) : isUserDataLoading ? (
+                      <>
+                        <p className="animate-spin fixed">
+                          <VscLoading />
+                        </p>
+                      </>
+                    ) : (
+                      <Combobox
+                        items={ownershipOptions} // Array of projects
+                        value={formData.report_to} // Controlled state
+                        onChange={(value) => {
+                          setFormData((prevData) => ({
+                            ...prevData,
+                            report_to: value, // Update the project value in the form data
+                          }));
+                          setStep(3); // Move to the next step
+                        }}
+                        placeholder="Report to"
+                      />
+                    )}
                     <div className="flex gap-x-2">
                       <Button variant="outline" onClick={() => setStep(2)}>
                         Back

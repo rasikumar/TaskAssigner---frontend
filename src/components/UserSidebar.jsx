@@ -15,6 +15,7 @@ import { teams } from "@/data/teams";
 import { Outlet, useNavigate } from "react-router";
 import UserSidebarFooter from "./SideBar/UserSidebarFooter";
 import RoleChecker from "@/hooks/RoleChecker";
+import { cn } from "@/lib/utils";
 
 const AdminSidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -44,7 +45,7 @@ const AdminSidebar = () => {
   // console.log(name);
 
   return (
-    <div className="flex w-full p-4 absolute h-screen bg-slate-100">
+    <div className={cn("flex h-screen w-full p-4 absolute bg-slate-100")}>
       <div
         className={`fixed rounded-xl flex flex-col h-[calc(100vh-3.5%)] overflow-y-scroll transition-all duration-300 z-50 ${
           isCollapsed ? "w-16" : "w-44 2xl:w-60"

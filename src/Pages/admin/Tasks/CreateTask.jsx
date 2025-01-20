@@ -14,6 +14,7 @@ import { getAllEmployeeOwnerShip } from "@/API/admin/adminDashborad";
 import { createTask } from "@/API/admin/task/task_api";
 import { toast, ToastContainer } from "react-toastify";
 import { getMilestonesForProject } from "@/API/admin/milestone/milestone";
+import { VscLoading } from "react-icons/vsc";
 const CreateTask = () => {
   const [formData, setFormData] = useState({
     project: null,
@@ -75,9 +76,9 @@ const CreateTask = () => {
 
   const {
     data: userData,
-    isLoading,
-    isError,
-    error,
+    isLoading: isUserDataLoading,
+    isError: isUserDataError,
+    error: UserDataError,
   } = useQuery({
     queryKey: ["userData"],
     queryFn: getAllEmployeeOwnerShip,
@@ -155,22 +156,13 @@ const CreateTask = () => {
   // console.log(userList);
   // console.log(ownershipOptions);
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-  if (isError) {
-    return <div>Error: {error.message}</div>;
-  }
+  // if (isLoading) {
+  //   return <div>Loading...</div>;
+  // }
+  // if (isError) {
+  //   return <div>Error: {error.message}</div>;
+  // }
   // console.log(userList);
-
-  if (isUserListLoading) return <div>Loading...</div>;
-  if (isUserListError) {
-    return <div>Error fetching data: {UserListError.message}</div>;
-  }
-
-  if (isProjectLoading) return <div>Loading...</div>;
-  if (isProjectError)
-    return <div>Error fetching data: {projectError.message}</div>;
 
   const handleSelectChange = (name, value) => {
     setFormData((prevData) => ({
@@ -230,19 +222,35 @@ const CreateTask = () => {
 
               {/* Step 1: Select Project */}
               {step === 1 && (
-                <Combobox
-                  items={projectlist} // Array of projects
-                  value={formData.project} // Controlled state
-                  onChange={(value) => {
-                    setFormData((prevData) => ({
-                      ...prevData,
-                      project: value, // Update the project value in the form data
-                    }));
-                    sendProjectId(value); // Send the project ID to the API
-                    setStep(2); // Move to the next step
-                  }}
-                  placeholder="Select a project..."
-                />
+                <>
+                  {isProjectError ? (
+                    <>
+                      <p>isProjectError Fetch {projectError.message}</p>
+                    </>
+                  ) : isProjectLoading ? (
+                    <>
+                      <p className="animate-spin fixed">
+                        <VscLoading />
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <Combobox
+                        items={projectlist} // Array of projects
+                        value={formData.project} // Controlled state
+                        onChange={(value) => {
+                          setFormData((prevData) => ({
+                            ...prevData,
+                            project: value, // Update the project value in the form data
+                          }));
+                          sendProjectId(value); // Send the project ID to the API
+                          setStep(2); // Move to the next step
+                        }}
+                        placeholder="Select a project..."
+                      />
+                    </>
+                  )}
+                </>
               )}
               {step === 2 && (
                 <div className="flex flex-col gap-2">
@@ -295,30 +303,57 @@ const CreateTask = () => {
               {step === 3 && (
                 <div>
                   <div className="flex flex-col gap-4">
-                    <Combobox
-                      items={userList} // Array of projects
-                      value={formData.assigned_to} // Controlled state
-                      onChange={(value) => {
-                        setFormData((prevData) => ({
-                          ...prevData,
-                          assigned_to: value, // Update the project value in the form data
-                        }));
-                      }}
-                      placeholder="Assigned to"
-                    />
-
-                    <Combobox
-                      items={ownershipOptions} // Array of projects
-                      value={formData.report_to} // Controlled state
-                      onChange={(value) => {
-                        setFormData((prevData) => ({
-                          ...prevData,
-                          report_to: value, // Update the project value in the form data
-                        }));
-                        setStep(3); // Move to the next step
-                      }}
-                      placeholder="Report to"
-                    />
+                    {isUserListError ? (
+                      <>
+                        <p>UserList Error {UserListError.message}</p>
+                      </>
+                    ) : isUserListLoading ? (
+                      <>
+                        <p className="animate-spin fixed">
+                          <VscLoading />
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <Combobox
+                          items={userList} // Array of projects
+                          value={formData.assigned_to} // Controlled state
+                          onChange={(value) => {
+                            setFormData((prevData) => ({
+                              ...prevData,
+                              assigned_to: value, // Update the project value in the form data
+                            }));
+                          }}
+                          placeholder="Assigned to"
+                        />
+                      </>
+                    )}
+                    {isUserDataError ? (
+                      <>
+                        <p>userData Fetch Err {UserDataError.message}</p>
+                      </>
+                    ) : isUserDataLoading ? (
+                      <>
+                        <p className="animate-spin fixed">
+                          <VscLoading />
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <Combobox
+                          items={ownershipOptions} // Array of projects
+                          value={formData.report_to} // Controlled state
+                          onChange={(value) => {
+                            setFormData((prevData) => ({
+                              ...prevData,
+                              report_to: value, // Update the project value in the form data
+                            }));
+                            setStep(3); // Move to the next step
+                          }}
+                          placeholder="Report to"
+                        />
+                      </>
+                    )}
                     <div className="flex gap-x-2">
                       <Button variant="outline" onClick={() => setStep(2)}>
                         Back
