@@ -1,14 +1,10 @@
 import Instance from "@/API/Instance";
-
-const API_URL = "/admin";
+import { ADMIN } from "@/utils/api";
 
 // Create a new project
 export const createProject = async (projectData) => {
   try {
-    const response = await Instance.post(
-      `${API_URL}/createProject`,
-      projectData
-    );
+    const response = await Instance.post(`${ADMIN}/createProject`, projectData);
     if (response.status === 201) {
       return response.data;
     } else {
@@ -21,14 +17,14 @@ export const createProject = async (projectData) => {
 };
 
 export const fetchAllProjects = async (page, limit, searchTerm, status) => {
-  try { 
+  try {
     // Construct the query parameters, including status and search term
     const statusQuery = status ? `&status=${status}` : "";
     const searchQuery = searchTerm ? `&search=${searchTerm}` : "";
     // console.log(page, limit, status);
     // Make a GET request with query parameters, adding sort by createdAt in descending order
     const response = await Instance.post(
-      `${API_URL}/getAllProjects/?page=${page}&limit=${limit}${statusQuery}${searchQuery}`
+      `${ADMIN}/getAllProjects/?page=${page}&limit=${limit}${statusQuery}${searchQuery}`
     );
 
     // Validate response
@@ -47,7 +43,7 @@ export const fetchAllProjects = async (page, limit, searchTerm, status) => {
 // Fetch a single project by ID
 export const fetchProjectById = async (projectId) => {
   try {
-    const response = await Instance.get(`${API_URL}/${projectId}`);
+    const response = await Instance.get(`${ADMIN}/${projectId}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching project:", error);
@@ -58,10 +54,7 @@ export const fetchProjectById = async (projectId) => {
 // Update a project by ID
 export const updateProject = async (updatedData) => {
   try {
-    const response = await Instance.put(
-      `${API_URL}/updateProject`,
-      updatedData
-    );
+    const response = await Instance.put(`${ADMIN}/updateProject`, updatedData);
     return response.data;
   } catch (error) {
     console.error("Error updating project:", error);
@@ -73,7 +66,7 @@ export const updateProject = async (updatedData) => {
 export const deleteProject = async (projectId) => {
   try {
     const response = await Instance.delete(
-      `${API_URL}/deleteProject/${projectId}`
+      `${ADMIN}/deleteProject/${projectId}`
     );
     return response.data;
   } catch (error) {
@@ -84,7 +77,7 @@ export const deleteProject = async (projectId) => {
 
 export const getAllProjectList = async () => {
   try {
-    const response = await Instance.get(`${API_URL}/getAllProjectList`);
+    const response = await Instance.get(`${ADMIN}/getAllProjectList`);
     return response.data.projects.map((item) => ({
       value: item._id, // Map 'id' to 'value'
       label: item.project_name, // Map 'name' to 'label'
@@ -98,7 +91,7 @@ export const getAllProjectList = async () => {
 export const getProjectRelatedMilestone = async (projectId) => {
   try {
     const response = await Instance.get(
-      `${API_URL}/getProjectRelatedMilestone`,
+      `${ADMIN}/getProjectRelatedMilestone`,
       projectId
     );
     return response.data;
@@ -110,7 +103,7 @@ export const getProjectRelatedMilestone = async (projectId) => {
 
 export const fetchProjectByStatus = async (status) => {
   try {
-    const response = await Instance.get(`${API_URL}/projects?status=${status}`);
+    const response = await Instance.get(`${ADMIN}/projects?status=${status}`);
     console.log("asd", response.data);
     return response.data;
   } catch (error) {

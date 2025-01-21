@@ -1,9 +1,9 @@
+import { ADMIN } from "@/utils/api";
 import Instance from "../../Instance";
-const API_URL = "/admin";
 
 export const fetchAllTickets = async () => {
   try {
-    const response = await Instance.post(`${API_URL}/getAllTicket`);
+    const response = await Instance.post(`${ADMIN}/getAllTicket`);
     return response.data;
   } catch (error) {
     console.error("Error fetching Ticket", error);
@@ -13,10 +13,7 @@ export const fetchAllTickets = async () => {
 
 export const updateTicket = async (updatedData) => {
   try {
-    const response = await Instance.post(
-      `${API_URL}/updateTicket`,
-      updatedData
-    );
+    const response = await Instance.post(`${ADMIN}/updateTicket`, updatedData);
     return response.data;
   } catch (error) {
     console.error("Error updating Ticket", error);

@@ -1,8 +1,9 @@
+import { ADMIN } from "@/utils/api";
 import Instance from "../../Instance";
 
 export const fetchAllTasks = async () => {
   try {
-    const response = await Instance.post("/admin/getAllTask");
+    const response = await Instance.post(`${ADMIN}/getAllTask`);
     return response.data.data;
   } catch (error) {
     console.error("Error fetching Tasks:", error);
@@ -13,7 +14,7 @@ export const fetchAllTasks = async () => {
 export const fetchAllTaskPagination = async (page, limit) => {
   try {
     const response = await Instance.post(
-      `/admin/getAllTask/?page=${page}&limit=${limit}&sort=-createdAt`
+      `${ADMIN}/getAllTask/?page=${page}&limit=${limit}&sort=-createdAt`
     );
     // Validate response
     if (!response.data || !response.data.data) {
@@ -29,7 +30,7 @@ export const fetchAllTaskPagination = async (page, limit) => {
 
 export const createTask = async (taskData) => {
   try {
-    const response = await Instance.post("/admin/createTask", taskData);
+    const response = await Instance.post(`${ADMIN}/createTask`, taskData);
 
     if (response.status === 201) {
       return response.data;
@@ -48,7 +49,7 @@ export const editTask = async (taskId) => {
       throw new Error("Task ID is missing or invalid");
     }
 
-    const response = await Instance.put(`/admin/updateTask`, taskId);
+    const response = await Instance.put(`${ADMIN}/updateTask`, taskId);
 
     // Check the response and handle success
     if (response.status === 200) {
@@ -68,7 +69,7 @@ export const deleteTask = async (taskId) => {
       throw new Error("Task ID is missing or invalid");
     }
 
-    const response = await Instance.delete(`/admin/deleteTask/${taskId}`, {
+    const response = await Instance.delete(`${ADMIN}/deleteTask/${taskId}`, {
       data: { id: taskId, role: "admin" },
     });
 
@@ -88,7 +89,7 @@ export const getTaskRelatedToProject = async (projectId) => {
     if (!projectId) {
       throw new Error("Project ID is missing or invalid");
     }
-    const response = await Instance.post(`/admin/getTaskRelatedToProject`, {
+    const response = await Instance.post(`${ADMIN}/getTaskRelatedToProject`, {
       projectId: projectId,
     });
     const tasks = response.data.tasks;
@@ -100,6 +101,27 @@ export const getTaskRelatedToProject = async (projectId) => {
     return tasks;
   } catch (error) {
     console.error("Error fetching tasks related to project:", error);
+    throw error;
+  }
+};
+
+export const deleteDailyTaskUpdate = async (DailyTaskDeleteId) => {
+  try {
+    if (!DailyTaskDeleteId) {
+      throw new Error("DailyTaskDeleteId is missing or invalid");
+    }
+
+    const response = await Instance.delete(
+      `${ADMIN}/del_daliyTask/${DailyTaskDeleteId}`
+    );
+
+    if (response.data.status) {
+      return response.data;
+    } else {
+      throw new Error(response.data.message || "Failed to delete task");
+    }
+  } catch (error) {
+    console.error("Error deleting task:", error);
     throw error;
   }
 };

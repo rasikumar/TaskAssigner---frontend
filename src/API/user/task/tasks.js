@@ -1,6 +1,5 @@
 import Instance from "@/API/Instance";
-
-const API_URL = "/user";
+import { USER } from "@/utils/api";
 
 export const dailyUpdate = async (dailyUpdateData) => {
   // console.log(dailyUpdateData);
@@ -9,7 +8,7 @@ export const dailyUpdate = async (dailyUpdateData) => {
       throw new Error("dailyUpdateData is missing or invalid");
     }
     const response = await Instance.post(
-      `${API_URL}/daliyTaskUpdate`,
+      `${USER}/daliyTaskUpdate`,
       dailyUpdateData
     );
     return response.data;

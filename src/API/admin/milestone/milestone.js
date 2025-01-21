@@ -1,10 +1,10 @@
 import Instance from "@/API/Instance";
+import { ADMIN } from "@/utils/api";
 
-const API_URL = "/admin";
 
 export const getMilestonesForProject = async (projectId) => {
   try {
-    const response = await Instance.post(`${API_URL}/getMilestonesForProject`, {
+    const response = await Instance.post(`${ADMIN}/getMilestonesForProject`, {
       projectId: projectId,
     });
     return response.data;

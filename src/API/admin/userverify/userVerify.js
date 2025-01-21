@@ -1,11 +1,10 @@
 /* eslint-disable no-useless-catch */
 import Instance from "@/API/Instance";
-
-const API_URL = "/admin";
+import { ADMIN, USER } from "@/utils/api";
 
 export const createUser = async (userData) => {
   try {
-    const response = await Instance.post(`/user/create`, userData);
+    const response = await Instance.post(`${USER}/create`, userData);
     return response.data;
   } catch (error) {
     throw error;
@@ -14,7 +13,7 @@ export const createUser = async (userData) => {
 
 export const updateUser = async (userData) => {
   try {
-    const response = await Instance.put(`${API_URL}/update`, userData);
+    const response = await Instance.put(`${ADMIN}/update`, userData);
     return response.data;
   } catch (error) {
     throw error;
@@ -24,7 +23,7 @@ export const updateUser = async (userData) => {
 export const getAllUser = async (page = 1, limit = 10) => {
   try {
     const response = await Instance.post(
-      `${API_URL}/getAllEmployee?page=${page}&limit=${limit}`
+      `${ADMIN}/getAllEmployee?page=${page}&limit=${limit}`
     );
     return response.data;
   } catch (error) {
@@ -38,7 +37,7 @@ export const deleteUser = async (userId) => {
       throw new Error("Task ID is missing or invalid");
     }
 
-    const response = await Instance.post(`${API_URL}/delete`, {
+    const response = await Instance.post(`${ADMIN}/delete`, {
       id: userId,
     });
 
@@ -54,7 +53,7 @@ export const deleteUser = async (userId) => {
 
 export const verifyUserSignup = async (userId) => {
   try {
-    const response = await Instance.post(`${API_URL}/verify/${userId}`);
+    const response = await Instance.post(`${ADMIN}/verify/${userId}`);
     return response.data;
   } catch (error) {
     throw error;
@@ -63,7 +62,7 @@ export const verifyUserSignup = async (userId) => {
 
 export const getLastEmployeeId = async (department) => {
   try {
-    const response = await Instance.post(`${API_URL}/empid-generate`, {
+    const response = await Instance.post(`${ADMIN}/empid-generate`, {
       department: department,
     });
     return response.data;
@@ -76,7 +75,7 @@ export const getLastEmployeeId = async (department) => {
 
 export const getEmpMails = async () => {
   try {
-    const response = await Instance.get(`${API_URL}/getEmpMails`);
+    const response = await Instance.get(`${ADMIN}/getEmpMails`);
     return response.data.data.map((item) => ({
       value: item._id,
       label: item.name,

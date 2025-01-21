@@ -1,10 +1,9 @@
 import Instance from "@/API/Instance";
-
-const API_URL = "/admin";
+import { ADMIN } from "@/utils/api";
 
 export const adminDashboard = async () => {
   try {
-    const adminData = await Instance.get(`${API_URL}/dashboard/`);
+    const adminData = await Instance.get(`${ADMIN}/dashboard/`);
     return adminData.data;
   } catch (error) {
     console.error("Failed to fetch admin data:", error);
@@ -14,9 +13,7 @@ export const adminDashboard = async () => {
 
 export const getAllEmployeeOwnerShip = async () => {
   try {
-    const EmpOwner = await Instance.get(
-      `${API_URL}/getAllUserEmpMailForProject`
-    );
+    const EmpOwner = await Instance.get(`${ADMIN}/getAllUserEmpMailForProject`);
     // console.log(EmpOwner.data);
     return EmpOwner.data;
   } catch (err) {

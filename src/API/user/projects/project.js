@@ -1,13 +1,12 @@
 import Instance from "@/API/Instance";
-
-const API_URL = "user";
+import { USER } from "@/utils/api";
 
 export const fetchAllUserProjects = async (page, limit, searchTerm, status) => {
   try {
     const statusQuery = status ? `&status=${status}` : "";
     const searchQuery = searchTerm ? `&search=${searchTerm}` : "";
     const response = await Instance.get(
-      `${API_URL}/getAllProjects/?page=${page}&limit=${limit}${statusQuery}${searchQuery}`
+      `${USER}/getAllProjects/?page=${page}&limit=${limit}${statusQuery}${searchQuery}`
     );
     console.log(response.data);
     return response.data;
@@ -19,10 +18,7 @@ export const fetchAllUserProjects = async (page, limit, searchTerm, status) => {
 
 export const createUserProject = async (ProjectData) => {
   try {
-    const response = await Instance.post(
-      `${API_URL}/createProject`,
-      ProjectData
-    );
+    const response = await Instance.post(`${USER}/createProject`, ProjectData);
     console.log(response.data);
     return response.data;
   } catch (err) {
@@ -33,10 +29,7 @@ export const createUserProject = async (ProjectData) => {
 
 export const userUpdateProject = async (updatedData) => {
   try {
-    const response = await Instance.put(
-      `${API_URL}/updateProject`,
-      updatedData
-    );
+    const response = await Instance.put(`${USER}/updateProject`, updatedData);
     return response.data;
   } catch (error) {
     console.error("Error updating project:", error);
@@ -46,7 +39,7 @@ export const userUpdateProject = async (updatedData) => {
 
 export const userGetAllProjectList = async () => {
   try {
-    const response = await Instance.get(`${API_URL}/getAllProjectList`);
+    const response = await Instance.get(`${USER}/getAllProjectList`);
     return response.data.projects.map((item) => ({
       value: item._id, // Map 'id' to 'value'
       label: item.project_name, // Map 'name' to 'label'

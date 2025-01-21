@@ -1,10 +1,9 @@
 import Instance from "@/API/Instance";
-
-const API_URL = "/user";
+import { USER } from "@/utils/api";
 
 export const getMilestonesForProject = async (projectId) => {
   try {
-    const response = await Instance.post(`${API_URL}/getMilestonesForProject`, {
+    const response = await Instance.post(`${USER}/getMilestonesForProject`, {
       projectId: projectId,
     });
     return response.data;
@@ -13,5 +12,3 @@ export const getMilestonesForProject = async (projectId) => {
     throw error;
   }
 };
-
-

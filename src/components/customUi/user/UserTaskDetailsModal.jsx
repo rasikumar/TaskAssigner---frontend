@@ -158,7 +158,7 @@ export const UserTaskDetailsModal = ({ task, onClose, onEdit }) => {
   };
 
   const onUpdate = (onUpdate) => {
-    console.log(onUpdate);
+    // console.log(onUpdate);
     DailyTaskmutation.mutate(onUpdate);
   };
 

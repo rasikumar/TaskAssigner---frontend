@@ -1,9 +1,9 @@
 import Instance from "@/API/Instance";
-const API_URL = "/user";
+import { USER } from "@/utils/api";
 
 export const getEmpMails = async () => {
   try {
-    const response = await Instance.get(`${API_URL}/getEmpMails`);
+    const response = await Instance.get(`${USER}/getEmpMails`);
     return response.data.data.map((item) => ({
       value: item._id,
       label: item.name,

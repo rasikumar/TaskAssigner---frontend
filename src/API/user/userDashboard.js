@@ -1,11 +1,9 @@
+import { USER } from "@/utils/api";
 import Instance from "../Instance";
-const API_URL = "/user";
 
 export const getAllEmployeeOwnerShip = async () => {
   try {
-    const EmpOwner = await Instance.get(
-      `${API_URL}/getAllUserEmpMailForProject`
-    );
+    const EmpOwner = await Instance.get(`${USER}/getAllUserEmpMailForProject`);
     // console.log(EmpOwner.data);
     return EmpOwner.data;
   } catch (err) {
