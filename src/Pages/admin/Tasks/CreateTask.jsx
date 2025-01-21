@@ -110,8 +110,11 @@ const CreateTask = () => {
 
   const taskmutations = useMutation({
     mutationFn: createTask,
-    onSuccess: () => {
+    onSuccess: (data) => {
+      // Invalidate the query to refresh the task list elsewhere if necessary
       queryClient.invalidateQueries(["tasks"]);
+
+      // Reset the form data, keeping the modal open
       setFormData({
         project: null,
         milestone: "",
@@ -125,43 +128,27 @@ const CreateTask = () => {
         start_date: "",
         end_date: "",
       });
+
+      // Optionally, refresh other state variables
+      setMilestones([]); // Clear milestones if needed
+      setOwnershipOptions([]); // Reset ownership options
+
+      // Keep the modal open and reset the step to 1 (Project Selection)
       setIsOpen(false);
-      toast.success("Tasks Created Successfully");
+      setStep(1);
+      toast.success(data?.message || "Task created successfully!");
     },
     onError: (err) => {
-      if (err.response) {
-        switch (err.response.status) {
-          case 400:
-            toast.error(err.response.data.message || "Bad Request.");
-            break;
-          case 403:
-            toast.error(
-              err.response.data.message || "Forbidden: Access denied."
-            );
-            break;
-          case 500:
-            toast.error(err.response.data.message || "Server error occurred.");
-            break;
-          default:
-            toast.error("An unexpected error occurred. Please try again.");
-        }
-      } else {
-        toast.error(
-          err.message || "Network error. Please check your connection."
-        );
-      }
-      console.error("Error creating project:", err);
+      // Handle errors and display a toast message
+      toast.error(
+        err.response.data.message ||
+          "An error occurred while creating the task."
+      );
     },
   });
+
   // console.log(userList);
   // console.log(ownershipOptions);
-
-  // if (isLoading) {
-  //   return <div>Loading...</div>;
-  // }
-  // if (isError) {
-  //   return <div>Error: {error.message}</div>;
-  // }
   // console.log(userList);
 
   const handleSelectChange = (name, value) => {
@@ -426,12 +413,6 @@ const CreateTask = () => {
                       className="mt-2 p-2 border rounded-md"
                     />
 
-                    {/* <label
-                      htmlFor="end_date"
-                      className="block text-sm font-medium text-gray-700"
-                    >
-                      End Date
-                    </label> */}
                     <span>To</span>
                     <Input
                       onClick={() => endDateRef.current.showPicker()}

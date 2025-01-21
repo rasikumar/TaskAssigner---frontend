@@ -33,7 +33,7 @@ export const RecentProjects = ({ projectData }) => {
               title={project.project_name}
               subtitle={project.project_description}
               priority={project.project_status}
-              progressBar={100}
+              progressBar={project.estimated_hours}
             />
           </div>
         ))}

@@ -2,7 +2,7 @@ import { FaPen, FaRedo, FaRegWindowClose, FaTrash } from "react-icons/fa";
 import { useEffect, useRef, useState } from "react";
 import { Input } from "../../ui/input";
 import Selector from "../Selector";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getEmpMails } from "@/API/admin/userverify/userVerify";
 import { getAllEmployeeOwnerShip } from "@/API/admin/adminDashborad";
 import { Combobox } from "../Handle";
@@ -15,6 +15,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { getStatus } from "@/utils/statusUtils";
 import { getpriority } from "@/utils/prorityUtils";
 import DeleteDialog from "@/components/DeleteDialog";
+import { deleteDailyTaskUpdate } from "@/API/admin/task/task_api";
+import { toast } from "react-toastify";
 
 /* eslint-disable react/prop-types */
 export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
@@ -23,6 +25,8 @@ export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
   const [formData, setFormData] = useState(task);
   const [errorMessage, setErrorMessage] = useState("");
   const [ownershipOptions, setOwnershipOptions] = useState([]);
+
+  const queryClient = useQueryClient();
 
   const EndDate = useRef(null);
   const StartDate = useRef(null);
@@ -46,6 +50,34 @@ export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
     queryKey: ["userData"],
     queryFn: getAllEmployeeOwnerShip,
   });
+
+  const {
+    mutate: mutate,
+    isLoading: isDailyUpdateDeleteLoading,
+    isError: isDailyUpdateError,
+    error: DailyUpdateError,
+  } = useMutation({
+    mutationFn: async (_id, updateId) => {
+      const response = await deleteDailyTaskUpdate(_id, updateId);
+      return response;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries(["tasks"]);
+      if (data && data.status) {
+        toast.success(data?.message);
+        setIsVisible(false);
+      } else {
+        console.error("Failed to delete daily update:", data?.message);
+      }
+    },
+    onError: (error) => {
+      console.error("Error deleting daily update:", error);
+      toast.error("Error deleting daily update.");
+    },
+  });
+  const handleDeleteDailyUpdate = async (_id, updateId) => {
+    mutate({ _id, updateId });
+  };
 
   // console.log(formData);
   // console.log(userList);
@@ -142,10 +174,10 @@ export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
     }
   };
 
-  const handleDeleteDailyUpdate = async (taskId, updateId) => {
-    console.log("ff", updateId);
-    console.log("gg", taskId);
-  };
+  // const handleDeleteDailyUpdate = async (taskId, updateId) => {
+  //     await deleteDailyTaskUpdate(taskId, updateId);
+
+  // };
 
   return (
     <div
@@ -399,9 +431,9 @@ export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
                       .map((daily_update) => (
                         <li
                           key={daily_update._id}
-                          className="flex justify-between"
+                          className="flex justify-between items-start"
                         >
-                          <span className="w-52 text-justify overflow-x-scroll h-20 break-words">
+                          <span className="w-52 overflow-x-scroll h-20 break-words">
                             {daily_update.description}
                           </span>
 
@@ -428,7 +460,15 @@ export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
                                   daily_update._id
                                 )
                               }
-                              triggerLabel={<FaTrash />}
+                              triggerLabel={
+                                isDailyUpdateError ? (
+                                  `Error ${DailyUpdateError}`
+                                ) : isDailyUpdateDeleteLoading ? (
+                                  <VscLoading />
+                                ) : (
+                                  <FaTrash />
+                                )
+                              }
                               // isLoading={deleteMutation.isPending}
                               className="w-4 h-8"
                             />

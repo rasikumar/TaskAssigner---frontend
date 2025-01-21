@@ -35,7 +35,7 @@ const Dashboard = () => {
     queryFn: adminDashboard,
   });
 
-  if (isAdminLoading || isLoading || isProjectLoading) {
+  if (isLoading || isProjectLoading) {
     return (
       <div className="flex items-center justify-center w-full h-screen">
         <CirclesWithBar
@@ -138,7 +138,8 @@ const Dashboard = () => {
         <h1 className="text-2xl font-extrabold mb-2 tracking-wide">
           Welcome,{" "}
           <span className="text-yellow-300">
-            {adminData?.data.mail || "Admin"}!
+            {isAdminLoading ? "Admin" : adminData?.data.mail}!
+            {/* {adminData?.data.mail || "Admin"}! */}
           </span>
         </h1>
         <p className="text-base font-medium">

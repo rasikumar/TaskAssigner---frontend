@@ -51,9 +51,8 @@ export const editTask = async (taskId) => {
 
     const response = await Instance.put(`${ADMIN}/updateTask`, taskId);
 
-    // Check the response and handle success
     if (response.status === 200) {
-      return response.data; // Return updated data on success
+      return response.data; 
     } else {
       throw new Error(`Failed to update task: ${response.status}`);
     }
@@ -105,23 +104,27 @@ export const getTaskRelatedToProject = async (projectId) => {
   }
 };
 
-export const deleteDailyTaskUpdate = async (DailyTaskDeleteId) => {
+export const deleteDailyTaskUpdate = async ({ _id, updateId }) => {
+  // console.log(_id, updateId);
   try {
-    if (!DailyTaskDeleteId) {
-      throw new Error("DailyTaskDeleteId is missing or invalid");
-    }
-
-    const response = await Instance.delete(
-      `${ADMIN}/del_daliyTask/${DailyTaskDeleteId}`
-    );
+    const response = await Instance.delete(`${ADMIN}/del_daliyTask`, {
+      data: {
+        _id,
+        updateId,
+      },
+    });
 
     if (response.data.status) {
       return response.data;
     } else {
+      console.error("API failed:", response.data.message);
       throw new Error(response.data.message || "Failed to delete task");
     }
   } catch (error) {
-    console.error("Error deleting task:", error);
+    console.error(
+      "Error in deleteDailyTaskUpdate:",
+      error.response?.data || error.message
+    );
     throw error;
   }
 };

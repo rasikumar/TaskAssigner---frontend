@@ -412,9 +412,21 @@ export const UserTaskDetailsModal = ({ task, onClose, onEdit }) => {
                 </p>
               </div>
               <div className="flex flex-col gap-4 mt-3 overflow-y-scroll overflow-x-hidden p-2">
-                <h2 className="flex items-center gap-4 text-lg font-semibold text-gray-800">
-                  Daily Updates <Calendar1Icon className="ml-2 text-gray-500" />
-                </h2>
+                <div>
+                  <h2 className="flex items-center gap-4 text-lg font-semibold text-gray-800">
+                    Daily Updates{" "}
+                    <Calendar1Icon className="ml-2 text-gray-500" />
+                  </h2>
+                  <Selector
+                    label="Status"
+                    id="status"
+                    value={formData.status}
+                    onChange={(e) =>
+                      handleSelectChange("status", e.target.value)
+                    }
+                    options={statusOptions}
+                  />
+                </div>
                 <UserDailyUpdateTask _id={task._id} onUpdate={onUpdate} />
                 {task.daily_updates && task.daily_updates.length > 0 ? (
                   <ul className="space-y-2 text-sm text-gray-700">
@@ -425,7 +437,7 @@ export const UserTaskDetailsModal = ({ task, onClose, onEdit }) => {
                           key={daily_update._id}
                           className="flex justify-between items-start"
                         >
-                          <span className="w-52 text-justify overflow-x-scroll h-20 break-words">
+                          <span className="w-52 overflow-x-scroll h-20 break-words">
                             {daily_update.description}
                           </span>
                           <p className="text-gray-500 text-xs inline-flex items-center gap-4">

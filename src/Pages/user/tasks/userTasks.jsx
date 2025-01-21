@@ -54,7 +54,7 @@ const UserTasks = () => {
       toast.success("Project updated successfully!");
     },
     onError: (error) => {
-      toast.error("Failed to update project");
+      toast.error(error.response.data.message || "Failed to update project");
       console.error("Error updating project:", error);
     },
   });

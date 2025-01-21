@@ -1,10 +1,19 @@
 /* eslint-disable react/prop-types */
 
+import { CirclesWithBar } from "react-loader-spinner";
+
 const Loading = ({ loading }) => {
   if (!loading) return null;
   return (
-    <div style={{ textAlign: "center", padding: "20px", fontSize: "18px" }}>
-      Loading...
+    <div>
+      <CirclesWithBar
+        color="#4fa94d"
+        outerCircleColor="#4fa94d"
+        innerCircleColor="#4fa94d"
+        barColor="#4fa94d"
+        visible={true}
+      />
+      llo
     </div>
   );
 };
