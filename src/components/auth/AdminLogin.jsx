@@ -8,6 +8,7 @@ import Instance from "../../API/Instance";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/ReactToastify.css";
 import { useNavigate } from "react-router";
+import { ADMIN } from "@/utils/api";
 
 const UserLogin = () => {
   const [mail, setMail] = useState("");
@@ -31,7 +32,10 @@ const UserLogin = () => {
     e.preventDefault();
 
     try {
-      const response = await Instance.post("/admin/login", { mail, password });
+      const response = await Instance.post(`${ADMIN}/login`, {
+        mail,
+        password,
+      });
       if (response.status === 200 && response.data.status) {
         localStorage.setItem("token", response.data.token);
 

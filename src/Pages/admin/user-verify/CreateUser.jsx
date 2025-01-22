@@ -24,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { selectItemsData } from "@/utils/selectDepartment";
 
 const CreateUser = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -196,11 +197,13 @@ const CreateUser = () => {
               <SelectContent>
                 <SelectGroup>
                   <SelectLabel>Departments</SelectLabel>
-                  <SelectItem value="design">Design</SelectItem>
-                  <SelectItem value="development">Development</SelectItem>
-                  <SelectItem value="marketing">Marketing</SelectItem>
-                  <SelectItem value="testing">Testing</SelectItem>
-                  <SelectItem value="human-resource">Human Resource</SelectItem>
+                  {selectItemsData.map((item) => {
+                    return (
+                      <SelectItem key={item.value} value={item.value}>
+                        {item.label}
+                      </SelectItem>
+                    );
+                  })}
                 </SelectGroup>
               </SelectContent>
             </Select>

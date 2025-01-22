@@ -1,32 +1,31 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
 import { CirclesWithBar } from "react-loader-spinner";
 import { toast } from "react-toastify";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination"; // Import ShadCN pagination components
+import { FaTasks } from "react-icons/fa";
+
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 import {
   deleteProject,
   fetchAllProjects,
   updateProject,
 } from "@/API/admin/projects/project_api";
+import { getTaskRelatedToProject } from "@/API/admin/task/task_api";
+
 import Table from "@/components/customUi/Table"; // Import the reusable Table component
-import CreateProject from "./CreateProject";
 import { ProjectDetailModal } from "@/components/customUi/admin/ProjectDetailModal";
 import DeleteDialog from "@/components/DeleteDialog";
-import { getTaskRelatedToProject } from "@/API/admin/task/task_api";
 import Selector from "@/components/customUi/Selector";
-import { getStatus } from "@/utils/statusUtils";
 import MainCards from "@/components/ui/cards/MainCards";
-import { FaTasks } from "react-icons/fa";
+import PaginationComponent from "@/components/customUi/PaginationComponent";
+
+import { getStatus } from "@/utils/statusUtils";
+
+import CreateProject from "./CreateProject";
 
 const Projects = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -66,6 +65,9 @@ const Projects = () => {
     staleTime: 30000,
     onError: () => toast.error("Error fetching projects"),
   });
+
+  const StatusSummary = data?.statusSummary;
+  // console.log(StatusSummary);
 
   // console.log(data);
 
@@ -122,18 +124,11 @@ const Projects = () => {
     deleteMutation.mutate(projectId);
   };
 
-  const CompletedProject = data?.projects.filter(
-    (project) => project.project_status === "Completed"
-  );
-  const InprogressProject = data?.projects.filter(
-    (project) => project.project_status === "In Progress"
-  );
-  const NotStartedProject = data?.projects.filter(
-    (project) => project.project_status === "Not Started"
-  );
-  const PendingProject = data?.projects.filter(
-    (project) => project.project_status === "Pending"
-  );
+  const CompletedProject = StatusSummary?.Completed || 0;
+  const InprogressProject = StatusSummary?.["In Progress"] || 0;
+  const NotStartedProject = StatusSummary?.["Not Started"] || 0;
+  const PendingProject = StatusSummary?.Pending || 0;
+  // const CancelledProject = StatusSummary?.Cancelled || 0;
 
   if (isError) {
     return <div>Error: {error.message}</div>;
@@ -206,92 +201,6 @@ const Projects = () => {
 
   const totalPages = Math.ceil((data?.total || 0) / itemsPerPage); // Total number of pages
 
-  const renderPaginationItems = () => {
-    const items = [];
-    const maxVisiblePages = 4;
-
-    if (totalPages <= maxVisiblePages) {
-      for (let i = 1; i <= totalPages; i++) {
-        items.push(
-          <PaginationItem
-            key={i}
-            onClick={() => setCurrentPage(i)}
-            className={
-              currentPage === i ? "rounded-lg bg-taskBlack text-white" : ""
-            }
-          >
-            <PaginationLink>{i}</PaginationLink>
-          </PaginationItem>
-        );
-      }
-    } else {
-      if (currentPage > 1) {
-        items.push(
-          <PaginationItem
-            key={1}
-            onClick={() => setCurrentPage(1)}
-            className={
-              currentPage === 1 ? "rounded-lg bg-taskBlack text-white" : ""
-            }
-          >
-            <PaginationLink>1</PaginationLink>
-          </PaginationItem>
-        );
-      }
-
-      if (currentPage > 3) {
-        items.push(
-          <PaginationItem key="ellipsis-prev">
-            <PaginationEllipsis />
-          </PaginationItem>
-        );
-      }
-
-      const startPage = Math.max(2, currentPage - 1);
-      const endPage = Math.min(totalPages - 1, currentPage + 1);
-
-      for (let i = startPage; i <= endPage; i++) {
-        items.push(
-          <PaginationItem
-            key={i}
-            onClick={() => setCurrentPage(i)}
-            className={
-              currentPage === i ? "rounded-lg bg-taskBlack text-white" : ""
-            }
-          >
-            <PaginationLink>{i}</PaginationLink>
-          </PaginationItem>
-        );
-      }
-
-      if (currentPage < totalPages - 2) {
-        items.push(
-          <PaginationItem key="ellipsis-next">
-            <PaginationEllipsis />
-          </PaginationItem>
-        );
-      }
-
-      if (currentPage < totalPages) {
-        items.push(
-          <PaginationItem
-            key={totalPages}
-            onClick={() => setCurrentPage(totalPages)}
-            className={
-              currentPage === totalPages
-                ? "rounded-lg bg-taskBlack text-white"
-                : ""
-            }
-          >
-            <PaginationLink>{totalPages}</PaginationLink>
-          </PaginationItem>
-        );
-      }
-    }
-
-    return items;
-  };
-
   return (
     <div className="relative mt-0">
       {isLoading ? (
@@ -309,19 +218,14 @@ const Projects = () => {
           <CreateProject />
           <div className="flex justify-between items-center mb-4 gap-4">
             <div className="flex items-center gap-2">
-              <input
+              <Input
                 type="text"
                 placeholder="Search projects..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)} // Update only searchTerm
                 className="p-2 border rounded w-64"
               />
-              <button
-                onClick={handleSearch}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-300"
-              >
-                Search
-              </button>
+              <Button onClick={handleSearch}>Search</Button>
             </div>
             <div className="flex items-center gap-x-2">
               <Label>Status</Label>
@@ -337,32 +241,40 @@ const Projects = () => {
           <div className="flex gap-2">
             <MainCards
               title="Yet to Start"
-              totaltasks={NotStartedProject.length}
+              totaltasks={NotStartedProject}
               Icon={FaTasks}
               subtitle="Task"
-              bgColor="#B23A48"
+              bgColor="#FFC107" // Amber
             />
             <MainCards
-              title="Yet to Start"
-              totaltasks={InprogressProject.length}
+              title="In Progress"
+              totaltasks={InprogressProject}
               Icon={FaTasks}
               subtitle="Task"
-              bgColor="#B23A48"
+              bgColor="#007BFF" // Blue
             />
             <MainCards
-              title="Yet to Start"
-              totaltasks={PendingProject.length}
+              title="Pending"
+              totaltasks={PendingProject}
               Icon={FaTasks}
               subtitle="Task"
-              bgColor="#B23A48"
+              bgColor="#6C757D" // Grey
             />
             <MainCards
+              title="Completed"
+              totaltasks={CompletedProject}
+              Icon={FaTasks}
+              subtitle="Task"
+              bgColor="#28A745" // Green
+            />
+
+            {/* <MainCards
               title="Yet to Start"
-              totaltasks={CompletedProject.length}
+              totaltasks={CancelledProject}
               Icon={FaTasks}
               subtitle="Task"
               bgColor="#B23A48"
-            />
+            /> */}
           </div>
           <Table
             columns={columns}
@@ -370,31 +282,11 @@ const Projects = () => {
             renderRow={renderRow}
           />
           <div className="mt-4">
-            <Pagination>
-              <PaginationContent>
-                <PaginationPrevious
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.max(prev - 1, 1))
-                  }
-                  disabled={currentPage === 1 || totalPages === 0} // Disable if no previous page or no pages
-                  className={
-                    currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""
-                  } // Add styles to indicate disabled state
-                />
-                {renderPaginationItems()}
-                <PaginationNext
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                  }
-                  disabled={currentPage === totalPages || totalPages === 0} // Disable if no next page or no pages
-                  className={
-                    currentPage === totalPages
-                      ? "opacity-50 cursor-not-allowed"
-                      : ""
-                  } // Add styles to indicate disabled state
-                />
-              </PaginationContent>
-            </Pagination>
+            <PaginationComponent
+              totalPages={totalPages}
+              currentPage={currentPage}
+              setCurrentPage={setCurrentPage}
+            />
           </div>
         </div>
       )}

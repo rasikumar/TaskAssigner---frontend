@@ -11,11 +11,12 @@ import {
   FaProjectDiagram,
 } from "react-icons/fa";
 import { GrUserManager } from "react-icons/gr";
-import { teams } from "@/data/teams";
+// import { teams } from "@/data/teams";
 import Instance from "@/API/Instance";
 import { Outlet, useNavigate } from "react-router";
 import AdminSidebarFooter from "./SideBar/AdminSidebarFooter";
 import { cn } from "@/lib/utils";
+import { selectItemsData } from "@/utils/selectDepartment";
 
 const AdminSidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -70,8 +71,8 @@ const AdminSidebar = () => {
             isCollapsed={isCollapsed}
             label="Team Management"
             Icon={GrUserManager}
-            links={teams.map((team) => ({
-              to: `./teams/${team.name.toLowerCase().replace(/\s+/g, "-")}`,
+            links={selectItemsData.map((team) => ({
+              // to: `./teams/${team.name.toLowerCase().replace(/\s+/g, "-")}`,
               icon: team.icon,
               label: team.name,
             }))}

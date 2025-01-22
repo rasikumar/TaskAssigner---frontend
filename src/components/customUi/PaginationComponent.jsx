@@ -1,100 +1,117 @@
-/* eslint-disable react/prop-types */
-import {
-  Pagination,
-  PaginationItem,
-  PaginationLink,
-  PaginationPrevious,
-  PaginationNext,
-} from "@/components/ui/pagination";
+import { GrNext, GrPrevious } from "react-icons/gr";
 
+/* eslint-disable react/prop-types */
 const PaginationComponent = ({ totalPages, currentPage, setCurrentPage }) => {
   const renderPaginationItems = () => {
     const items = [];
-    const maxVisiblePages = 4;
+    const startPage = Math.max(currentPage - 2, 1);
+    const endPage = Math.min(currentPage + 2, totalPages);
 
-    if (totalPages <= maxVisiblePages) {
-      for (let i = 1; i <= totalPages; i++) {
-        items.push(
-          <PaginationItem
-            key={i}
-            onClick={() => setCurrentPage(i)}
-            className={
-              currentPage === i ? "rounded-lg bg-taskBlack text-white" : ""
-            }
-          >
-            <PaginationLink>{i}</PaginationLink>
-          </PaginationItem>
-        );
-      }
-    } else {
-      // Add First Page Button
-      if (currentPage > 1) {
-        items.push(
-          <PaginationItem
-            key={1}
+    // Add the first page and ellipsis if needed
+    if (startPage > 1) {
+      items.push(
+        <li key={1} className="inline-block mx-1">
+          <button
             onClick={() => setCurrentPage(1)}
-            className={
-              currentPage === 1 ? "rounded-lg bg-taskBlack text-white" : ""
-            }
+            className={`px-4 py-2 rounded-lg ${
+              currentPage === 1
+                ? "bg-taskBlack text-white"
+                : "bg-gray-200 text-black hover:bg-gray-300"
+            }`}
           >
-            <PaginationLink>1</PaginationLink>
-          </PaginationItem>
+            1
+          </button>
+        </li>
+      );
+      if (startPage > 2) {
+        items.push(
+          <li key="start-ellipsis" className="inline-block mx-1">
+            <span className="px-4 py-2">...</span>
+          </li>
         );
       }
+    }
 
-      // Handle pages around the current page
-      const startPage = Math.max(2, currentPage - 1);
-      const endPage = Math.min(totalPages - 1, currentPage + 1);
-
-      for (let i = startPage; i <= endPage; i++) {
-        items.push(
-          <PaginationItem
-            key={i}
+    // Render the middle range of pages
+    for (let i = startPage; i <= endPage; i++) {
+      items.push(
+        <li key={i} className="inline-block mx-1">
+          <button
             onClick={() => setCurrentPage(i)}
-            className={
-              currentPage === i ? "rounded-lg bg-taskBlack text-white" : ""
-            }
+            className={`px-4 py-2 rounded-lg ${
+              currentPage === i
+                ? "bg-taskBlack text-white"
+                : " text-black hover:bg-white"
+            }`}
           >
-            <PaginationLink>{i}</PaginationLink>
-          </PaginationItem>
-        );
-      }
+            {i}
+          </button>
+        </li>
+      );
+    }
 
-      // Add Last Page Button
-      if (currentPage < totalPages) {
+    // Add the last page and ellipsis if needed
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1) {
         items.push(
-          <PaginationItem
-            key={totalPages}
-            onClick={() => setCurrentPage(totalPages)}
-            className={
-              currentPage === totalPages
-                ? "rounded-lg bg-taskBlack text-white"
-                : ""
-            }
-          >
-            <PaginationLink>{totalPages}</PaginationLink>
-          </PaginationItem>
+          <li key="end-ellipsis" className="inline-block mx-1">
+            <span className="px-4 py-2">...</span>
+          </li>
         );
       }
+      items.push(
+        <li key={totalPages} className="inline-block mx-1">
+          <button
+            onClick={() => setCurrentPage(totalPages)}
+            className={`px-4 py-2 rounded-lg ${
+              currentPage === totalPages
+                ? "bg-taskBlack text-white"
+                : " text-black hover:bg-white"
+            }`}
+          >
+            {totalPages}
+          </button>
+        </li>
+      );
     }
 
     return items;
   };
 
   return (
-    <Pagination>
-      <PaginationPrevious
-        onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-      >
-        Previous
-      </PaginationPrevious>
-      {renderPaginationItems()}
-      <PaginationNext
-        onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-      >
-        Next
-      </PaginationNext>
-    </Pagination>
+    <nav aria-label="Pagination">
+      <ul className="flex items-center justify-center list-none p-0">
+        <li className="inline-block mx-1">
+          <button
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            className={`px-4 py-2 rounded-lg inline-flex items-center gap-2 ${
+              currentPage === 1
+                ? " text-gray-500 cursor-not-allowed"
+                : "text-black hover:bg-slate-300/50"
+            }`}
+            disabled={currentPage === 1}
+          >
+            <GrPrevious /> Previous
+          </button>
+        </li>
+        {renderPaginationItems()}
+        <li className="inline-block mx-1">
+          <button
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
+            className={`px-4 py-2 rounded-lg inline-flex items-center gap-2 ${
+              currentPage === totalPages
+                ? " text-gray-500 cursor-not-allowed"
+                : "text-black hover:bg-slate-300/50"
+            }`}
+            disabled={currentPage === totalPages}
+          >
+            Next <GrNext />
+          </button>
+        </li>
+      </ul>
+    </nav>
   );
 };
 

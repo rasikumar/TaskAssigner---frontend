@@ -8,6 +8,7 @@ import Instance from "../../API/Instance";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/ReactToastify.css";
 import { useNavigate } from "react-router";
+import { USER } from "@/utils/api";
 // import { Router } from "react-router";
 
 const UserLogin = () => {
@@ -24,7 +25,10 @@ const UserLogin = () => {
     e.preventDefault();
 
     try {
-      const response = await Instance.post("/user/login", { mail, password });
+      const response = await Instance.post(`${USER}/login`, {
+        mail,
+        password,
+      });
       if (response.status === 200 && response.data.status) {
         if (response.data.data.role !== "admin") {
           localStorage.setItem("token", response.data.token);

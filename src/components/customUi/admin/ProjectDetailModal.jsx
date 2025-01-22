@@ -146,6 +146,7 @@ export const ProjectDetailModal = ({ project, onClose, onEdit, taskList }) => {
     { value: "In Progress", label: "In Progress" },
     { value: "Pending", label: "Pending" },
     { value: "Completed", label: "Completed" },
+    // { value: "Cancelled", label: "Cancelled" },
   ];
 
   // console.log("dd", taskList);

@@ -60,7 +60,12 @@ const Dashboard = () => {
   const tasks = data.tasks || [];
   const projects = projectData.projects || [];
 
-  // console.log(projects);
+  const projectDetails = projects.map((project) => ({
+    estimatedHours: project?.estimated_hours,
+    totalHoursSpent: project?.totalHoursSpent,
+  }));
+
+  console.log(projectDetails);
 
   const CompletedProject = projects.filter(
     (project) => project.project_status === "Completed"
@@ -255,7 +260,7 @@ const Dashboard = () => {
         </div>
       </section>
 
-      <RecentProjects projectData={projects} />
+      <RecentProjects projectData={{ projects, projectDetails }} />
     </section>
   );
 };

@@ -11,10 +11,18 @@ export const fetchAllTasks = async () => {
   }
 };
 
-export const fetchAllTaskPagination = async (page, limit) => {
+export const fetchAllTaskPagination = async (
+  page,
+  limit,
+  searchTerm,
+  status
+) => {
   try {
+    const statusQuery = status ? `&status=${status}` : "";
+    const searchQuery = searchTerm ? `&search=${searchTerm}` : "";
+
     const response = await Instance.post(
-      `${ADMIN}/getAllTask/?page=${page}&limit=${limit}&sort=-createdAt`
+      `${ADMIN}/getAllTask/?page=${page}&limit=${limit}${statusQuery}${searchQuery}`
     );
     // Validate response
     if (!response.data || !response.data.data) {
@@ -52,7 +60,7 @@ export const editTask = async (taskId) => {
     const response = await Instance.put(`${ADMIN}/updateTask`, taskId);
 
     if (response.status === 200) {
-      return response.data; 
+      return response.data;
     } else {
       throw new Error(`Failed to update task: ${response.status}`);
     }

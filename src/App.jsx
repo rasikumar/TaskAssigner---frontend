@@ -125,6 +125,14 @@ const App = () => {
                 }
               />
               <Route
+                path="projects/:id" // Relative path
+                element={
+                  <ProtectedRoute allowedRoles={["admin"]}>
+                    <Projects />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="ticket" // Relative path
                 element={
                   <ProtectedRoute allowedRoles={["admin"]}>
