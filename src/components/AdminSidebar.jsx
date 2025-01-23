@@ -72,9 +72,9 @@ const AdminSidebar = () => {
             label="Team Management"
             Icon={GrUserManager}
             links={selectItemsData.map((team) => ({
-              // to: `./teams/${team.name.toLowerCase().replace(/\s+/g, "-")}`,
+              to: `./teams/${team.value.toLowerCase().replace(/\s+/g, "-")}`,
+              label: team.value,
               icon: team.icon,
-              label: team.name,
             }))}
           />
           <SidebarLink

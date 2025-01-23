@@ -34,7 +34,7 @@ const Dropdown = ({ isCollapsed, label, Icon, links }) => {
         )}
       </button>
       {isOpen && (
-        <div className="flex flex-col gap-4 my-4">
+        <div className="flex flex-col gap-4 my-4 capitalize">
           {links.map((link, index) => (
             <SidebarLink
               key={index}

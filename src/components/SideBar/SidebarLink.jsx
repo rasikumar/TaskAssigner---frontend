@@ -5,6 +5,7 @@ import { Link, useLocation } from "react-router";
 const SidebarLink = ({ to, Icon, label, isCollapsed }) => {
   const location = useLocation();
   const isActive = location.pathname === to;
+  console.log(Icon);
 
   return (
     <Link
@@ -17,7 +18,7 @@ const SidebarLink = ({ to, Icon, label, isCollapsed }) => {
           : "text-taskBlack hover:text-taskBlack/50"
       }`}
     >
-      <Icon className="text-xl" />
+      {Icon && <Icon className="text-xl" />}
       {!isCollapsed && (
         <span className="ml-2 2xl:text-base text-xs font-semibold">
           {label}
