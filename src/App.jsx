@@ -30,6 +30,7 @@ import ScrollToTop from "./hooks/scrollToTop";
 import Projects from "./Pages/admin/projects/Projects";
 import { useEffect, useState } from "react";
 import ScreenError from "./components/ScreenError";
+import SelectedProjects from "./Pages/admin/projects/SelectedProjects";
 
 const App = () => {
   const [isDesktop, setIsDesktop] = useState(true);
@@ -128,7 +129,7 @@ const App = () => {
                 path="projects/:id" // Relative path
                 element={
                   <ProtectedRoute allowedRoles={["admin"]}>
-                    <Projects />
+                    <SelectedProjects />
                   </ProtectedRoute>
                 }
               />

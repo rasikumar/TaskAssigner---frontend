@@ -1,8 +1,11 @@
 /* eslint-disable react/prop-types */
+import { getProjectById } from "@/API/admin/projects/project_api";
 import { ProjectsCard } from "@/components/ui/cards/ProjectsCard";
 import { Link } from "react-router"; // Make sure to import from 'react-router-dom'
 
 export const RecentProjects = ({ projectData }) => {
+  // Save project data in session storage
+
   const { projects, projectDetails } = projectData;
 
   // Add percentage calculation to projectDetails
@@ -15,7 +18,7 @@ export const RecentProjects = ({ projectData }) => {
   });
 
   // Get the last four projects
-  // const recentProjects = projects.slice(-4);
+  const recentProjects = projects.slice(-4);
 
   return (
     <section className="bg-gray-400 flex flex-col py-8 mx-auto rounded-xl px-6 w-full">
@@ -39,14 +42,15 @@ export const RecentProjects = ({ projectData }) => {
 
       {/* Projects Grid */}
       <div className="flex flex-wrap items-center justify-center w-full m-auto gap-6">
-        {projects.map((project, index) => {
+        {recentProjects.map((project, index) => {
           const percentage =
             projectDetailsWithPercentage[index]?.percentage || 0;
 
           return (
-            <div key={project.id} className="flex transition duration-300">
+            <div key={project._id} className="flex transition duration-300">
               <Link
-                to={`./projects/${project._id}`} // Navigate to the specific project's page
+                to={`./projects/${project._id}`}
+                onClick={() => getProjectById(project._id)}
                 className="flex"
               >
                 <ProjectsCard

@@ -5,7 +5,6 @@ import { Link, useLocation } from "react-router";
 const SidebarLink = ({ to, Icon, label, isCollapsed }) => {
   const location = useLocation();
   const isActive = location.pathname === to;
-  console.log(Icon);
 
   return (
     <Link

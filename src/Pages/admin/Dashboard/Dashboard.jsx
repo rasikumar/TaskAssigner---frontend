@@ -10,9 +10,10 @@ import { RecentProjects } from "./RecentProjects";
 
 const Dashboard = () => {
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["task"],
+    queryKey: ["tasks"],
     queryFn: () => fetchAllTasks(),
   });
+  const StatusSummary = data?.statusSummary;
 
   const {
     data: projectData,
@@ -24,6 +25,8 @@ const Dashboard = () => {
     queryFn: fetchAllProjects,
     staleTime: 30000,
   });
+  const StatusSummaryforProject = projectData?.statusSummary;
+  // console.log(projectData);
 
   const {
     data: adminData,
@@ -65,46 +68,38 @@ const Dashboard = () => {
     totalHoursSpent: project?.totalHoursSpent,
   }));
 
-  console.log(projectDetails);
+  // console.log(projectDetails);
+  // for Project
+  const CompletedProject = StatusSummaryforProject?.Completed || 0;
+  const InprogressProject = StatusSummaryforProject?.["In Progress"] || 0;
+  const NotStartedProject = StatusSummaryforProject?.["Not Started"] || 0;
+  const PendingProject = StatusSummaryforProject?.Pending || 0;
 
-  const CompletedProject = projects.filter(
-    (project) => project.project_status === "Completed"
-  );
-  const InprogressProject = projects.filter(
-    (project) => project.project_status === "In Progress"
-  );
-  const NotStartedProject = projects.filter(
-    (project) => project.project_status === "Not Started"
-  );
-  const PendingProject = projects.filter(
-    (project) => project.project_status === "Pending"
-  );
-
-  const CompletedTask = tasks.filter((task) => task.status === "Completed");
-  const InprogressTask = tasks.filter((task) => task.status === "In progress");
-  const NotStartedTask = tasks.filter((task) => task.status === "Not started");
-  const PendingTask = tasks.filter((task) => task.status === "Pending");
-  const CancelledTask = tasks.filter((task) => task.status === "Cancelled");
+  const CompletedTask = StatusSummary?.Completed || 0;
+  const InprogressTask = StatusSummary?.["In progress"] || 0;
+  const NotStartedTask = StatusSummary?.["Not started"] || 0;
+  const PendingTask = StatusSummary?.Pending || 0;
+  const CancelledTask = StatusSummary?.Cancelled || 0;
 
   const projectDataForChart = [
     {
       browser: "Completed",
-      visitors: CompletedProject.length,
+      visitors: CompletedProject,
       color: "#4CAF50",
     },
     {
       browser: "In Progress",
-      visitors: InprogressProject.length,
+      visitors: InprogressProject,
       color: "#FFC107",
     },
     {
       browser: "Pending",
-      visitors: PendingProject.length,
+      visitors: PendingProject,
       color: "#15B097",
     },
     {
       browser: "Not Started",
-      visitors: NotStartedProject.length,
+      visitors: NotStartedProject,
       color: "#F44336",
     },
   ];
@@ -112,27 +107,27 @@ const Dashboard = () => {
   const taskDataForChart = [
     {
       browser: "Completed",
-      visitors: CompletedTask.length,
+      visitors: CompletedTask,
       color: "#4CAF50",
     },
     {
       browser: "In Progress",
-      visitors: InprogressTask.length,
+      visitors: InprogressTask,
       color: "#FFC107",
     },
     {
       browser: "Not Started",
-      visitors: NotStartedTask.length,
+      visitors: NotStartedTask,
       color: "#2F195F",
     },
     {
       browser: "Pending",
-      visitors: PendingTask.length,
+      visitors: PendingTask,
       color: "#A2C5AC",
     },
     {
       browser: "Cancelled",
-      visitors: CancelledTask.length,
+      visitors: CancelledTask,
       color: "#F44336",
     },
   ];
@@ -169,7 +164,7 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 2xl:grid-cols-3 xl:grid-cols-2 gap-4">
               <MainCards
                 title="Total Projects"
-                totaltasks={projects.length}
+                totaltasks={projectData?.total}
                 Icon={FaTasks}
                 subtitle="Projects"
                 bgColor="#B23A48"
@@ -177,7 +172,7 @@ const Dashboard = () => {
               <MainCards
                 title="In-progress"
                 btn="View All"
-                totaltasks={InprogressProject.length}
+                totaltasks={InprogressProject}
                 Icon={FaTasks}
                 subtitle="Projects"
                 bgColor="#DCA74B"
@@ -186,7 +181,7 @@ const Dashboard = () => {
               <MainCards
                 title="Completed"
                 btn="View All"
-                totaltasks={CompletedProject.length}
+                totaltasks={CompletedProject}
                 Icon={FaTasks}
                 subtitle="Projects"
                 bgColor="#566E3D"
@@ -208,7 +203,7 @@ const Dashboard = () => {
             <div className="grid grid-cols-1 2xl:grid-cols-3 xl:grid-cols-2 gap-4">
               <MainCards
                 title="Total Tasks"
-                totaltasks={tasks.length}
+                totaltasks={data?.total}
                 Icon={FaTasks}
                 subtitle="Task"
                 bgColor="#B23A48"
@@ -216,7 +211,7 @@ const Dashboard = () => {
               <MainCards
                 title="In-progress"
                 btn="View All"
-                totaltasks={InprogressTask.length}
+                totaltasks={InprogressTask}
                 Icon={FaTasks}
                 subtitle="Task"
                 bgColor="#DCA74B"
@@ -225,7 +220,7 @@ const Dashboard = () => {
               <MainCards
                 title="Completed"
                 btn="View All"
-                totaltasks={CompletedTask.length}
+                totaltasks={CompletedTask}
                 Icon={FaTasks}
                 subtitle="Task"
                 bgColor="#566E3D"

@@ -104,10 +104,36 @@ export const getProjectRelatedMilestone = async (projectId) => {
 export const fetchProjectByStatus = async (status) => {
   try {
     const response = await Instance.get(`${ADMIN}/projects?status=${status}`);
-    console.log("asd", response.data);
+    // console.log("asd", response.data);
     return response.data;
   } catch (error) {
     console.error("Error fetching project by status:", error);
+    throw error;
+  }
+};
+
+export const getProjectById = async (projectId) => {
+  try {
+    const response = await Instance.post(
+      `${ADMIN}/getProjectById/${projectId}`
+    );
+
+    // Clear previous project data from session storage
+    sessionStorage.removeItem("selectedProject");
+
+    sessionStorage.setItem(
+      "selectedProject",
+      JSON.stringify(response.data.data)
+    );
+
+    // Set a timeout to clear the session storage after 1 minute
+    setTimeout(() => {
+      sessionStorage.removeItem("selectedProject");
+    }, 300000); // 60000 milliseconds = 1 minute
+
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching project by id:", error);
     throw error;
   }
 };
