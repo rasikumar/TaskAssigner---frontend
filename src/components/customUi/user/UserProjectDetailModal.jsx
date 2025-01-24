@@ -17,7 +17,7 @@ import {
 import { Textarea } from "../../ui/textarea";
 // import { getAllEmployeeOwnerShip } from "@/API/admin/adminDashborad";
 import Selector from "../Selector";
-import RoleChecker from "@/hooks/RoleChecker";
+import RoleChecker from "@/lib/RoleChecker";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const UserProjectDetailModal = ({

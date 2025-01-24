@@ -26,7 +26,7 @@ import UserProjects from "./Pages/user/projects/userProjects";
 import UserTicket from "./Pages/user/Tickets/Tickets";
 import UsersVerify from "./Pages/user/user-verify/Userverify";
 import MemberDetailPage from "./Pages/admin/people/[peopleName]";
-import ScrollToTop from "./hooks/scrollToTop";
+import ScrollToTop from "./lib/ScrollToTop";
 import Projects from "./Pages/admin/projects/Projects";
 import { useEffect, useState } from "react";
 import ScreenError from "./components/ScreenError";

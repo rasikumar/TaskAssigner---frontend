@@ -5,6 +5,7 @@ import { useState } from "react";
 import Table from "@/components/customUi/Table";
 import { CirclesWithBar } from "react-loader-spinner";
 import { useQuery } from "@tanstack/react-query";
+// import TicketHook from "@/hooks/ticket/ticketHook";
 
 const Tickets = () => {
   const [priority, setPriority] = useState("all");
@@ -15,6 +16,16 @@ const Tickets = () => {
     queryFn: fetchAllTickets,
     staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
+
+  const {
+    ticketLists,
+    isTicketListsLoading,
+    ticketListsError,
+    isTicketListsError,
+    createTicketMutation,
+    updateTicketMutation,
+    deleteTicketMutation,
+  } = TicketHook(currentPage, appliedSearchTerm, filterStatus, itemsPerPage);
 
   const optionVariants = {
     hidden: {

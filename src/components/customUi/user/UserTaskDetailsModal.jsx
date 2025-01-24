@@ -14,9 +14,10 @@ import { getpriority } from "@/utils/prorityUtils";
 import { getEmpMails } from "@/API/user/userVerify/userVerfiy";
 import { VscLoading, VscMilestone } from "react-icons/vsc";
 import UserDailyUpdateTask from "../../../Pages/user/tasks/UserDailyUpdateTask";
-import { dailyUpdate } from "@/API/user/task/tasks";
+import { dailyUpdate, StatusUpdate } from "@/API/user/task/tasks";
 import { toast, ToastContainer } from "react-toastify";
-import RoleChecker from "@/hooks/RoleChecker";
+import RoleChecker from "@/lib/RoleChecker";
+import MoveToTester from "@/Pages/user/tasks/MoveToTester";
 
 /* eslint-disable react/prop-types */
 export const UserTaskDetailsModal = ({ task, onClose, onEdit }) => {
@@ -25,6 +26,7 @@ export const UserTaskDetailsModal = ({ task, onClose, onEdit }) => {
   const [formData, setFormData] = useState(task);
   const [errorMessage, setErrorMessage] = useState("");
   const [ownershipOptions, setOwnershipOptions] = useState([]);
+  const [status, setStatus] = useState("");
 
   const queryClient = useQueryClient();
 
@@ -59,6 +61,17 @@ export const UserTaskDetailsModal = ({ task, onClose, onEdit }) => {
     onSuccess: () => {
       queryClient.invalidateQueries(["tasks"]); // Refresh the data
       toast.success("Daily update sent successfully!");
+    },
+  });
+
+  const TaskUpdate = useMutation({
+    mutationFn: StatusUpdate,
+    onError: (err) => {
+      toast.error(err.message || "Failed to update task status!");
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["tasks"]); // Refresh the data
+      setIsVisible(false);
     },
   });
 
@@ -117,6 +130,12 @@ export const UserTaskDetailsModal = ({ task, onClose, onEdit }) => {
     }));
   };
 
+  const handleStatusChange = (_id, value) => {
+    // console.log(_id, value);
+    setStatus(value);
+    TaskUpdate.mutate({ _id: _id, status: value });
+  };
+
   const renderInput = (name, label, value) => (
     <div className="mb-4">
       <label className="block text-sm font-semibold text-gray-700">
@@ -160,6 +179,11 @@ export const UserTaskDetailsModal = ({ task, onClose, onEdit }) => {
   const onUpdate = (onUpdate) => {
     // console.log(onUpdate);
     DailyTaskmutation.mutate(onUpdate);
+  };
+
+  const move_to_uav = (move_to_uav, _id) => {
+    console.log(move_to_uav);
+    console.log(_id);
   };
 
   return (
@@ -416,13 +440,19 @@ export const UserTaskDetailsModal = ({ task, onClose, onEdit }) => {
                   <h2 className="flex items-center gap-4 text-lg font-semibold text-gray-800">
                     Daily Updates{" "}
                     <Calendar1Icon className="ml-2 text-gray-500" />
+                    <MoveToTester
+                      _id={task._id}
+                      move_to_uav={move_to_uav}
+                      testerDetail={task.move_to_uat}
+                    />
                   </h2>
+
                   <Selector
                     label="Status"
                     id="status"
                     value={formData.status}
                     onChange={(e) =>
-                      handleSelectChange("status", e.target.value)
+                      handleStatusChange(task._id, e.target.value)
                     }
                     options={statusOptions}
                   />
@@ -446,15 +476,6 @@ export const UserTaskDetailsModal = ({ task, onClose, onEdit }) => {
                             </span>
                             Hours spent
                           </p>
-                          {/* <span className="text-gray-500 text-xs">
-                              {new Date(daily_update.date).toLocaleString(
-                                "en-US",
-                                {
-                                  hour: "numeric",
-                                  minute: "2-digit",
-                                }
-                              )}
-                            </span> */}
                         </li>
                       ))}
                   </ul>

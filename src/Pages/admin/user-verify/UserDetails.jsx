@@ -9,15 +9,8 @@ import Table from "@/components/customUi/Table";
 import { useState } from "react";
 import { UserDetailModal } from "@/components/customUi/admin/UserDetailModal";
 import { toast } from "react-toastify";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
 import DeleteDialog from "@/components/DeleteDialog";
+import PaginationComponent from "@/components/customUi/PaginationComponent";
 
 const UserDetails = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -149,41 +142,11 @@ const UserDetails = () => {
   return (
     <div className="mx-auto w-full flex flex-col gap-6">
       <Table columns={columns} data={data?.data || []} renderRow={renderRow} />
-
-      <Pagination>
-        <PaginationContent>
-          <PaginationItem>
-            <PaginationPrevious
-              onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-              disabled={page === 1}
-              className={page === 1 ? "opacity-50 cursor-not-allowed" : ""}
-            />
-          </PaginationItem>
-
-          {[...Array(totalPages)].map((_, index) => (
-            <PaginationItem key={index + 1}>
-              <PaginationLink
-                onClick={() => setPage(index + 1)}
-                className={
-                  page === index + 1 ? "rounded-lg bg-taskBlack text-white" : ""
-                }
-              >
-                {index + 1}
-              </PaginationLink>
-            </PaginationItem>
-          ))}
-
-          <PaginationItem>
-            <PaginationNext
-              onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
-              disabled={page === totalPages}
-              className={
-                page === totalPages ? "opacity-50 cursor-not-allowed" : ""
-              }
-            />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
+      <PaginationComponent
+        totalPages={totalPages}
+        currentPage={page}
+        setCurrentPage={setPage}
+      />
 
       {isModalOpen && (
         <UserDetailModal

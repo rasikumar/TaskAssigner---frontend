@@ -14,7 +14,7 @@ import { GrUserManager } from "react-icons/gr";
 import { teams } from "@/data/teams";
 import { Outlet, useNavigate } from "react-router";
 import UserSidebarFooter from "./SideBar/UserSidebarFooter";
-import RoleChecker from "@/hooks/RoleChecker";
+import RoleChecker from "@/lib/RoleChecker";
 import { cn } from "@/lib/utils";
 
 const AdminSidebar = () => {

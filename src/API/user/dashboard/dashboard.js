@@ -1,5 +1,5 @@
 import Instance from "@/API/Instance";
-import { USER } from "@/utils/api";
+import { ADMIN, USER } from "@/utils/api";
 
 export const fetchDashBoard = async () => {
   try {
@@ -19,5 +19,16 @@ export const fetchFullDashBoard = async () => {
   } catch (error) {
     console.error("error fetching dashboard");
     throw error;
+  }
+};
+
+export const getAllEmployeeOwnerShip = async () => {
+  try {
+    const EmpOwner = await Instance.get(`${ADMIN}/getAllUserEmpMailForProject`);
+    // console.log(EmpOwner.data);
+    return EmpOwner.data;
+  } catch (err) {
+    console.error("Failed to fetch employee ownerShip:", err);
+    throw err;
   }
 };

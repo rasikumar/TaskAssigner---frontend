@@ -13,11 +13,12 @@ import { createTask } from "@/API/admin/task/task_api";
 import { userGetAllProjectList } from "@/API/user/projects/project";
 import { getEmpMails } from "@/API/user/userVerify/userVerfiy";
 import { getMilestonesForProject } from "@/API/user/milestone/milestone";
-import { getAllEmployeeOwnerShip } from "@/API/user/userDashboard";
+// import { getAllEmployeeOwnerShip } from "@/API/user/userDashboard";
 
 import Selector from "@/components/customUi/Selector";
 import Modal from "@/components/customUi/Modal";
 import { Combobox } from "@/components/customUi/Handle";
+import { getAllEmployeeOwnerShip } from "@/API/user/dashboard/dashboard";
 const CreateTaskUser = () => {
   const [formData, setFormData] = useState({
     project: null,

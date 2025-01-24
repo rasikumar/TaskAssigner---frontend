@@ -10,7 +10,7 @@ import CreateProjectUser from "./CreateProjectUser";
 import { CirclesWithBar } from "react-loader-spinner";
 import { Label } from "@/components/ui/label";
 import Selector from "@/components/customUi/Selector";
-import RoleChecker from "@/hooks/RoleChecker";
+import RoleChecker from "@/lib/RoleChecker";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "react-toastify";
