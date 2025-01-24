@@ -18,6 +18,7 @@ import { dailyUpdate, StatusUpdate } from "@/API/user/task/tasks";
 import { toast, ToastContainer } from "react-toastify";
 import RoleChecker from "@/lib/RoleChecker";
 import MoveToTester from "@/Pages/user/tasks/MoveToTester";
+import { moveToTester } from "@/API/user/ticket/ticket";
 
 /* eslint-disable react/prop-types */
 export const UserTaskDetailsModal = ({ task, onClose, onEdit }) => {
@@ -72,6 +73,19 @@ export const UserTaskDetailsModal = ({ task, onClose, onEdit }) => {
     onSuccess: () => {
       queryClient.invalidateQueries(["tasks"]); // Refresh the data
       setIsVisible(false);
+      toast.success("Update task status successfully!");
+    },
+  });
+
+  const UatStatusChange = useMutation({
+    mutationFn: moveToTester,
+    onError: (err) => {
+      toast.error(err.message || "Failed to move to UAT!");
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["tasks"]); // Refresh the data
+      setIsVisible(false);
+      toast.success("Task moved to UAT successfully!");
     },
   });
 
@@ -181,9 +195,8 @@ export const UserTaskDetailsModal = ({ task, onClose, onEdit }) => {
     DailyTaskmutation.mutate(onUpdate);
   };
 
-  const move_to_uav = (move_to_uav, _id) => {
-    console.log(move_to_uav);
-    console.log(_id);
+  const move_to_uat = (move_to_uat, _id) => {
+    UatStatusChange.mutate({ move_to_uat, _id });
   };
 
   return (
@@ -442,7 +455,7 @@ export const UserTaskDetailsModal = ({ task, onClose, onEdit }) => {
                     <Calendar1Icon className="ml-2 text-gray-500" />
                     <MoveToTester
                       _id={task._id}
-                      move_to_uav={move_to_uav}
+                      move_to_uat={move_to_uat}
                       testerDetail={task.move_to_uat}
                     />
                   </h2>

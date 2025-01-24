@@ -126,6 +126,8 @@ const CreateTaskUser = () => {
         start_date: "",
         end_date: "",
       });
+      setMilestones([]); // Clear milestones if needed
+      setOwnershipOptions([]); // Reset ownership options
       setIsOpen(false);
       toast.success("Tasks Created Successfully");
     },
@@ -247,18 +249,6 @@ const CreateTaskUser = () => {
 
               {step === 2 && (
                 <div className="flex flex-col gap-2">
-                  {/* <Combobox
-                    items={userList} // Array of projects
-                    value={formData.assigned_to} // Controlled state
-                    onChange={(value) => {
-                      setFormData((prevData) => ({
-                        ...prevData,
-                        assigned_to: value, // Update the project value in the form data
-                      }));
-                      setStep(3);
-                    }}
-                    placeholder="Assigned to"
-                  /> */}
                   <Selector
                     label="Milestone"
                     id="milestone"

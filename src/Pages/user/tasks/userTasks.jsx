@@ -84,7 +84,6 @@ const UserTasks = () => {
     { key: "end_date", title: "End Date", className: "text-center" },
     { key: "status", title: "Status", className: "text-center" },
     { key: "priority", title: "Priority", className: "text-center" },
-    { key: "action", title: "Action", className: "text-center" },
   ];
 
   const renderRow = (task) => (
@@ -136,14 +135,13 @@ const UserTasks = () => {
           {task.priority || "N/A"}
         </span>
       </td>
-      <td className="px-2 py-3 text-sm text-center">
-        {/* Add Delete or Edit Actions */}
-        {/* <DeleteDialog
+      {/* <td className="px-2 py-3 text-sm text-center">
+        <DeleteDialog
           message="Are you sure you want to delete this task?"
           onConfirm={() => handleDeleteTask(task._id)}
           isLoading={deleteMutation.isPending}
-        /> */}
-      </td>
+        />
+      </td> */}
     </>
   );
 

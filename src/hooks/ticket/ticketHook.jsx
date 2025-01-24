@@ -4,7 +4,7 @@ import {
   createTicket,
   updateTicket,
   deleteTicket,
-} from "../../api/ticketApi";
+} from "@/API/user/ticket/ticket";
 import { toast } from "react-toastify";
 
 const TicketHook = (

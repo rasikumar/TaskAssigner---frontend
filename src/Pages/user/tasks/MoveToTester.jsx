@@ -3,12 +3,12 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useState } from "react";
 
-const MoveToTester = ({ _id, move_to_uav, testerDetail }) => {
+const MoveToTester = ({ _id, move_to_uat, testerDetail }) => {
   const [isToggle, setIsToggle] = useState(testerDetail);
 
   const handleToggle = (checked) => {
     setIsToggle(checked);
-    move_to_uav(checked, _id); // Now _id is included
+    move_to_uat(checked, _id); // Now _id is included
   };
 
   return (
