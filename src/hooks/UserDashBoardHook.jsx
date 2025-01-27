@@ -12,7 +12,7 @@ const UserDashBoardHook = () => {
     queryFn: fetchFullDashBoard,
     staleTime: 30000,
   });
-  console.log(userTaskData);
+  // console.log(userTaskData);
 
   return {
     userTaskData,

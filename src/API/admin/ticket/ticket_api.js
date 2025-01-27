@@ -1,7 +1,59 @@
 import { ADMIN } from "@/utils/api";
 import Instance from "../../Instance";
 
-export const fetchAllTickets = async () => {
+export const createTicket = async (formDataToSend) => {
+  // console.log(formDataToSend);
+  try {
+    const response = await Instance.post(
+      `${ADMIN}/createTicket`,
+      formDataToSend
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching Ticket", error);
+    throw error;
+  }
+};
+
+export const deleteTicket = async () => {
+  try {
+    const response = await Instance.post(`${ADMIN}/getAllTicket`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching Ticket", error);
+    throw error;
+  }
+};
+
+export const fetchAllTickets = async () =>
+  // currentPage,
+  // appliedSearchTerm,
+  // filterStatus,
+  // itemsPerPage
+  {
+    // console.log(
+    //   currentPage +
+    //     "s" +
+    //     appliedSearchTerm +
+    //     "eeee " +
+    //     filterStatus +
+    //     " asa" +
+    //     itemsPerPage
+    // );
+    // const statusQuery = filterStatus ? `&status=${filterStatus}` : "";
+    // const searchQuery = appliedSearchTerm ? `&search=${appliedSearchTerm}` : "";
+    try {
+      const response = await Instance.get(`${ADMIN}/getall_ticket`);
+      // `${ADMIN}/getall_ticket/?page=${currentPage}$limit=${itemsPerPage}${statusQuery}${searchQuery}`
+
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching Ticket", error);
+      throw error;
+    }
+  };
+
+export const fetchTickets = async () => {
   try {
     const response = await Instance.post(`${ADMIN}/getAllTicket`);
     return response.data;

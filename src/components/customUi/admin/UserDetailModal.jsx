@@ -1,4 +1,4 @@
-import { FaPen, FaRegWindowClose } from "react-icons/fa";
+import { FaPen, FaRegWindowClose, FaCopy, FaCheck } from "react-icons/fa";
 import { useEffect, useRef, useState } from "react";
 import { Input } from "../../ui/Input";
 import {
@@ -11,6 +11,12 @@ import {
   SelectValue,
 } from "../../ui/select";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 /* eslint-disable react/prop-types */
 export const UserDetailModal = ({ user, onClose, onEdit }) => {
@@ -18,6 +24,7 @@ export const UserDetailModal = ({ user, onClose, onEdit }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState(user); // Editable fields
   const [errorMessage, setErrorMessage] = useState(""); // To display error messages
+  const [successMessage, setSuccessMessage] = useState("");
   // console.log(formData);
 
   const startDateRef = useRef(null);
@@ -54,6 +61,24 @@ export const UserDetailModal = ({ user, onClose, onEdit }) => {
     }
   };
 
+  // Function to copy user details to clipboard
+  const copyToClipboard = () => {
+    const userDetails = `
+      Name: ${formData.name}
+      Admin Verify: ${formData.admin_verify}
+      Department: ${formData.department}
+      Role: ${formData.role}
+      Employee ID: ${formData.employee_id}
+      Email: ${formData.mail}
+      Dates: ${formData.starting_date} - ${formData.lastWorking_date}
+      Phone: ${formData.phone}
+    `;
+    navigator.clipboard.writeText(userDetails);
+
+    setSuccessMessage("copied");
+    setTimeout(() => setSuccessMessage(""), 2000); // Clear success message after 2 seconds
+  };
+
   return (
     <div
       id="modal-overlay"
@@ -78,6 +103,29 @@ export const UserDetailModal = ({ user, onClose, onEdit }) => {
             User Profile
           </h1>
           <div className="flex gap-x-2">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={copyToClipboard}
+                    className="p-2 transition-colors text-taskBlack bg-slate-50 rounded-3xl px-4"
+                  >
+                    {successMessage ? (
+                      <span className="flex items-center gap-2 transition-all delay-150 text-sm">
+                        {successMessage}
+                        <FaCheck size={15} />
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-2 transition-all delay-150 text-sm">
+                        Copy
+                        <FaCopy size={15} />
+                      </span>
+                    )}
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>User details</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             <button
               onClick={() => setIsEditing(true)}
               className="p-2 text-blue-500 hover:text-blue-700 transition-colors"

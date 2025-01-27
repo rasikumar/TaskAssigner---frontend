@@ -1,50 +1,38 @@
-import { fetchAllTickets } from "@/API/admin/ticket/ticket_api";
-import { motion } from "framer-motion";
-import { ChevronDownIcon } from "lucide-react";
+// import { fetchAllTickets } from "@/API/admin/ticket/ticket_api";
 import { useState } from "react";
 import Table from "@/components/customUi/Table";
 import { CirclesWithBar } from "react-loader-spinner";
-import { useQuery } from "@tanstack/react-query";
-// import TicketHook from "@/hooks/ticket/ticketHook";
+// import { useQuery } from "@tanstack/react-query";
+import TicketHook from "@/hooks/ticket/ticketHook";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import Selector from "@/components/customUi/Selector";
+import PaginationComponent from "@/components/customUi/PaginationComponent";
+import CreateTicket from "./CreateTicket";
 
 const Tickets = () => {
-  const [priority, setPriority] = useState("all");
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1); // Track current page
+  const [appliedSearchTerm, setAppliedSearchTerm] = useState(""); // For query key
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
+  const [itemsPerPage] = useState(10);
 
-  const { data: ticketDetails, isLoading } = useQuery({
-    queryKey: ["tickets"],
-    queryFn: fetchAllTickets,
-    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
-  });
+  // const { data: ticketDetails, isLoading } = useQuery({
+  //   queryKey: ["tickets"],
+  //   queryFn: fetchAllTickets,
+  //   staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+  // });
 
   const {
     ticketLists,
     isTicketListsLoading,
     ticketListsError,
     isTicketListsError,
-    createTicketMutation,
     updateTicketMutation,
     deleteTicketMutation,
-  } = TicketHook(currentPage, appliedSearchTerm, filterStatus, itemsPerPage);
-
-  const optionVariants = {
-    hidden: {
-      opacity: 0,
-      y: -10, // Start with the options above their final position
-    },
-    visible: {
-      opacity: 1,
-      y: 0, // Move to the final position
-      transition: {
-        opacity: { duration: 0.2 },
-        y: { duration: 0.3 },
-      },
-    },
-  };
-
-  const toggleDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen);
-  };
+  } = TicketHook();
+  // } = TicketHook(currentPage, appliedSearchTerm, filterStatus, itemsPerPage);
 
   const columns = [
     { key: "main_category", title: "Category" },
@@ -54,6 +42,21 @@ const Tickets = () => {
     { key: "status", title: "Status" },
     { key: "priority", title: "Priority" },
   ];
+
+  const totalPages = Math.ceil((ticketLists?.total || 0) / itemsPerPage);
+
+  const statusoption = [
+    { value: "", label: "All" }, // Add this line
+    { value: "Not started", label: "Not Started" },
+    { value: "In progress", label: "In Progress" },
+    { value: "Completed", label: "Completed" },
+    { value: "Pending", label: "Pending" },
+  ];
+
+  const handleSearch = () => {
+    setCurrentPage(1); // Reset to first page
+    setAppliedSearchTerm(searchTerm); // Update appliedSearchTerm when button is clicked
+  };
 
   const renderRow = (ticketDetails) => (
     <>
@@ -106,72 +109,29 @@ const Tickets = () => {
 
   return (
     <div>
-      <div>
-        <div className="flex items-center justify-between ">
-          <div className="">
-            <h1 className="2xl:text-lg font-semibold">All Tickets</h1>
+      <div className="relative mt-0 flex flex-col gap-4">
+        <CreateTicket />
+        <div className="flex items-center justify-between gap-4 mb-4">
+          <div className="flex items-center gap-2">
+            <Input
+              type="text"
+              placeholder="Search TaskName..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <Button onClick={handleSearch}>Search</Button>
           </div>
-          <div className=" rounded-md relative">
-            <label className="flex items-center 2xl:text-sm text-xs">
-              Sort By :
-              <div
-                className="cursor-pointer flex items-center ml-2 bg-transparent font-semibold"
-                onClick={toggleDropdown}
-              >
-                {priority === "all"
-                  ? "Priority"
-                  : priority.charAt(0).toUpperCase() + priority.slice(1)}
-                <motion.div
-                  initial={{ rotate: 0 }}
-                  animate={{ rotate: isDropdownOpen ? 180 : 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <ChevronDownIcon className="ml-2 w-4 h-4 text-gray-600" />
-                </motion.div>
-              </div>
-            </label>
-            {isDropdownOpen && (
-              <motion.div
-                initial="hidden"
-                animate="visible"
-                variants={{
-                  hidden: { opacity: 0 },
-                  visible: {
-                    opacity: 1,
-                    transition: {
-                      opacity: { duration: 0.2 },
-                      staggerChildren: 0.1, // Stagger the children by 0.1s
-                    },
-                  },
-                }}
-                className="absolute left-0 top-8 w-full bg-white shadow-md rounded-md z-10"
-              >
-                <motion.div
-                  className="flex flex-col"
-                  initial="hidden"
-                  animate="visible"
-                >
-                  {["all", "low", "regular", "high", "critical"].map(
-                    (option) => (
-                      <motion.div
-                        key={option}
-                        className="px-2 py-3 font-medium text-gray-800  2xl:text-sm text-xs cursor-pointer hover:bg-slate-100"
-                        onClick={() => {
-                          setPriority(option);
-                          setIsDropdownOpen(false);
-                        }}
-                        variants={optionVariants}
-                      >
-                        {option.charAt(0).toUpperCase() + option.slice(1)}
-                      </motion.div>
-                    )
-                  )}
-                </motion.div>
-              </motion.div>
-            )}
+          <div className="flex items-center gap-2">
+            <Label>Status</Label>
+            <Selector
+              id="status"
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              options={statusoption}
+            />
           </div>
         </div>
-        {isLoading ? (
+        {isTicketListsLoading ? (
           <div className="flex items-center justify-center w-full h-full ">
             <CirclesWithBar
               color="#4fa94d"
@@ -182,11 +142,20 @@ const Tickets = () => {
             />
           </div>
         ) : (
-          <Table
-            columns={columns}
-            data={ticketDetails?.data || []}
-            renderRow={renderRow}
-          />
+          <div>
+            <Table
+              columns={columns}
+              data={ticketLists?.data || []}
+              renderRow={renderRow}
+            />
+            <div>
+              <PaginationComponent
+                totalPages={totalPages}
+                currentPage={currentPage}
+                setCurrentPage={setCurrentPage}
+              />
+            </div>
+          </div>
         )}
       </div>
     </div>

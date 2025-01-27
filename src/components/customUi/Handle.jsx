@@ -17,7 +17,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-// Reusable Combobox component
 export function Combobox({
   items,
   value,
@@ -25,6 +24,14 @@ export function Combobox({
   placeholder = "Select an option...",
 }) {
   const [open, setOpen] = React.useState(false);
+  const [query, setQuery] = React.useState("");
+
+  // Filter the items based on the query
+  const filteredItems = query
+    ? items.filter((item) =>
+        item.label.toLowerCase().includes(query.toLowerCase())
+      )
+    : items;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -45,29 +52,35 @@ export function Combobox({
 
       <PopoverContent className="z-[9999] p-0">
         <Command>
-          <CommandInput placeholder="Search..." />
+          <CommandInput
+            placeholder="Search..."
+            onValueChange={(value) => setQuery(value)} // Update query on input change
+          />
           <CommandList>
-            <CommandEmpty>No items found.</CommandEmpty>
-            <CommandGroup>
-              {items.map((item) => (
-                <CommandItem
-                  key={item.value}
-                  value={item.value}
-                  onSelect={(currentValue) => {
-                    onChange(currentValue === value ? "" : currentValue);
-                    setOpen(false);
-                  }}
-                >
-                  {item.label}
-                  <Check
-                    className={cn(
-                      "ml-auto",
-                      value === item.value ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                </CommandItem>
-              ))}
-            </CommandGroup>
+            {filteredItems.length > 0 ? (
+              <CommandGroup>
+                {filteredItems.map((item) => (
+                  <CommandItem
+                    key={item.value}
+                    value={item.value}
+                    onSelect={(currentValue) => {
+                      onChange(currentValue === value ? "" : currentValue);
+                      setOpen(false);
+                    }}
+                  >
+                    {item.label}
+                    <Check
+                      className={cn(
+                        "ml-auto",
+                        value === item.value ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            ) : (
+              <CommandEmpty>No items found.</CommandEmpty>
+            )}
           </CommandList>
         </Command>
       </PopoverContent>

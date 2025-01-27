@@ -1,70 +1,74 @@
-import { useQuery, useMutation, useQueryClient } from "react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  fetchTickets,
   createTicket,
   updateTicket,
   deleteTicket,
-} from "@/API/user/ticket/ticket";
+  fetchAllTickets,
+} from "@/API/admin/ticket/ticket_api";
 import { toast } from "react-toastify";
 
-const TicketHook = (
-  currentPage,
-  appliedSearchTerm,
-  filterStatus,
-  itemsPerPage
-) => {
-  const queryClient = useQueryClient();
+const TicketHook = () =>
+  // currentPage,
+  // appliedSearchTerm,
+  // filterStatus,
+  // itemsPerPage
+  {
+    const queryClient = useQueryClient();
 
-  const {
-    data: ticketLists,
-    isLoading: isTicketListsLoading,
-    error: ticketListsError,
-    isError: isTicketListsError,
-  } = useQuery({
-    queryKey: [
-      "tickets",
-      currentPage,
-      appliedSearchTerm,
-      filterStatus,
-      itemsPerPage,
-    ],
-    queryFn: fetchTickets,
-    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
-  });
+    const {
+      data: ticketLists,
+      isLoading: isTicketListsLoading,
+      error: ticketListsError,
+      isError: isTicketListsError,
+    } = useQuery({
+      queryKey: [
+        "tickets",
+        // currentPage,
+        // appliedSearchTerm,
+        // filterStatus,
+        // itemsPerPage,
+      ],
+      queryFn: fetchAllTickets,
+      staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+    });
 
-  const createTicketMutation = useMutation({
-    mutationFn: createTicket,
-    onSuccess: () => {
-      queryClient.invalidateQueries(["tickets"]);
-      toast.success("Ticket created successfully!");
-    },
-  });
+    const createTicketMutation = useMutation({
+      mutationFn: createTicket,
+      onSuccess: (data) => {
+        queryClient.invalidateQueries(["tickets"]);
+        toast.success(data?.data.message || "Ticket created sucssssscessfully!");
+      },
+      onError: (error) => {
+        // Handle error (e.g., show an error message)
+        console.error("Error submitting form:", error);
+      },
+    });
 
-  const updateTicketMutation = useMutation({
-    mutationFn: updateTicket,
-    onSuccess: () => {
-      queryClient.invalidateQueries(["tickets"]);
-      toast.success("Ticket updated successfully!");
-    },
-  });
+    const updateTicketMutation = useMutation({
+      mutationFn: updateTicket,
+      onSuccess: () => {
+        queryClient.invalidateQueries(["tickets"]);
+        toast.success("Ticket updated successfully!");
+      },
+    });
 
-  const deleteTicketMutation = useMutation({
-    mutationFn: deleteTicket,
-    onSuccess: () => {
-      queryClient.invalidateQueries(["tickets"]);
-      toast.success("Ticket deleted successfully!");
-    },
-  });
+    const deleteTicketMutation = useMutation({
+      mutationFn: deleteTicket,
+      onSuccess: () => {
+        queryClient.invalidateQueries(["tickets"]);
+        toast.success("Ticket deleted successfully!");
+      },
+    });
 
-  return {
-    ticketLists,
-    isTicketListsLoading,
-    ticketListsError,
-    isTicketListsError,
-    createTicketMutation,
-    updateTicketMutation,
-    deleteTicketMutation,
+    return {
+      ticketLists,
+      isTicketListsLoading,
+      ticketListsError,
+      isTicketListsError,
+      createTicketMutation,
+      updateTicketMutation,
+      deleteTicketMutation,
+    };
   };
-};
 
 export default TicketHook;
