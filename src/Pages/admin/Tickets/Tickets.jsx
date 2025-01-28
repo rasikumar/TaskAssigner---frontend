@@ -10,6 +10,8 @@ import { Label } from "@/components/ui/label";
 import Selector from "@/components/customUi/Selector";
 import PaginationComponent from "@/components/customUi/PaginationComponent";
 import CreateTicket from "./CreateTicket";
+import CreateTicketold from "./CreateTicket";
+// import CreateFile from "./CreateFIle";
 
 const Tickets = () => {
   const [currentPage, setCurrentPage] = useState(1); // Track current page
@@ -110,7 +112,7 @@ const Tickets = () => {
   return (
     <div>
       <div className="relative mt-0 flex flex-col gap-4">
-        <CreateTicket />
+        <CreateTicketold />
         <div className="flex items-center justify-between gap-4 mb-4">
           <div className="flex items-center gap-2">
             <Input

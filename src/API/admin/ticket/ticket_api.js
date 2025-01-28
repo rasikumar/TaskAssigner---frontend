@@ -2,15 +2,21 @@ import { ADMIN } from "@/utils/api";
 import Instance from "../../Instance";
 
 export const createTicket = async (formDataToSend) => {
-  // console.log(formDataToSend);
+  console.log(formDataToSend);
   try {
     const response = await Instance.post(
       `${ADMIN}/createTicket`,
-      formDataToSend
+      formDataToSend,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
     );
+    console.log(response.data);
     return response.data;
   } catch (error) {
-    console.error("Error fetching Ticket", error);
+    console.error("Error creating Ticket", error);
     throw error;
   }
 };

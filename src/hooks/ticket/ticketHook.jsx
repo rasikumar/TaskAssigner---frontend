@@ -36,7 +36,8 @@ const TicketHook = () =>
       mutationFn: createTicket,
       onSuccess: (data) => {
         queryClient.invalidateQueries(["tickets"]);
-        toast.success(data?.data.message || "Ticket created sucssssscessfully!");
+        // console.log(data?.message)
+        toast.success(data?.message || "Ticket created sucssssscessfully!");
       },
       onError: (error) => {
         // Handle error (e.g., show an error message)
