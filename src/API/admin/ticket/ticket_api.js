@@ -31,7 +31,12 @@ export const deleteTicket = async () => {
   }
 };
 
-export const fetchAllTickets = async () =>
+export const fetchAllTickets = async (
+  currentPage,
+  // appliedSearchTerm,
+  filterStatus,
+  itemsPerPage
+) =>
   // currentPage,
   // appliedSearchTerm,
   // filterStatus,
@@ -46,10 +51,12 @@ export const fetchAllTickets = async () =>
     //     " asa" +
     //     itemsPerPage
     // );
-    // const statusQuery = filterStatus ? `&status=${filterStatus}` : "";
+    const statusQuery = filterStatus ? `&status=${filterStatus}` : "";
     // const searchQuery = appliedSearchTerm ? `&search=${appliedSearchTerm}` : "";
     try {
-      const response = await Instance.get(`${ADMIN}/getall_ticket`);
+      const response = await Instance.get(
+        `${ADMIN}/getall_ticket/?page=${currentPage}$limit=${itemsPerPage}${statusQuery}`
+      );
       // `${ADMIN}/getall_ticket/?page=${currentPage}$limit=${itemsPerPage}${statusQuery}${searchQuery}`
 
       return response.data;

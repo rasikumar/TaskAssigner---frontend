@@ -10,7 +10,6 @@ import { Label } from "@/components/ui/label";
 import Selector from "@/components/customUi/Selector";
 import PaginationComponent from "@/components/customUi/PaginationComponent";
 import CreateTicket from "./CreateTicket";
-import CreateTicketold from "./CreateTicket";
 // import CreateFile from "./CreateFIle";
 
 const Tickets = () => {
@@ -20,12 +19,6 @@ const Tickets = () => {
   const [filterStatus, setFilterStatus] = useState("");
   const [itemsPerPage] = useState(10);
 
-  // const { data: ticketDetails, isLoading } = useQuery({
-  //   queryKey: ["tickets"],
-  //   queryFn: fetchAllTickets,
-  //   staleTime: 1000 * 60 * 5, // Cache for 5 minutes
-  // });
-
   const {
     ticketLists,
     isTicketListsLoading,
@@ -33,8 +26,7 @@ const Tickets = () => {
     isTicketListsError,
     updateTicketMutation,
     deleteTicketMutation,
-  } = TicketHook();
-  // } = TicketHook(currentPage, appliedSearchTerm, filterStatus, itemsPerPage);
+  } = TicketHook(currentPage, filterStatus, itemsPerPage);
 
   const columns = [
     { key: "main_category", title: "Category" },
@@ -45,14 +37,17 @@ const Tickets = () => {
     { key: "priority", title: "Priority" },
   ];
 
-  const totalPages = Math.ceil((ticketLists?.total || 0) / itemsPerPage);
+  const totalpages = Math.ceil((ticketLists?.total || 0) / itemsPerPage);
+
+  console.log(totalpages);
 
   const statusoption = [
-    { value: "", label: "All" }, // Add this line
-    { value: "Not started", label: "Not Started" },
-    { value: "In progress", label: "In Progress" },
-    { value: "Completed", label: "Completed" },
-    { value: "Pending", label: "Pending" },
+    { value: "", label: "All" },
+    { value: "Open", label: "Open" },
+    { value: "In Progress", label: "In Progress" },
+    { value: "Resolved", label: "Resolved" },
+    { value: "Closed", label: "Closed" },
+    { value: "Reopen", label: "Reopen" },
   ];
 
   const handleSearch = () => {
@@ -112,7 +107,7 @@ const Tickets = () => {
   return (
     <div>
       <div className="relative mt-0 flex flex-col gap-4">
-        <CreateTicketold />
+        <CreateTicket />
         <div className="flex items-center justify-between gap-4 mb-4">
           <div className="flex items-center gap-2">
             <Input
@@ -147,12 +142,12 @@ const Tickets = () => {
           <div>
             <Table
               columns={columns}
-              data={ticketLists?.data || []}
+              data={ticketLists?.data?.tickets || []}
               renderRow={renderRow}
             />
             <div>
               <PaginationComponent
-                totalPages={totalPages}
+                totalPages={totalpages}
                 currentPage={currentPage}
                 setCurrentPage={setCurrentPage}
               />
