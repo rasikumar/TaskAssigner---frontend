@@ -41,7 +41,7 @@ const CreateTask = () => {
   const [milestones, setMilestones] = useState([]);
   const [milestonesError, setMilestoneError] = useState("");
 
-  // console.log(milestones);
+  console.log(ownershipOptions);
 
   const {
     isLoading: isProjectLoading,
@@ -91,12 +91,16 @@ const CreateTask = () => {
         //   })),
 
         ...userData.managers
-          .filter((manager) => manager.admin_verify === "true") // Check admin_verify for managers
+          .filter(
+            (manager) =>
+              manager.admin_verify === true && manager.hr_approval === false
+          ) // Check admin_verify for managers
           .map((manager) => ({
             value: manager.id,
             label: `Manager - ${manager.name}`,
           })),
       ];
+      console.log(options);
       setOwnershipOptions(options);
     }
   }, [userData]);

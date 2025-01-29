@@ -17,6 +17,7 @@ import { getpriority } from "@/utils/prorityUtils";
 import DeleteDialog from "@/components/DeleteDialog";
 import { deleteDailyTaskUpdate } from "@/API/admin/task/task_api";
 import { toast } from "react-toastify";
+import { priorityOptions } from "@/utils/prorityOptions";
 
 /* eslint-disable react/prop-types */
 export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
@@ -148,13 +149,6 @@ export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
       />
     </div>
   );
-
-  const priorityOptions = [
-    { value: "Low", label: "Low" },
-    { value: "Regular", label: "Regular" },
-    { value: "High", label: "High" },
-    { value: "Critical", label: "Critical" },
-  ];
 
   const statusOptions = [
     { value: "Not Started", label: "Not Started" },

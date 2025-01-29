@@ -91,6 +91,7 @@ const CreateTicket = () => {
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
+    console.log(files);
     const validFiles = files.filter((file) => file.size <= 10 * 1024 * 1024); // 10 MB limit
 
     if (validFiles.length !== files.length) {
@@ -123,12 +124,30 @@ const CreateTicket = () => {
     }
 
     // Debugging: Log all FormData entries
-    for (let pair of formDataToSend.entries()) {
-      console.log(`${pair[0]}: ${pair[1]}`);
-    }
+    // for (let pair of formDataToSend.entries()) {
+    //   console.log(`${pair[0]}: ${pair[1]}`);
+    // }
 
     // Send the FormData using your mutation
-    createTicketMutation.mutate(formDataToSend);
+    createTicketMutation.mutate(formDataToSend, {
+      onSuccess: () => {
+        setFormData({
+          title: "",
+          description: "",
+          project: "",
+          tasks: "",
+          severity: "",
+          assigned_to: "",
+          priority: "",
+          status: "Open",
+          main_category: "",
+          sub_category: "",
+          attachments: [],
+        });
+        setIsOpen(false);
+        setStep(1);
+      },
+    });
   };
 
   return (

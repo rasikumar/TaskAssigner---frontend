@@ -4,8 +4,10 @@ import {
   updateTicket,
   deleteTicket,
   fetchAllTickets,
+  fetchTicketsById,
 } from "@/API/admin/ticket/ticket_api";
 import { toast } from "react-toastify";
+import { useState } from "react";
 
 const TicketHook = (
   currentPage,
@@ -13,6 +15,7 @@ const TicketHook = (
   filterStatus,
   itemsPerPage
 ) => {
+  const [selectedTicket, setSelectedTicket] = useState(null);
   const queryClient = useQueryClient();
 
   const {
@@ -55,9 +58,23 @@ const TicketHook = (
 
   const deleteTicketMutation = useMutation({
     mutationFn: deleteTicket,
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries(["tickets"]);
-      toast.success("Ticket deleted successfully!");
+      toast.success(data.message || "Ticket deleted sussssccessfully!");
+    },
+  });
+
+  const getTicketById = useMutation({
+    mutationFn: fetchTicketsById,
+    onSuccess: (data) => {
+      // toast.success("Ticket fetched successfully!");
+      const ticketResponse = data?.data;
+      // console.log(ticketResponse);
+      setSelectedTicket(ticketResponse); // Return the fetched ticket data
+    },
+    onError: (error) => {
+      toast.error(error.response.data.message || "Failed to fetch ticket");
+      console.error("Error fetching ticket:", error);
     },
   });
 
@@ -69,6 +86,8 @@ const TicketHook = (
     createTicketMutation,
     updateTicketMutation,
     deleteTicketMutation,
+    getTicketById,
+    selectedTicket,
   };
 };
 

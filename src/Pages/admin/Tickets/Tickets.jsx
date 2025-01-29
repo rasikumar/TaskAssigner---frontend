@@ -10,9 +10,19 @@ import { Label } from "@/components/ui/label";
 import Selector from "@/components/customUi/Selector";
 import PaginationComponent from "@/components/customUi/PaginationComponent";
 import CreateTicket from "./CreateTicket";
+import MainCards from "@/components/ui/cards/MainCards";
+import {
+  TicketCheckIcon,
+  TicketIcon,
+  TicketMinus,
+  TicketPlusIcon,
+} from "lucide-react";
+import DeleteDialog from "@/components/DeleteDialog";
+import TicketDetailModal from "@/components/customUi/admin/TicketDetailModal";
 // import CreateFile from "./CreateFIle";
 
 const Tickets = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1); // Track current page
   const [appliedSearchTerm, setAppliedSearchTerm] = useState(""); // For query key
   const [searchTerm, setSearchTerm] = useState("");
@@ -26,20 +36,41 @@ const Tickets = () => {
     isTicketListsError,
     updateTicketMutation,
     deleteTicketMutation,
+    getTicketById,
+    selectedTicket,
   } = TicketHook(currentPage, filterStatus, itemsPerPage);
+  console.log(ticketListsError);
+
+  const handleDeleteTicket = (ticketId) => {
+    console.log(ticketId);
+    deleteTicketMutation.mutate(ticketId);
+  };
+
+  const getTicketId = (ticketId) => {
+    getTicketById.mutate(ticketId);
+    setIsModalOpen(true);
+  };
+
+  const handleUpdateTask = (ticketData) => {
+    updateTicketMutation.mutate(ticketData);
+    // console.log(ticketData);
+  };
 
   const columns = [
     { key: "main_category", title: "Category" },
     { key: "subject", title: "Subject" },
     { key: "created_by", title: "Created by" },
     { key: "date", title: "Date" },
-    { key: "status", title: "Status" },
-    { key: "priority", title: "Priority" },
+    { key: "status", title: "Status", className: "text-center" },
+    { key: "priority", title: "Priority", className: "text-center" },
+    { key: "action", title: "Action", className: "text-center" },
   ];
 
-  const totalpages = Math.ceil((ticketLists?.total || 0) / itemsPerPage);
+  const totalpages = Math.ceil((ticketLists?.data?.total || 0) / itemsPerPage);
 
-  console.log(totalpages);
+  // console.log(totalpages);
+  const StatusSummary = ticketLists?.data?.statusSummary;
+  // console.log(StatusSummary);
 
   const statusoption = [
     { value: "", label: "All" },
@@ -57,7 +88,12 @@ const Tickets = () => {
 
   const renderRow = (ticketDetails) => (
     <>
-      <td className="px-2 py-3 text-sm font-medium text-gray-800 ">
+      <td
+        onClick={() => {
+          getTicketId(ticketDetails._id);
+        }}
+        className="px-2 py-3 text-sm font-medium text-gray-800 "
+      >
         <div className="font-bold text-primary">
           {ticketDetails.sub_category}
         </div>
@@ -73,7 +109,7 @@ const Tickets = () => {
       <td className="px-2 py-3 text-sm font-medium text-gray-800 ">
         {ticketDetails.created_date}
       </td>
-      <td className="px-2 py-3 text-sm font-medium text-gray-800 ">
+      <td className="px-2 py-3 text-sm font-medium text-gray-800 text-center">
         <span
           className={`px-2 py-1 rounded-full text-xs ${
             ticketDetails.status === "Open"
@@ -86,7 +122,7 @@ const Tickets = () => {
           {ticketDetails.status}
         </span>
       </td>
-      <td className="px-2 py-3 text-sm font-medium text-gray-800 ">
+      <td className="px-2 py-3 text-sm font-medium text-gray-800 text-center ">
         <span
           className={`px-2 py-1 rounded-full text-xs ${
             ticketDetails.priority === "Low"
@@ -101,8 +137,21 @@ const Tickets = () => {
           {ticketDetails.priority}
         </span>
       </td>
+      <td className="px-2 py-3 text-sm text-center">
+        <DeleteDialog
+          message="Are you sure you want to delete"
+          onConfirm={() => handleDeleteTicket(ticketDetails._id)}
+          isLoading={deleteTicketMutation.isPending}
+        />
+      </td>
     </>
   );
+
+  const OpenTicket = StatusSummary?.Open || 0;
+  const InprogressTicket = StatusSummary?.["In Progress"] || 0;
+  const ResolvedTicket = StatusSummary?.Resolved || 0;
+  const ClosedTicket = StatusSummary?.Closed || 0;
+  const ReopenTicket = StatusSummary?.Reopen || 0;
 
   return (
     <div>
@@ -128,7 +177,46 @@ const Tickets = () => {
             />
           </div>
         </div>
-        {isTicketListsLoading ? (
+        <div className="flex lg:flex-nowrap gap-2">
+          <MainCards
+            title="Yet to Start"
+            totaltasks={OpenTicket}
+            Icon={TicketIcon}
+            subtitle="Task"
+            bgColor="#FFC107"
+          />
+          <MainCards
+            title="Pending"
+            totaltasks={InprogressTicket}
+            Icon={TicketMinus}
+            subtitle="Task"
+            bgColor="#007BFF"
+          />
+          <MainCards
+            title="Cancelled"
+            totaltasks={ResolvedTicket}
+            Icon={TicketCheckIcon}
+            subtitle="Task"
+            bgColor="#6C757D"
+          />
+          <MainCards
+            title="In-Progress"
+            totaltasks={ClosedTicket}
+            Icon={TicketMinus}
+            subtitle="Task"
+            bgColor="#B23A48"
+          />
+          <MainCards
+            title="Completed"
+            totaltasks={ReopenTicket}
+            Icon={TicketPlusIcon}
+            subtitle="Task"
+            bgColor="#28A745"
+          />
+        </div>
+        {isTicketListsError ? (
+          <div>{ticketListsError.response.data.message}</div>
+        ) : isTicketListsLoading ? (
           <div className="flex items-center justify-center w-full h-full ">
             <CirclesWithBar
               color="#4fa94d"
@@ -145,16 +233,23 @@ const Tickets = () => {
               data={ticketLists?.data?.tickets || []}
               renderRow={renderRow}
             />
-            <div>
-              <PaginationComponent
-                totalPages={totalpages}
-                currentPage={currentPage}
-                setCurrentPage={setCurrentPage}
-              />
-            </div>
           </div>
         )}
+        <div>
+          <PaginationComponent
+            totalPages={totalpages}
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+          />
+        </div>
       </div>
+      {isModalOpen && (
+        <TicketDetailModal
+          ticket={selectedTicket}
+          onClose={() => setIsModalOpen(false)}
+          onEdit={handleUpdateTask}
+        />
+      )}
     </div>
   );
 };

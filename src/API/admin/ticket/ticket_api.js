@@ -21,9 +21,11 @@ export const createTicket = async (formDataToSend) => {
   }
 };
 
-export const deleteTicket = async () => {
+export const deleteTicket = async (ticketId) => {
   try {
-    const response = await Instance.post(`${ADMIN}/getAllTicket`);
+    const response = await Instance.delete(
+      `${ADMIN}/deleteTickets/${ticketId}`
+    );
     return response.data;
   } catch (error) {
     console.error("Error fetching Ticket", error);
@@ -33,42 +35,31 @@ export const deleteTicket = async () => {
 
 export const fetchAllTickets = async (
   currentPage,
-  // appliedSearchTerm,
   filterStatus,
   itemsPerPage
-) =>
-  // currentPage,
-  // appliedSearchTerm,
-  // filterStatus,
-  // itemsPerPage
-  {
-    // console.log(
-    //   currentPage +
-    //     "s" +
-    //     appliedSearchTerm +
-    //     "eeee " +
-    //     filterStatus +
-    //     " asa" +
-    //     itemsPerPage
-    // );
-    const statusQuery = filterStatus ? `&status=${filterStatus}` : "";
-    // const searchQuery = appliedSearchTerm ? `&search=${appliedSearchTerm}` : "";
-    try {
-      const response = await Instance.get(
-        `${ADMIN}/getall_ticket/?page=${currentPage}$limit=${itemsPerPage}${statusQuery}`
-      );
-      // `${ADMIN}/getall_ticket/?page=${currentPage}$limit=${itemsPerPage}${statusQuery}${searchQuery}`
-
-      return response.data;
-    } catch (error) {
-      console.error("Error fetching Ticket", error);
-      throw error;
-    }
-  };
-
-export const fetchTickets = async () => {
+) => {
+  const statusQuery = filterStatus ? `&status=${filterStatus}` : "";
   try {
-    const response = await Instance.post(`${ADMIN}/getAllTicket`);
+    const response = await Instance.get(
+      `${ADMIN}/getall_ticket/?page=${currentPage}&limit=${itemsPerPage}${statusQuery}`
+    );
+
+    // Check if data is empty
+    if (!response.data || response.data.length === 0) {
+      return { message: "No tickets found" };
+    }
+
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching Ticket", error);
+    throw error;
+  }
+};
+
+export const fetchTicketsById = async (ticketId) => {
+  // console.log(ticketId);
+  try {
+    const response = await Instance.get(`${ADMIN}/tickets/${ticketId}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching Ticket", error);
