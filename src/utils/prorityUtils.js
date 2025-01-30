@@ -6,6 +6,8 @@ export const getpriority = (priority) => {
       return "text-orange-600 bg-orange-50 rounded-md";
     case "Regular":
       return "text-blue-600 bg-blue-50 rounded-md";
+    case "Medium":
+      return "text-blue-600 bg-blue-50 rounded-md";
     case "Low":
       return "text-green-600 bg-green-50 rounded-md";
     default:

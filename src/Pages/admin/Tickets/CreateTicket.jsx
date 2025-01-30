@@ -1,24 +1,31 @@
+import { useState } from "react";
+
 import { getAllProjectList } from "@/API/admin/projects/project_api";
 import { getTaskRelatedToProject } from "@/API/admin/task/task_api";
 import { getEmpMails } from "@/API/admin/userverify/userVerify";
+
+import { useQuery } from "@tanstack/react-query";
+
 import { Combobox } from "@/components/customUi/Handle";
 import Modal from "@/components/customUi/Modal";
 import Selector from "@/components/customUi/Selector";
+
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+
 import { priorityOptions } from "@/utils/prorityOptions";
 import { severityOptions } from "@/utils/severityOptions";
 import {
   mainCategoryOptions,
   subCategoryMapping,
 } from "@/utils/categoriesOptions";
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+
+import TicketHook from "@/hooks/ticket/ticketHook";
+
 import { FaTicketAlt } from "react-icons/fa";
 import { VscLoading } from "react-icons/vsc";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import TicketHook from "@/hooks/ticket/ticketHook";
 import { ToastContainer, toast } from "react-toastify";
 
 const CreateTicket = () => {

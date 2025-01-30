@@ -10,7 +10,7 @@ import {
   FaCheck,
   FaProjectDiagram,
 } from "react-icons/fa";
-import { GrUserManager } from "react-icons/gr";
+import { GrDocumentPdf, GrUserManager } from "react-icons/gr";
 import { teams } from "@/data/teams";
 import { Outlet, useNavigate } from "react-router";
 import UserSidebarFooter from "./SideBar/UserSidebarFooter";
@@ -93,6 +93,12 @@ const AdminSidebar = () => {
             to="/dashboard/ticket"
             Icon={FaTicketAlt}
             label="Tickets Management"
+            isCollapsed={isCollapsed}
+          />
+          <SidebarLink
+            to="/dashboard/documents"
+            Icon={GrDocumentPdf}
+            label="Documents"
             isCollapsed={isCollapsed}
           />
           <RoleChecker allowedRoles={["hr"]}>

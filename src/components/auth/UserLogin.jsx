@@ -35,6 +35,8 @@ const UserLogin = () => {
           localStorage.setItem("role", JSON.stringify(response.data.data.role));
           localStorage.setItem("name", JSON.stringify(response.data.data.name));
           localStorage.setItem("mail", JSON.stringify(response.data.data.mail));
+          localStorage.setItem("department", JSON.stringify(response.data.data.department));
+
           toast.success(response.data.message);
         } else {
           toast.error("Unauthenticated");

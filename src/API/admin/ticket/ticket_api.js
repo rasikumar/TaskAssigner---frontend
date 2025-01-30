@@ -2,7 +2,7 @@ import { ADMIN } from "@/utils/api";
 import Instance from "../../Instance";
 
 export const createTicket = async (formDataToSend) => {
-  console.log(formDataToSend);
+  // console.log(formDataToSend);
   try {
     const response = await Instance.post(
       `${ADMIN}/createTicket`,
@@ -68,6 +68,7 @@ export const fetchTicketsById = async (ticketId) => {
 };
 
 export const updateTicket = async (updatedData) => {
+  console.log(updatedData);
   try {
     const response = await Instance.post(`${ADMIN}/updateTicket`, updatedData);
     return response.data;

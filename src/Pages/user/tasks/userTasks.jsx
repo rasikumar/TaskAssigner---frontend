@@ -69,7 +69,7 @@ const UserTasks = () => {
   // const handleDeleteTask = (taskId) => {
   //   deleteMutation.mutate(taskId);
   // };
-  // console.log(data);
+  console.log(data);
 
   if (isError) {
     console.error(error);

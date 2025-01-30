@@ -1,6 +1,6 @@
 export const priorityOptions = [
   { value: "Low", label: "Low" },
-  { value: "Regular", label: "Regular" },
+  { value: "Medium", label: "Medium" },
   { value: "High", label: "High" },
   { value: "Critical", label: "Critical" },
 ];

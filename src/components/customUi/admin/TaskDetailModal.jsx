@@ -1,25 +1,30 @@
-import { FaPen, FaRedo, FaRegWindowClose, FaTrash } from "react-icons/fa";
+/* eslint-disable react/prop-types */
 import { useEffect, useRef, useState } from "react";
-import { Input } from "../../ui/input";
-import Selector from "../Selector";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
 import { getEmpMails } from "@/API/admin/userverify/userVerify";
 import { getAllEmployeeOwnerShip } from "@/API/admin/adminDashborad";
+import { deleteDailyTaskUpdate } from "@/API/admin/task/task_api";
+
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
+import DeleteDialog from "@/components/DeleteDialog";
+
+import { Input } from "../../ui/input";
+import Selector from "../Selector";
 import { Combobox } from "../Handle";
 import { Button } from "../../ui/button";
 import { Label } from "../../ui/label";
-import { Calendar1Icon } from "lucide-react";
-import { VscLoading, VscMilestone } from "react-icons/vsc";
-
 import { Textarea } from "@/components/ui/textarea";
+import { toast } from "react-toastify";
+
 import { getStatus } from "@/utils/statusUtils";
 import { getpriority } from "@/utils/prorityUtils";
-import DeleteDialog from "@/components/DeleteDialog";
-import { deleteDailyTaskUpdate } from "@/API/admin/task/task_api";
-import { toast } from "react-toastify";
 import { priorityOptions } from "@/utils/prorityOptions";
+import { statusOptions } from "@/utils/statusOptions";
 
-/* eslint-disable react/prop-types */
+import { Calendar1Icon } from "lucide-react";
+import { FaPen, FaRedo, FaRegWindowClose, FaTrash } from "react-icons/fa";
+import { VscLoading, VscMilestone } from "react-icons/vsc";
 export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -149,14 +154,6 @@ export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
       />
     </div>
   );
-
-  const statusOptions = [
-    { value: "Not Started", label: "Not Started" },
-    { value: "In progress", label: "In Progress" },
-    { value: "Pending", label: "Pending" },
-    { value: "Completed", label: "Completed" },
-    { value: "Cancelled", label: "Cancelled" },
-  ];
 
   const handleSave = (e) => {
     e.preventDefault();

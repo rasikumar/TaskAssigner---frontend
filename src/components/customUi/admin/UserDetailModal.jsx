@@ -1,4 +1,10 @@
-import { FaPen, FaRegWindowClose, FaCopy, FaCheck } from "react-icons/fa";
+import {
+  FaPen,
+  FaRegWindowClose,
+  FaCopy,
+  FaCheck,
+  FaRedo,
+} from "react-icons/fa";
 import { useEffect, useRef, useState } from "react";
 import { Input } from "../../ui/Input";
 import {
@@ -66,6 +72,7 @@ export const UserDetailModal = ({ user, onClose, onEdit }) => {
     const userDetails = `
       Name: ${formData.name}
       Admin Verify: ${formData.admin_verify}
+      Hr Verify: ${formData.hr_approval}
       Department: ${formData.department}
       Role: ${formData.role}
       Employee ID: ${formData.employee_id}
@@ -90,11 +97,11 @@ export const UserDetailModal = ({ user, onClose, onEdit }) => {
       <div
         className={`bg-white rounded-lg shadow-lg w-[30rem] p-6 transition-transform duration-300 ease-in-out ${
           isVisible ? "scale-100" : "scale-95"
-        } ${isEditing ? "h-[26rem] overflow-scroll" : ""}`}
+        }`}
       >
         <div
           className={`${
-            user.admin_verify === "true"
+            user.admin_verify === true && user.hr_approval == true
               ? "bg-gradient-to-r from-green-600 to-bg"
               : "bg-gradient-to-r from-red-600 to-bg"
           } -top-10 left-0 w-full h-14 fixed rounded-t-xl flex items-center justify-between px-6 `}
@@ -126,12 +133,23 @@ export const UserDetailModal = ({ user, onClose, onEdit }) => {
                 <TooltipContent>User details</TooltipContent>
               </Tooltip>
             </TooltipProvider>
-            <button
-              onClick={() => setIsEditing(true)}
-              className="p-2 text-blue-500 hover:text-blue-700 transition-colors"
-            >
-              <FaPen size={20} />
-            </button>
+            {!isEditing && (
+              <button
+                onClick={() => setIsEditing((prev) => !prev)}
+                className="p-2 text-blue-500 hover:text-blue-700 transition-colors"
+              >
+                <FaPen size={20} />
+              </button>
+            )}
+
+            {isEditing && (
+              <button
+                onClick={() => setIsEditing((prev) => !prev)}
+                className="p-2 text-blue-500 hover:text-blue-700 transition-colors"
+              >
+                <FaRedo size={20} />
+              </button>
+            )}
             <button
               onClick={onClose}
               className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
@@ -158,13 +176,13 @@ export const UserDetailModal = ({ user, onClose, onEdit }) => {
             {isEditing ? (
               <Select
                 onValueChange={(value) =>
-                  setFormData({ ...formData, admin_verify: value })
+                  setFormData({ ...formData, admin_verify: value === "true" })
                 }
-                value={formData.admin_verify}
+                value={formData.admin_verify?.toString()} // Ensure the selected value is a string
                 required
                 className="outline-none focus:ring-0 focus:ring-offset-0"
               >
-                <SelectTrigger className="outline-none focus:ring-0 focus:ring-offset-0 ">
+                <SelectTrigger className="outline-none focus:ring-0 focus:ring-offset-0">
                   <SelectValue placeholder="Verify User" />
                 </SelectTrigger>
                 <SelectContent>
@@ -176,41 +194,74 @@ export const UserDetailModal = ({ user, onClose, onEdit }) => {
                 </SelectContent>
               </Select>
             ) : (
-              user.admin_verify
+              <span className="text-gray-800">
+                {user.admin_verify ? "Approved" : "Not Approved"}
+              </span>
             )}
           </p>
         </div>
 
         <div className="space-y-4">
-          <div>
-            <p className="text-sm text-gray-600">Department</p>
-            {isEditing ? (
-              <Select
-                onValueChange={(value) =>
-                  setFormData({ ...formData, department: value })
-                }
-                value={formData.department}
-                required
-              >
-                <SelectTrigger className="p-2 border rounded-md w-full focus:ring-2 focus:ring-primary">
-                  <SelectValue placeholder="Select a department" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectLabel>Departments</SelectLabel>
-                    <SelectItem value="design">Design</SelectItem>
-                    <SelectItem value="development">Development</SelectItem>
-                    <SelectItem value="marketing">Marketing</SelectItem>
-                    <SelectItem value="testing">Testing</SelectItem>
-                    <SelectItem value="human-resource">
-                      Human Resource
-                    </SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            ) : (
-              <span className="text-gray-800">{user.department}</span>
-            )}
+          <div className="flex justify-between">
+            <div>
+              <p className="text-sm text-gray-600">Department</p>
+              {isEditing ? (
+                <Select
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, department: value })
+                  }
+                  value={formData.department}
+                  required
+                >
+                  <SelectTrigger className="p-2 border rounded-md w-full focus:ring-2 focus:ring-primary">
+                    <SelectValue placeholder="Select a department" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Departments</SelectLabel>
+                      <SelectItem value="design">Design</SelectItem>
+                      <SelectItem value="development">Development</SelectItem>
+                      <SelectItem value="marketing">Marketing</SelectItem>
+                      <SelectItem value="testing">Testing</SelectItem>
+                      <SelectItem value="human-resource">
+                        Human Resource
+                      </SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              ) : (
+                <span className="text-gray-800">{user.department}</span>
+              )}
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">Hr Approval</p>
+              {isEditing ? (
+                <Select
+                  onValueChange={(value) =>
+                    setFormData({
+                      ...formData,
+                      hr_approval: value === "true",
+                    })
+                  }
+                  value={formData.hr_approval?.toString()} // Ensure the selected value is a string
+                  required
+                  className="outline-none focus:ring-0 focus:ring-offset-0 w-20"
+                >
+                  <SelectTrigger className="outline-none focus:ring-0 focus:ring-offset-0 w-20">
+                    <SelectValue placeholder="Verify User" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectLabel>Admin Verify</SelectLabel>
+                      <SelectItem value="true">True</SelectItem>
+                      <SelectItem value="false">False</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              ) : (
+                <span>{user.hr_approval ? "Approved" : "Not Approved"}</span>
+              )}
+            </div>
           </div>
 
           <div>

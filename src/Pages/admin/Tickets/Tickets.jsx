@@ -19,6 +19,9 @@ import {
 } from "lucide-react";
 import DeleteDialog from "@/components/DeleteDialog";
 import TicketDetailModal from "@/components/customUi/admin/TicketDetailModal";
+import { getpriority } from "@/utils/prorityUtils";
+import { getStatus } from "@/utils/statusUtils";
+import { statusoptionforTicket } from "@/utils/statusOptionsforTicket";
 // import CreateFile from "./CreateFIle";
 
 const Tickets = () => {
@@ -39,7 +42,7 @@ const Tickets = () => {
     getTicketById,
     selectedTicket,
   } = TicketHook(currentPage, filterStatus, itemsPerPage);
-  console.log(ticketListsError);
+  // console.log(ticketListsError);
 
   const handleDeleteTicket = (ticketId) => {
     console.log(ticketId);
@@ -57,8 +60,8 @@ const Tickets = () => {
   };
 
   const columns = [
-    { key: "main_category", title: "Category" },
     { key: "subject", title: "Subject" },
+    { key: "main_category", title: "Category" },
     { key: "created_by", title: "Created by" },
     { key: "date", title: "Date" },
     { key: "status", title: "Status", className: "text-center" },
@@ -72,15 +75,6 @@ const Tickets = () => {
   const StatusSummary = ticketLists?.data?.statusSummary;
   // console.log(StatusSummary);
 
-  const statusoption = [
-    { value: "", label: "All" },
-    { value: "Open", label: "Open" },
-    { value: "In Progress", label: "In Progress" },
-    { value: "Resolved", label: "Resolved" },
-    { value: "Closed", label: "Closed" },
-    { value: "Reopen", label: "Reopen" },
-  ];
-
   const handleSearch = () => {
     setCurrentPage(1); // Reset to first page
     setAppliedSearchTerm(searchTerm); // Update appliedSearchTerm when button is clicked
@@ -89,50 +83,70 @@ const Tickets = () => {
   const renderRow = (ticketDetails) => (
     <>
       <td
+        className="px-2 py-3 text-sm font-medium text-gray-800 w-1/4"
+        onClick={() => {
+          getTicketId(ticketDetails._id);
+        }}
+      >
+        <div className="font-bold">{ticketDetails.title}</div>
+        <div>{ticketDetails.description}</div>
+      </td>
+      <td
         onClick={() => {
           getTicketId(ticketDetails._id);
         }}
         className="px-2 py-3 text-sm font-medium text-gray-800 "
       >
-        <div className="font-bold text-primary">
+        <div className="font-bold text-primary capitalize">
           {ticketDetails.sub_category}
         </div>
         <div>{ticketDetails.main_category}</div>
       </td>
-      <td className="px-2 py-3 text-sm font-medium text-gray-800 ">
-        <div className="font-bold">{ticketDetails.ticket_title}</div>
-        <div>{ticketDetails.ticket_description}</div>
+
+      <td
+        className="px-2 py-3 text-sm font-medium text-gray-800 "
+        onClick={() => {
+          getTicketId(ticketDetails._id);
+        }}
+      >
+        {ticketDetails.raised_by?.name}
       </td>
-      <td className="px-2 py-3 text-sm font-medium text-gray-800 ">
-        {ticketDetails.created_by}
+      <td
+        className="px-2 py-3 text-sm font-medium text-gray-800"
+        onClick={() => {
+          getTicketId(ticketDetails._id);
+        }}
+      >
+        {new Date(ticketDetails.created_at).toLocaleDateString("en-IN", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        })}
       </td>
-      <td className="px-2 py-3 text-sm font-medium text-gray-800 ">
-        {ticketDetails.created_date}
-      </td>
-      <td className="px-2 py-3 text-sm font-medium text-gray-800 text-center">
+      <td
+        className="px-2 py-3 text-sm font-medium text-gray-800 text-center"
+        onClick={() => {
+          getTicketId(ticketDetails._id);
+        }}
+      >
         <span
-          className={`px-2 py-1 rounded-full text-xs ${
-            ticketDetails.status === "Open"
-              ? "bg-red-100 text-red-600"
-              : ticketDetails.status === "Closed"
-              ? "bg-green-100 text-green-600"
-              : "bg-yellow-100 text-yellow-600"
-          }`}
+          className={`px-2 py-1 rounded-full text-xs ${getStatus(
+            ticketDetails.status
+          )}`}
         >
           {ticketDetails.status}
         </span>
       </td>
-      <td className="px-2 py-3 text-sm font-medium text-gray-800 text-center ">
+      <td
+        className="px-2 py-3 text-sm font-medium text-gray-800 text-center "
+        onClick={() => {
+          getTicketId(ticketDetails._id);
+        }}
+      >
         <span
-          className={`px-2 py-1 rounded-full text-xs ${
-            ticketDetails.priority === "Low"
-              ? "bg-blue-100 text-blue-600"
-              : ticketDetails.priority === "Regular"
-              ? "bg-gray-100 text-gray-600"
-              : ticketDetails.priority === "High"
-              ? "bg-orange-100 text-orange-600"
-              : "bg-red-100 text-red-600"
-          }`}
+          className={`px-2 py-1 rounded-full text-xs ${getpriority(
+            ticketDetails.priority
+          )}`}
         >
           {ticketDetails.priority}
         </span>
@@ -173,44 +187,44 @@ const Tickets = () => {
               id="status"
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              options={statusoption}
+              options={statusoptionforTicket}
             />
           </div>
         </div>
         <div className="flex lg:flex-nowrap gap-2">
           <MainCards
-            title="Yet to Start"
+            title="Open"
             totaltasks={OpenTicket}
             Icon={TicketIcon}
-            subtitle="Task"
+            subtitle="Ticket"
             bgColor="#FFC107"
           />
           <MainCards
-            title="Pending"
+            title="In-Progress"
             totaltasks={InprogressTicket}
             Icon={TicketMinus}
-            subtitle="Task"
+            subtitle="Ticket"
             bgColor="#007BFF"
           />
           <MainCards
             title="Cancelled"
             totaltasks={ResolvedTicket}
             Icon={TicketCheckIcon}
-            subtitle="Task"
+            subtitle="Ticket"
             bgColor="#6C757D"
           />
           <MainCards
-            title="In-Progress"
+            title="Closed"
             totaltasks={ClosedTicket}
             Icon={TicketMinus}
-            subtitle="Task"
+            subtitle="Ticket"
             bgColor="#B23A48"
           />
           <MainCards
-            title="Completed"
+            title="Reopened"
             totaltasks={ReopenTicket}
             Icon={TicketPlusIcon}
-            subtitle="Task"
+            subtitle="Ticket"
             bgColor="#28A745"
           />
         </div>
