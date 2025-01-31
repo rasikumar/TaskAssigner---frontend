@@ -69,8 +69,18 @@ export const fetchTicketsById = async (ticketId) => {
 
 export const updateTicket = async (updatedData) => {
   console.log(updatedData);
+  const formData = new FormData();
+
+  for (const key in updatedData) {
+    formData.append(key, updatedData[key]);
+  }
+
   try {
-    const response = await Instance.post(`${ADMIN}/updateTicket`, updatedData);
+    const response = await Instance.post(`${ADMIN}/updateTicket`, updatedData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
     return response.data;
   } catch (error) {
     console.error("Error updating Ticket", error);

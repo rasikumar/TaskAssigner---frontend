@@ -99,7 +99,10 @@ export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
         //   })),
 
         ...userData.managers
-          .filter((manager) => manager.admin_verify === "true") // Check admin_verify for managers
+          .filter(
+            (manager) =>
+              manager.admin_verify === true && manager.hr_approval === true
+          ) // Check admin_verify for managers
           .map((manager) => ({
             value: manager.id,
             label: `Manager - ${manager.name}`,

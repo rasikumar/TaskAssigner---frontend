@@ -14,16 +14,7 @@ import RoleChecker from "@/lib/RoleChecker";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "react-toastify";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-
+import PaginationComponent from "@/components/customUi/PaginationComponent";
 const UserProjects = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
@@ -64,7 +55,7 @@ const UserProjects = () => {
   });
 
   const projectData = userProjectsData?.data;
-  // console.log(projectData);
+  // console.log(userProjectsData);
 
   const updateMutation = useMutation({
     mutationFn: userUpdateProject,
@@ -162,165 +153,62 @@ const UserProjects = () => {
 
   const totalPages = Math.ceil((userProjectsData?.total || 0) / itemsPerPage); // Total number of pages
 
-  const renderPaginationItems = () => {
-    const items = [];
-    const maxVisiblePages = 4;
-
-    if (totalPages <= maxVisiblePages) {
-      for (let i = 1; i <= totalPages; i++) {
-        items.push(
-          <PaginationItem
-            key={i}
-            onClick={() => setCurrentPage(i)}
-            className={
-              currentPage === i ? "rounded-lg bg-taskBlack text-white" : ""
-            }
-          >
-            <PaginationLink>{i}</PaginationLink>
-          </PaginationItem>
-        );
-      }
-    } else {
-      if (currentPage > 1) {
-        items.push(
-          <PaginationItem
-            key={1}
-            onClick={() => setCurrentPage(1)}
-            className={
-              currentPage === 1 ? "rounded-lg bg-taskBlack text-white" : ""
-            }
-          >
-            <PaginationLink>1</PaginationLink>
-          </PaginationItem>
-        );
-      }
-
-      if (currentPage > 3) {
-        items.push(
-          <PaginationItem key="ellipsis-prev">
-            <PaginationEllipsis />
-          </PaginationItem>
-        );
-      }
-
-      const startPage = Math.max(2, currentPage - 1);
-      const endPage = Math.min(totalPages - 1, currentPage + 1);
-
-      for (let i = startPage; i <= endPage; i++) {
-        items.push(
-          <PaginationItem
-            key={i}
-            onClick={() => setCurrentPage(i)}
-            className={
-              currentPage === i ? "rounded-lg bg-taskBlack text-white" : ""
-            }
-          >
-            <PaginationLink>{i}</PaginationLink>
-          </PaginationItem>
-        );
-      }
-
-      if (currentPage < totalPages - 2) {
-        items.push(
-          <PaginationItem key="ellipsis-next">
-            <PaginationEllipsis />
-          </PaginationItem>
-        );
-      }
-
-      if (currentPage < totalPages) {
-        items.push(
-          <PaginationItem
-            key={totalPages}
-            onClick={() => setCurrentPage(totalPages)}
-            className={
-              currentPage === totalPages
-                ? "rounded-lg bg-taskBlack text-white"
-                : ""
-            }
-          >
-            <PaginationLink>{totalPages}</PaginationLink>
-          </PaginationItem>
-        );
-      }
-    }
-
-    return items;
-  };
-
   return (
     <div className="relative mt-0">
-      {isUserProjectsLoading ? (
-        <div className="flex items-center justify-center w-full h-full">
-          <CirclesWithBar
-            color="#4fa94d"
-            outerCircleColor="#4fa94d"
-            innerCircleColor="#4fa94d"
-            barColor="#4fa94d"
-            visible={true}
-          />
-        </div>
-      ) : (
-        <div className="flex flex-col justify-start gap-2 relative">
-          <RoleChecker allowedRoles={["manager"]}>
-            <CreateProjectUser />
-          </RoleChecker>
-          <div className="flex justify-between items-center mb-4 gap-4">
-            <div className="flex items-center gap-2">
-              <Input
-                type="text"
-                placeholder="Search projects..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)} // Update only searchTerm
-                className="p-2 border rounded w-64"
-              />
-              <Button onClick={handleSearch}>Search</Button>
-            </div>
-            <div className="flex items-center gap-x-2">
-              <Label>Status</Label>
-              <Selector
-                id="status"
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                options={statusoption}
-                className="w-48"
-              />
-            </div>
+      <div className="flex flex-col justify-start gap-2 relative">
+        <RoleChecker
+          allowedRoles={["manager"]}
+          allowedDepartments={["development"]}
+        >
+          <CreateProjectUser />
+        </RoleChecker>
+        <div className="flex justify-between items-center mb-4 gap-4">
+          <div className="flex items-center gap-2">
+            <Input
+              type="text"
+              placeholder="Search projects..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)} // Update only searchTerm
+              className="p-2 border rounded w-64"
+            />
+            <Button onClick={handleSearch}>Search</Button>
           </div>
+          <div className="flex items-center gap-x-2">
+            <Label>Status</Label>
+            <Selector
+              id="status"
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              options={statusoption}
+              className="w-48"
+            />
+          </div>
+        </div>
+        {isUserProjectsLoading ? (
+          <div className="flex items-center justify-center w-full h-full">
+            <CirclesWithBar
+              color="#4fa94d"
+              outerCircleColor="#4fa94d"
+              innerCircleColor="#4fa94d"
+              barColor="#4fa94d"
+              visible={true}
+            />
+          </div>
+        ) : (
           <Table
             columns={column}
             renderRow={renderRow}
             data={projectData?.projects}
           />
-          <div className="mt-4">
-            <Pagination>
-              <PaginationContent>
-                <PaginationPrevious
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.max(prev - 1, 1))
-                  }
-                  disabled={currentPage === 1 || totalPages === 0} // Disable if no previous page or no pages
-                  className={
-                    currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""
-                  } // Add styles to indicate disabled state
-                />
-                {renderPaginationItems()}
-                <PaginationNext
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                  }
-                  disabled={currentPage === totalPages || totalPages === 0} // Disable if no next page or no pages
-                  className={
-                    currentPage === totalPages
-                      ? "opacity-50 cursor-not-allowed"
-                      : ""
-                  } // Add styles to indicate disabled state
-                />
-              </PaginationContent>
-            </Pagination>
-          </div>
+        )}
+        <div className="mt-4">
+          <PaginationComponent
+            totalPages={totalPages}
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+          />
         </div>
-      )}
+      </div>
       {isModalOpen && (
         <UserProjectDetailModal
           project={selectedProject}

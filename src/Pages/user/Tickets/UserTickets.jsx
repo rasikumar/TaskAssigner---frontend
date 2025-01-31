@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import Selector from "@/components/customUi/Selector";
 import PaginationComponent from "@/components/customUi/PaginationComponent";
-import CreateTicket from "./CreateTicket";
+import CreateTicket from "./UserCreateTicket";
 import MainCards from "@/components/ui/cards/MainCards";
 import {
   TicketCheckIcon,
@@ -22,9 +22,10 @@ import TicketDetailModal from "@/components/customUi/admin/TicketDetailModal";
 import { getpriority } from "@/utils/prorityUtils";
 import { getStatus } from "@/utils/statusUtils";
 import { statusoptionforTicket } from "@/utils/statusOptionsforTicket";
+import RoleChecker from "@/lib/RoleChecker";
 // import CreateFile from "./CreateFIle";
 
-const Tickets = () => {
+const UserTickets = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1); // Track current page
   const [appliedSearchTerm, setAppliedSearchTerm] = useState(""); // For query key
@@ -170,7 +171,12 @@ const Tickets = () => {
   return (
     <div>
       <div className="relative mt-0 flex flex-col gap-4">
-        <CreateTicket />
+        <RoleChecker
+          allowedRoles={["member", "team lead", "manager"]}
+          allowedDepartments={["testing"]}
+        >
+          <CreateTicket />
+        </RoleChecker>
         <div className="flex items-center justify-between gap-4 mb-4">
           <div className="flex items-center gap-2">
             <Input
@@ -268,4 +274,4 @@ const Tickets = () => {
   );
 };
 
-export default Tickets;
+export default UserTickets;

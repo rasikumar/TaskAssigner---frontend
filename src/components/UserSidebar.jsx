@@ -62,7 +62,10 @@ const AdminSidebar = () => {
             label="Dashboard"
             isCollapsed={isCollapsed}
           />
-          <RoleChecker allowedRoles={["hr"]}>
+          <RoleChecker
+            allowedRoles={["manager"]}
+            // allowedDepartments={["human-resource"]}
+          >
             <Dropdown
               isCollapsed={isCollapsed}
               label="Team Management"
@@ -74,7 +77,7 @@ const AdminSidebar = () => {
               }))}
             />
           </RoleChecker>
-          <RoleChecker allowedRoles={["manager", "team lead"]}>
+          <RoleChecker allowedRoles={["manager"]}>
             <SidebarLink
               to="/dashboard/projects"
               Icon={FaTasks}
@@ -88,20 +91,27 @@ const AdminSidebar = () => {
             label="Tasks Management"
             isCollapsed={isCollapsed}
           />
-
-          <SidebarLink
-            to="/dashboard/ticket"
-            Icon={FaTicketAlt}
-            label="Tickets Management"
-            isCollapsed={isCollapsed}
-          />
+          <RoleChecker
+            allowedRoles={["manager", "team lead", "developer"]}
+            allowedDepartments={["development"]}
+          >
+            <SidebarLink
+              to="/dashboard/ticket"
+              Icon={FaTicketAlt}
+              label="Tickets Management"
+              isCollapsed={isCollapsed}
+            />
+          </RoleChecker>
           <SidebarLink
             to="/dashboard/documents"
             Icon={GrDocumentPdf}
             label="Documents"
             isCollapsed={isCollapsed}
           />
-          <RoleChecker allowedRoles={["hr"]}>
+          <RoleChecker
+            allowedRoles={["manager"]}
+            allowedDepartments={["human-resource"]}
+          >
             <SidebarLink
               to="/dashboard/usermanagement"
               Icon={FaCheck}

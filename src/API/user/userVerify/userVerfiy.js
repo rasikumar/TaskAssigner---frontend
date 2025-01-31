@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-catch */
 import Instance from "@/API/Instance";
 import { USER } from "@/utils/api";
 
@@ -10,6 +11,18 @@ export const getEmpMails = async () => {
     }));
   } catch (error) {
     console.error("getEmpMails", error);
+    throw error;
+  }
+};
+
+export const updateUser = async (userData) => {
+  try {
+    const response = await Instance.put(
+      `${USER}/approve/${userData}`
+      // userData
+    );
+    return response.data;
+  } catch (error) {
     throw error;
   }
 };

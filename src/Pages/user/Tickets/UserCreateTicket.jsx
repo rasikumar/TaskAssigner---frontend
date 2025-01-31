@@ -28,7 +28,7 @@ import { FaTicketAlt } from "react-icons/fa";
 import { VscLoading } from "react-icons/vsc";
 import { ToastContainer, toast } from "react-toastify";
 
-const CreateTicket = () => {
+const UserCreateTicket = () => {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -47,7 +47,7 @@ const CreateTicket = () => {
   const [task, setTask] = useState([]);
   const [taskError, setTaskError] = useState("");
   const [subCategoryOptions, setSubCategoryOptions] = useState([]);
-  console.log(formData);
+
   const {
     isLoading: isProjectLoading,
     isError: isProjectError,
@@ -351,4 +351,4 @@ const CreateTicket = () => {
   );
 };
 
-export default CreateTicket;
+export default UserCreateTicket;

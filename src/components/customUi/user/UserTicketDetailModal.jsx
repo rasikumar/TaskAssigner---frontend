@@ -43,13 +43,13 @@ import {
 import { VscLoading } from "react-icons/vsc";
 import { Label } from "@/components/ui/label";
 
-const TicketDetailModal = ({ onClose, ticket, onEdit }) => {
+const UserTicketDetailModal = ({ onClose, ticket, onEdit }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState(ticket);
   const [subCategoryOptions, setSubCategoryOptions] = useState([]);
 
-  console.log(formData);
+  // console.log(formData);
 
   const {
     isError: isUserListError,
@@ -139,7 +139,7 @@ const TicketDetailModal = ({ onClose, ticket, onEdit }) => {
         onChange={(e) => handleDocumentEdit(index, e.target.files)}
       />
       <a
-        href={doc.file_url}
+        href={`http://192.168.20.11:4001/${doc.fileUrl}`}
         target="_blank"
         rel="noopener noreferrer"
         className="text-blue-600 hover:underline text-sm cursor-pointer"
@@ -151,7 +151,21 @@ const TicketDetailModal = ({ onClose, ticket, onEdit }) => {
 
   const handleSave = (e) => {
     e.preventDefault();
-    onEdit(formData);
+    const formDataToSend = new FormData();
+
+    // Append attachments
+    formData.attachments.forEach((file) => {
+      formDataToSend.append("attachments", file);
+    });
+
+    // Append other form data fields
+    for (const key in formData) {
+      if (key !== "attachments") {
+        formDataToSend.append(key, formData[key]);
+      }
+    }
+
+    onEdit(formDataToSend);
     setIsEditing(false);
     setIsVisible(false);
   };
@@ -291,12 +305,9 @@ const TicketDetailModal = ({ onClose, ticket, onEdit }) => {
 
             <div className="flex flex-col">
               <Label htmlFor="attachments">Attachments:</Label>
-              {formData.attachments &&
-                formData.attachments.length > 0 &&
-                formData.attachments.map((doc, index) =>
-                  renderDocumentEdit(doc, index)
-                )}
-
+              {formData.attachments.map((doc, index) =>
+                renderDocumentEdit(doc, index)
+              )}
               {/* <Input
                 type="file"
                 multiple
@@ -327,7 +338,7 @@ const TicketDetailModal = ({ onClose, ticket, onEdit }) => {
                           <Tooltip key={index}>
                             <TooltipTrigger asChild>
                               <a
-                                href={doc.file_url}
+                                href={`http://192.168.20.11:4001/${doc.fileUrl}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="flex items-center gap-2 text-blue-600 hover:underline text-sm cursor-pointer"
@@ -482,4 +493,4 @@ const TicketDetailModal = ({ onClose, ticket, onEdit }) => {
   );
 };
 
-export default TicketDetailModal;
+export default UserTicketDetailModal;

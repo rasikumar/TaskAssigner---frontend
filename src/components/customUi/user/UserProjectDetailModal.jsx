@@ -174,7 +174,7 @@ export const UserProjectDetailModal = ({
             Project Overview
           </h1>
           <div className="flex gap-x-2">
-            <RoleChecker allowedRoles={["manager"]}>
+            <RoleChecker allowedRoles={["manager"]} allowedDepartments={["development"]}>
               {!isEditing && (
                 <button
                   onClick={() => setIsEditing((prev) => !prev)}

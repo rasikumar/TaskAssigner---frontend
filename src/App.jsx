@@ -23,7 +23,7 @@ import UserLogin from "./components/auth/UserLogin";
 import UserDashboard from "./Pages/user/Dashboard/Dashboard";
 import UserTasks from "./Pages/user/tasks/UserTasks";
 import UserProjects from "./Pages/user/projects/userProjects";
-import UserTicket from "./Pages/user/Tickets/Tickets";
+import UserTicket from "./Pages/user/Tickets/UserTickets";
 import UsersVerify from "./Pages/user/user-verify/Userverify";
 import MemberDetailPage from "./Pages/admin/people/[peopleName]";
 import ScrollToTop from "./lib/ScrollToTop";
@@ -31,7 +31,8 @@ import Projects from "./Pages/admin/projects/Projects";
 import { useEffect, useState } from "react";
 import ScreenError from "./components/ScreenError";
 import SelectedProjects from "./Pages/admin/projects/SelectedProjects";
-import Documents from "./Pages/user/documents/Documents";
+import UserDocuments from "./Pages/user/documents/UserDocuments";
+import Documents from "./Pages/admin/documents/Documents";
 
 const App = () => {
   const [isDesktop, setIsDesktop] = useState(true);
@@ -150,6 +151,14 @@ const App = () => {
                   </ProtectedRoute>
                 }
               />
+              <Route
+                path="documents"
+                element={
+                  <ProtectedRoute allowedRoles={["admin"]}>
+                    <Documents />
+                  </ProtectedRoute>
+                }
+              />
             </Route>
 
             {/* UserRoutes */}
@@ -178,10 +187,12 @@ const App = () => {
                 path="projects"
                 element={
                   <ProtectedRoute
-                    allowedRoles={["manager", "team lead"]}
-                    departmentPermissions={{
-                      // member: ["development"],
-                    }}
+                    allowedRoles={["manager"]}
+                    departmentPermissions={
+                      {
+                        // member: ["development"],
+                      }
+                    }
                   >
                     <UserProjects />
                   </ProtectedRoute>
@@ -193,11 +204,10 @@ const App = () => {
                 element={
                   <ProtectedRoute
                     allowedRoles={["member", "manager", "team lead"]}
-                    departmentPermissions={{
-                      member: ["development"],
-                      "team lead": ["development"],
-                      manager: ["human-resource"],
-                    }}
+                    // departmentPermissions={{
+                    //   member: ["development"],
+                    //   "team lead": ["development"],
+                    // }}
                   >
                     <UserTasks />
                   </ProtectedRoute>
@@ -222,6 +232,11 @@ const App = () => {
                 element={
                   <ProtectedRoute
                     allowedRoles={["member", "manager", "team lead"]}
+                    departmentPermissions={{
+                      member: ["development", "testing"],
+                      manager: ["development", "testing"],
+                      "team lead": ["development", "testing"],
+                    }}
                   >
                     <UserTicket />
                   </ProtectedRoute>
@@ -230,7 +245,12 @@ const App = () => {
               <Route
                 path="usermanagement"
                 element={
-                  <ProtectedRoute allowedRoles={["hr"]}>
+                  <ProtectedRoute
+                    allowedRoles={["manager"]}
+                    departmentPermissions={{
+                      manager: ["human-resource"],
+                    }}
+                  >
                     <UsersVerify />
                   </ProtectedRoute>
                 }
@@ -238,8 +258,10 @@ const App = () => {
               <Route
                 path="documents"
                 element={
-                  <ProtectedRoute allowedRoles={["hr", "member", "manager"]}>
-                    <Documents />
+                  <ProtectedRoute
+                    allowedRoles={["team lead", "member", "manager"]}
+                  >
+                    <UserDocuments />
                   </ProtectedRoute>
                 }
               />

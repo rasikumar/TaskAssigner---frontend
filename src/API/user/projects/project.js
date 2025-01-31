@@ -5,7 +5,7 @@ export const fetchAllUserProjects = async (page, limit, searchTerm, status) => {
   try {
     const statusQuery = status ? `&status=${status}` : "";
     const searchQuery = searchTerm ? `&search=${searchTerm}` : "";
-    const response = await Instance.get(
+    const response = await Instance.post(
       `${USER}/getAllProjects/?page=${page}&limit=${limit}${statusQuery}${searchQuery}`
     );
     console.log(response.data);

@@ -10,7 +10,7 @@ import {
   FaCheck,
   FaProjectDiagram,
 } from "react-icons/fa";
-import { GrUserManager } from "react-icons/gr";
+import { GrDocumentPdf, GrUserManager } from "react-icons/gr";
 // import { teams } from "@/data/teams";
 import Instance from "@/API/Instance";
 import { Outlet, useNavigate } from "react-router";
@@ -100,6 +100,12 @@ const AdminSidebar = () => {
             to="/admin/dashboard/usermanagement"
             Icon={FaCheck}
             label="User Management"
+            isCollapsed={isCollapsed}
+          />
+          <SidebarLink
+            to="/admin/dashboard/documents"
+            Icon={GrDocumentPdf}
+            label="Document"
             isCollapsed={isCollapsed}
           />
         </div>
