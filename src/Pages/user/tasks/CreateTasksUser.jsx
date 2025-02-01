@@ -22,6 +22,7 @@ import { getAllEmployeeOwnerShip } from "@/API/user/dashboard/dashboard";
 const CreateTaskUser = () => {
   const [formData, setFormData] = useState({
     project: null,
+    milestone: "",
     task_title: "",
     task_description: "",
     assigned_to: "",
@@ -100,7 +101,10 @@ const CreateTaskUser = () => {
         //   })),
 
         ...userData.managers
-          .filter((manager) => manager.admin_verify === "true") // Check admin_verify for managers
+          .filter(
+            (manager) =>
+              manager.admin_verify === true && manager.hr_approval === true
+          ) // Check admin_verify for managers
           .map((manager) => ({
             value: manager.id,
             label: `Manager - ${manager.name}`,
@@ -129,30 +133,14 @@ const CreateTaskUser = () => {
       setMilestones([]); // Clear milestones if needed
       setOwnershipOptions([]); // Reset ownership options
       setIsOpen(false);
+      setStep(1);
       toast.success("Tasks Created Successfully");
     },
     onError: (err) => {
-      if (err.response) {
-        switch (err.response.status) {
-          case 400:
-            toast.error(err.response.data.message || "Bad Request.");
-            break;
-          case 403:
-            toast.error(
-              err.response.data.message || "Forbidden: Access denied."
-            );
-            break;
-          case 500:
-            toast.error(err.response.data.message || "Server error occurred.");
-            break;
-          default:
-            toast.error("An unexpected error occurred. Please try again.");
-        }
-      } else {
-        toast.error(
-          err.message || "Network error. Please check your connection."
-        );
-      }
+      toast.error(
+        err.response.data.message ||
+          "Network error. Please check your connection."
+      );
       console.error("Error creating project:", err);
     },
   });

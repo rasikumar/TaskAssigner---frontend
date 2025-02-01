@@ -92,8 +92,8 @@ const AdminSidebar = () => {
             isCollapsed={isCollapsed}
           />
           <RoleChecker
-            allowedRoles={["manager", "team lead", "developer"]}
-            allowedDepartments={["development"]}
+            allowedRoles={["manager", "team lead", "member"]}
+            allowedDepartments={["development", "testing"]}
           >
             <SidebarLink
               to="/dashboard/ticket"

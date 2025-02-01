@@ -46,6 +46,10 @@ const UserCreateDocuments = () => {
     formData.append("description", description);
 
     uploadDocuments.mutate(formData);
+    setIsOpen(false);
+    setFile("");
+    setTitle("");
+    setDescription("");
   };
 
   const handleDragOver = (e) => {

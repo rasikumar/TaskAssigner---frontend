@@ -57,7 +57,7 @@ const UserTickets = () => {
 
   const handleUpdateTask = (ticketData) => {
     updateTicketMutation.mutate(ticketData);
-    console.log(ticketData);
+    // console.log(ticketData);
   };
 
   const columns = [

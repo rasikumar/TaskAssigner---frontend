@@ -1,4 +1,8 @@
-import { getAllDocument, uploadDocument } from "@/API/user/document/document";
+import {
+  deleteDocument,
+  getAllDocument,
+  uploadDocument,
+} from "@/API/user/document/document";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 
@@ -27,8 +31,17 @@ const DocumentHook = () => {
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
+  const deleteDocuments = useMutation({
+    mutationFn: deleteDocument,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries([DOCUMENTS_QUERY_KEY]);
+      toast.success(data?.message || "document deleted successfully!");
+    },
+  });
+
   return {
     uploadDocuments,
+    deleteDocuments,
     getAllDocuments,
     isDocumentLoadin,
     documentError,

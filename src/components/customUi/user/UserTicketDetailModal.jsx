@@ -178,6 +178,10 @@ const UserTicketDetailModal = ({ onClose, ticket, onEdit }) => {
     setFormData(ticket);
   }, [ticket]);
 
+  // const handleDocumentClick = (fileUrl) => {
+  //   window.open(`http://192.168.20.11:4001${fileUrl}`, "_blank");
+  // };
+
   return (
     <div
       id="modal-overlay"

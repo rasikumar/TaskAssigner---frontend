@@ -17,26 +17,48 @@ import { getpriority } from "@/utils/prorityUtils";
 import { getStatus } from "@/utils/statusUtils";
 import CreateTaskUser from "./CreateTasksUser";
 import PaginationComponent from "@/components/customUi/PaginationComponent";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import Selector from "@/components/customUi/Selector";
+import MainCards from "@/components/ui/cards/MainCards";
+import { FaTasks } from "react-icons/fa";
 
 const UserTasks = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState(false);
 
+  const [appliedSearchTerm, setAppliedSearchTerm] = useState(""); // For query key
+
   const [currentPage, setCurrentPage] = useState(1); // Track current page
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
 
   const [itemsPerPage] = useState(10);
   const handleTaskClick = (task) => {
     setSelectedProject(task);
     setIsModalOpen(true);
   };
+  const handleSearch = () => {
+    setCurrentPage(1); // Reset to first page
+    setAppliedSearchTerm(searchTerm); // Update appliedSearchTerm when button is clicked
+  };
 
   const queryClient = useQueryClient();
 
   const { isLoading, data, error, isError } = useQuery({
-    queryKey: ["tasks", currentPage],
-    queryFn: () => fetchAllTaskPagination(currentPage, itemsPerPage), // Use a function reference
+    queryKey: ["tasks", currentPage, appliedSearchTerm, statusFilter],
+    queryFn: () =>
+      fetchAllTaskPagination(
+        currentPage,
+        itemsPerPage,
+        appliedSearchTerm,
+        statusFilter
+      ), // Use a function reference
     staleTime: 1000 * 60, // 1 minute
   });
+
+  const StatusSummary = data?.statusSummary;
 
   const updateMutation = useMutation({
     mutationFn: editTask,
@@ -69,7 +91,7 @@ const UserTasks = () => {
   // const handleDeleteTask = (taskId) => {
   //   deleteMutation.mutate(taskId);
   // };
-  console.log(data);
+  // console.log(data);
 
   if (isError) {
     console.error(error);
@@ -145,6 +167,20 @@ const UserTasks = () => {
     </>
   );
 
+  const CompletedTask = StatusSummary?.Completed || 0;
+  const InprogressTask = StatusSummary?.["In progress"] || 0;
+  const NotStartedTask = StatusSummary?.["Not started"] || 0;
+  const PendingTask = StatusSummary?.Pending || 0;
+  const CancelledTask = StatusSummary?.Cancelled || 0;
+
+  const statusoption = [
+    { value: "", label: "All" }, // Add this line
+    { value: "Not started", label: "Not Started" },
+    { value: "In progress", label: "In Progress" },
+    { value: "Completed", label: "Completed" },
+    { value: "Pending", label: "Pending" },
+  ];
+
   const totalPages = Math.ceil((data?.total || 0) / itemsPerPage);
 
   return (
@@ -152,6 +188,63 @@ const UserTasks = () => {
       <RoleChecker allowedRoles={["team lead", "manager"]}>
         <CreateTaskUser />
       </RoleChecker>
+      <div className="flex items-center justify-between gap-4 mb-4">
+        <div className="flex items-center gap-2">
+          <Input
+            type="text"
+            placeholder="Search TaskName..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <Button onClick={handleSearch}>Search</Button>
+        </div>
+        <div className="flex items-center gap-2">
+          <Label>Status</Label>
+          <Selector
+            id="status"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            options={statusoption}
+          />
+        </div>
+      </div>
+      <div className="flex lg:flex-nowrap gap-2">
+        <MainCards
+          title="Yet to Start"
+          totaltasks={NotStartedTask}
+          Icon={FaTasks}
+          subtitle="Task"
+          bgColor="#FFC107"
+        />
+        <MainCards
+          title="Pending"
+          totaltasks={PendingTask}
+          Icon={FaTasks}
+          subtitle="Task"
+          bgColor="#007BFF"
+        />
+        <MainCards
+          title="Cancelled"
+          totaltasks={CancelledTask}
+          Icon={FaTasks}
+          subtitle="Task"
+          bgColor="#6C757D"
+        />
+        <MainCards
+          title="In-Progress"
+          totaltasks={InprogressTask}
+          Icon={FaTasks}
+          subtitle="Task"
+          bgColor="#B23A48"
+        />
+        <MainCards
+          title="Completed"
+          totaltasks={CompletedTask}
+          Icon={FaTasks}
+          subtitle="Task"
+          bgColor="#28A745"
+        />
+      </div>
       {isLoading ? (
         <div className="flex items-center justify-center w-full h-full">
           <CirclesWithBar

@@ -36,7 +36,7 @@ const UserLogin = () => {
         mail,
         password,
       });
-     
+
       if (response.status === 200 && response.data.status) {
         localStorage.setItem("token", response.data.token);
 
@@ -51,7 +51,10 @@ const UserLogin = () => {
       }
     } catch (error) {
       console.error(error);
-      toast.error("An error occurred while trying to login.");
+      toast.error(
+        error.response.data.message ||
+          "An error occurred while trying to login."
+      );
     }
   };
 

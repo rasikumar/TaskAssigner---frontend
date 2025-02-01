@@ -15,11 +15,11 @@ function Documents() {
       <div className="mb-5">
         <CreateDocuments />
       </div>
-      {getAllDocumentAdmin?.length === 0 ? (
+      {getAllDocumentAdmin?.fiels?.length === 0 ? (
         <p>No documents available.</p>
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {getAllDocumentAdmin?.map((doc) => (
+          {getAllDocumentAdmin?.fiels?.map((doc) => (
             <div
               key={doc._id}
               className="p-4 bg-white border border-gray-300 rounded shadow hover:shadow-lg transition-shadow duration-300"

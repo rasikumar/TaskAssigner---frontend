@@ -103,7 +103,10 @@ export const UserTaskDetailsModal = ({ task, onClose, onEdit }) => {
         //   })),
 
         ...userData.managers
-          .filter((manager) => manager.admin_verify === "true") // Check admin_verify for managers
+          .filter(
+            (manager) =>
+              manager.admin_verify === true && manager.hr_approval === true
+          ) // Check admin_verify for managers
           .map((manager) => ({
             value: manager.id,
             label: `Manager - ${manager.name}`,
@@ -216,7 +219,10 @@ export const UserTaskDetailsModal = ({ task, onClose, onEdit }) => {
         <div className="bg-slate-400 text-white h-14 flex items-center justify-between px-6 rounded-t-xl sticky top-0 z-50">
           <h1 className="text-lg font-semibold">Task Overview</h1>
           <div className="flex gap-x-4">
-            <RoleChecker allowedRoles={["team lead", "manager"]} allowedDepartments={["development"]}>
+            <RoleChecker
+              allowedRoles={["team lead", "manager"]}
+              allowedDepartments={["development"]}
+            >
               {!isEditing && (
                 <button
                   onClick={() => setIsEditing((prev) => !prev)}

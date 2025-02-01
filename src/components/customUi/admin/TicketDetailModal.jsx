@@ -49,7 +49,7 @@ const TicketDetailModal = ({ onClose, ticket, onEdit }) => {
   const [formData, setFormData] = useState(ticket);
   const [subCategoryOptions, setSubCategoryOptions] = useState([]);
 
-  console.log(formData);
+  console.log(formData?.attachments);
 
   const {
     isError: isUserListError,
@@ -106,20 +106,25 @@ const TicketDetailModal = ({ onClose, ticket, onEdit }) => {
     }
   };
 
-  // const handleFileChange = (e) => {
-  //   const files = Array.from(e.target.files);
-  //   console.log(files);
-  //   const validFiles = files.filter((file) => file.size <= 10 * 1024 * 1024); // 10 MB limit
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+    const validFiles = files.filter((file) => file.size <= 10 * 1024 * 1024); // 10 MB limit
 
-  //   if (validFiles.length !== files.length) {
-  //     toast.error("Some files exceed the 10 MB size limit.");
-  //   }
+    const newAttachments = validFiles.map((file) => ({
+      file_name: file.name, // Use the file name
+      file_url: null, // Placeholder until the file is uploaded
+      uploaded_at: new Date().toISOString(), // Current timestamp
+      file, // Include the file object for uploading
+    }));
 
-  //   setFormData((prevData) => ({
-  //     ...prevData,
-  //     attachments: [...prevData.attachments, ...validFiles],
-  //   }));
-  // };
+    setFormData((prevData) => ({
+      ...prevData,
+      attachments: [
+        ...(Array.isArray(prevData.attachments) ? prevData.attachments : []),
+        ...newAttachments,
+      ], // Ensure attachments is an array
+    }));
+  };
 
   const handleDocumentEdit = (index, newFile) => {
     setFormData((prevData) => {
@@ -136,7 +141,7 @@ const TicketDetailModal = ({ onClose, ticket, onEdit }) => {
     <div key={index} className="flex items-center gap-2">
       <Input
         type="file"
-        onChange={(e) => handleDocumentEdit(index, e.target.files)}
+        onChange={(e) => handleDocumentEdit(index, e.target.files[0])}
       />
       <a
         href={doc.file_url}
@@ -291,18 +296,18 @@ const TicketDetailModal = ({ onClose, ticket, onEdit }) => {
 
             <div className="flex flex-col">
               <Label htmlFor="attachments">Attachments:</Label>
-              {formData.attachments &&
-                formData.attachments.length > 0 &&
-                formData.attachments.map((doc, index) =>
+              {formData?.attachments &&
+                formData?.attachments.length > 0 &&
+                formData?.attachments.map((doc, index) =>
                   renderDocumentEdit(doc, index)
                 )}
 
-              {/* <Input
+              <Input
                 type="file"
                 multiple
                 id="attachments"
                 onChange={handleFileChange}
-              /> */}
+              />
             </div>
             <Button onClick={handleSave} className="mb-4">
               Update Ticket
@@ -320,42 +325,36 @@ const TicketDetailModal = ({ onClose, ticket, onEdit }) => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {/* Documents Section */}
-                  {ticket?.attachments?.length > 0 && (
-                    <div className="space-x-2 flex items-center justify-between">
-                      <div className="flex flex-col gap-2">
-                        {ticket?.attachments.map((doc, index) => (
-                          <Tooltip key={index}>
-                            <TooltipTrigger asChild>
-                              <a
-                                href={doc.file_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-2 text-blue-600 hover:underline text-sm cursor-pointer"
-                              >
-                                <FileText className="h-4 w-4 text-gray-600" />
-                                {doc.file_name || `Document ${index + 1}`}
-                              </a>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              Click to view document
-                            </TooltipContent>
-                          </Tooltip>
-                        ))}
-                      </div>
-                      <div className="flex items-center text-sm text-gray-500">
-                        <Calendar className="h-4 w-4 mr-2" />
-                        {new Date(ticket?.created_at).toLocaleDateString(
-                          "en-US",
-                          {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          }
-                        ) || "Unknown Date"}
-                      </div>
-                    </div>
-                  )}
+                  <div className="space-x-2 flex items-center justify-between">
+                    {[ticket?.attachments].flat().map((doc, index) => (
+                      <Tooltip key={doc?._id || index}>
+                        <TooltipTrigger asChild>
+                          <a
+                            href={`http://192.168.20.11:4001/${doc?.fileUrl}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 text-blue-600 hover:underline text-sm cursor-pointer"
+                          >
+                            <FileText className="h-4 w-4 text-gray-600" />
+                            {doc?.file_name || "Document"}
+                          </a>
+                        </TooltipTrigger>
+                        <TooltipContent>Click to view document</TooltipContent>
+                      </Tooltip>
+                    ))}
 
+                    <div className="flex items-center text-sm text-gray-500">
+                      <Calendar className="h-4 w-4 mr-2" />
+                      {new Date(ticket?.created_at).toLocaleDateString(
+                        "en-US",
+                        {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        }
+                      ) || "Unknown Date"}
+                    </div>
+                  </div>
                   {/* Assigned & Raised Info */}
                   <div className="grid grid-cols-2 gap-4 bg-gray-100 p-3 rounded-md">
                     <Tooltip>
@@ -382,9 +381,7 @@ const TicketDetailModal = ({ onClose, ticket, onEdit }) => {
                       <TooltipContent>Raised By</TooltipContent>
                     </Tooltip>
                   </div>
-
                   <Separator />
-
                   {/* Ticket Details */}
                   <div className="space-y-2 border px-2">
                     <Tooltip>
@@ -402,7 +399,6 @@ const TicketDetailModal = ({ onClose, ticket, onEdit }) => {
                       </TooltipContent>
                     </Tooltip>
                   </div>
-
                   {/* Task Details */}
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -415,7 +411,6 @@ const TicketDetailModal = ({ onClose, ticket, onEdit }) => {
                     </TooltipTrigger>
                     <TooltipContent>Task Title</TooltipContent>
                   </Tooltip>
-
                   {/* Category */}
                   <div className="flex gap-2">
                     <Badge variant="secondary">
@@ -425,7 +420,6 @@ const TicketDetailModal = ({ onClose, ticket, onEdit }) => {
                       {ticket?.sub_category || "No Subcategory"}
                     </Badge>
                   </div>
-
                   {/* Priority & Status */}
                   <div className="flex items-center justify-between">
                     <Tooltip>
@@ -470,7 +464,6 @@ const TicketDetailModal = ({ onClose, ticket, onEdit }) => {
                       <TooltipContent>Ticket Status</TooltipContent>
                     </Tooltip>
                   </div>
-
                   {/* Created At */}
                 </CardContent>
               </Card>

@@ -93,14 +93,14 @@ const CreateTask = () => {
         ...userData.managers
           .filter(
             (manager) =>
-              manager.admin_verify === true && manager.hr_approval === false
+              manager.admin_verify === true && manager.hr_approval === true
           ) // Check admin_verify for managers
           .map((manager) => ({
             value: manager.id,
             label: `Manager - ${manager.name}`,
           })),
       ];
-      console.log(options);
+      // console.log(options);
       setOwnershipOptions(options);
     }
   }, [userData]);
