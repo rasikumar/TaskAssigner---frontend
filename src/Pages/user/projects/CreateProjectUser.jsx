@@ -25,6 +25,7 @@ const CreateProjectUser = () => {
     end_date: "",
     estimated_hours: "",
     milestones: [], // Add milestones to formData
+    attachment: [],
   });
 
   const queryClient = useQueryClient();
@@ -51,6 +52,7 @@ const CreateProjectUser = () => {
         end_date: "",
         estimated_hours: "",
         milestones: [], // Reset milestones in formData
+        attachment: [],
       });
       setIsOpen(false);
       toast.success("Project Created Successfully");
@@ -105,7 +107,10 @@ const CreateProjectUser = () => {
         //   })),
 
         ...userData.managers
-          .filter((manager) => manager.admin_verify === "true") // Check admin_verify for managers
+          .filter(
+            (manager) =>
+              manager.admin_verify === true && manager.hr_approval == true
+          ) // Check admin_verify for managers
           .map((manager) => ({
             id: manager.id,
             name: `Manager - ${manager.name}`,
@@ -118,11 +123,6 @@ const CreateProjectUser = () => {
   if (isError) {
     return <div>Error: {error.message}</div>;
   }
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    mutations.mutate(formData);
-  };
 
   const handleSelectChange = (name, value) => {
     setFormData((prevData) => ({
@@ -141,6 +141,44 @@ const CreateProjectUser = () => {
       setNewMilestone("");
       setShowMilestoneInput(false);
     }
+  };
+
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+    // console.log(files);
+    const validFiles = files.filter((file) => file.size <= 10 * 1024 * 1024); // 10 MB limit
+
+    if (validFiles.length !== files.length) {
+      toast.error("Some files exceed the 10 MB size limit.");
+    }
+
+    setFormData((prevData) => ({
+      ...prevData,
+      attachment: [...prevData.attachment, ...validFiles],
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    const formDataToSend = new FormData();
+
+    // Append attachment
+    formData.attachment.forEach((file) => {
+      formDataToSend.append("attachment", file);
+    });
+
+    // Append other form data fields
+    for (const key in formData) {
+      if (key !== "attachment") {
+        formDataToSend.append(key, formData[key]);
+      }
+    }
+
+    e.preventDefault();
+    // if (formData.milestones.length === 0) {
+    //   toast.error("Please add at least one milestone.");
+    //   return;
+    // }
+    mutations.mutate(formDataToSend);
   };
 
   return (
@@ -268,6 +306,13 @@ const CreateProjectUser = () => {
                     </p>
                   )} */}
                 </div>
+                <h3 className="text-lg font-semibold">Attachments</h3>
+                <Input
+                  type="file"
+                  multiple
+                  id="attachment"
+                  onChange={handleFileChange}
+                />
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold">Dates</h3>
                   <div className="flex items-center justify-between gap-6">

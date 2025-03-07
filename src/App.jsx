@@ -33,6 +33,7 @@ import ScreenError from "./components/ScreenError";
 import SelectedProjects from "./Pages/admin/projects/SelectedProjects";
 import UserDocuments from "./Pages/user/documents/UserDocuments";
 import Documents from "./Pages/admin/documents/Documents";
+import DocumentView from "./Pages/user/documents/DocumentView";
 
 const App = () => {
   const [isDesktop, setIsDesktop] = useState(true);
@@ -182,7 +183,7 @@ const App = () => {
                   </ProtectedRoute>
                 }
               />
-
+              <Route path="uploads/:id" element={<DocumentView />} />
               <Route
                 path="projects"
                 element={

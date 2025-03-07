@@ -16,3 +16,18 @@ export const moveToTester = async ({ move_to_uat, _id }) => {
     throw error;
   }
 };
+
+export const updateStatus = async (status) => {
+  console.log(status);
+  try {
+    const response = await Instance.post(`${USER}/updatetickstatus`, {
+      ticketId: status._id,
+      status: status.status,
+      description: status.description,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Failed to update status:", error);
+    throw error;
+  }
+};

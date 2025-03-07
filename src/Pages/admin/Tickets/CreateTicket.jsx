@@ -47,7 +47,7 @@ const CreateTicket = () => {
   const [task, setTask] = useState([]);
   const [taskError, setTaskError] = useState("");
   const [subCategoryOptions, setSubCategoryOptions] = useState([]);
-  console.log(formData);
+  // console.log(formData);
   const {
     isLoading: isProjectLoading,
     isError: isProjectError,

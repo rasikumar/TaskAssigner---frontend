@@ -1,4 +1,6 @@
 /* eslint-disable react/prop-types */
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
 import { useEffect, useRef, useState } from "react";
 import { FaPen, FaRedo, FaRegWindowClose } from "react-icons/fa";
 import { Input } from "../../ui/input";
@@ -365,9 +367,19 @@ export const ProjectDetailModal = ({ project, onClose, onEdit, taskList }) => {
             </>
           ) : (
             <div className="flex flex-col gap-2">
-              <h1 className="text-taskBlack text-xl font-semibold">
-                {project.project_ownership.name}
-              </h1>
+              <div className="flex items-center justify-between">
+                <h2 className="text-taskBlack text-xl font-semibold">
+                  {project.project_ownership.name}
+                </h2>
+                <a
+                  href={`${BASE_URL}${project.attachments?.file_url || ""}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  type="application/pdf"
+                >
+                  {project?.attachments?.file_name || ""}
+                </a>
+              </div>
               <h1 className="text-taskBlack text-lg font-semibold">
                 {project.project_name}
               </h1>

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { CirclesWithBar } from "react-loader-spinner";
 import { toast } from "react-toastify";
 import { FaTasks } from "react-icons/fa";
 
@@ -26,6 +25,7 @@ import PaginationComponent from "@/components/customUi/PaginationComponent";
 import { getStatus } from "@/utils/statusUtils";
 
 import CreateProject from "./CreateProject";
+import TableSkeleton from "@/components/loading/TableSkeleton";
 
 const Projects = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -203,93 +203,85 @@ const Projects = () => {
 
   return (
     <div className="relative mt-0">
-      {isLoading ? (
-        <div className="flex items-center justify-center w-full h-full">
-          <CirclesWithBar
-            color="#4fa94d"
-            outerCircleColor="#4fa94d"
-            innerCircleColor="#4fa94d"
-            barColor="#4fa94d"
-            visible={true}
-          />
-        </div>
-      ) : (
-        <div className="flex flex-col justify-start gap-2 relative">
-          <CreateProject />
-          <div className="flex justify-between items-center mb-4 gap-4">
-            <div className="flex items-center gap-2">
-              <Input
-                type="text"
-                placeholder="Search projects..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)} // Update only searchTerm
-                className="p-2 border rounded w-64"
-              />
-              <Button onClick={handleSearch}>Search</Button>
-            </div>
-            <div className="flex items-center gap-x-2">
-              <Label>Status</Label>
-              <Selector
-                id="status"
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-                options={statusoption}
-                className="w-48"
-              />
-            </div>
+      <div className="flex flex-col justify-start gap-2 relative">
+        <CreateProject />
+        <div className="flex justify-between items-center mb-4 gap-4">
+          <div className="flex items-center gap-2">
+            <Input
+              type="text"
+              placeholder="Search projects..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)} // Update only searchTerm
+              className="p-2 border rounded w-64"
+            />
+            <Button onClick={handleSearch}>Search</Button>
           </div>
-          <div className="flex gap-2">
-            <MainCards
-              title="Yet to Start"
-              totaltasks={NotStartedProject}
-              Icon={FaTasks}
-              subtitle="Task"
-              bgColor="#FFC107" // Amber
+          <div className="flex items-center gap-x-2">
+            <Label>Status</Label>
+            <Selector
+              id="status"
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              options={statusoption}
+              className="w-48"
             />
-            <MainCards
-              title="In Progress"
-              totaltasks={InprogressProject}
-              Icon={FaTasks}
-              subtitle="Task"
-              bgColor="#007BFF" // Blue
-            />
-            <MainCards
-              title="Pending"
-              totaltasks={PendingProject}
-              Icon={FaTasks}
-              subtitle="Task"
-              bgColor="#6C757D" // Grey
-            />
-            <MainCards
-              title="Completed"
-              totaltasks={CompletedProject}
-              Icon={FaTasks}
-              subtitle="Task"
-              bgColor="#28A745" // Green
-            />
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <MainCards
+            title="Yet to Start"
+            totaltasks={NotStartedProject}
+            Icon={FaTasks}
+            subtitle="Task"
+            bgColor="#FFC107" // Amber
+          />
+          <MainCards
+            title="In Progress"
+            totaltasks={InprogressProject}
+            Icon={FaTasks}
+            subtitle="Task"
+            bgColor="#007BFF" // Blue
+          />
+          <MainCards
+            title="Pending"
+            totaltasks={PendingProject}
+            Icon={FaTasks}
+            subtitle="Task"
+            bgColor="#6C757D" // Grey
+          />
+          <MainCards
+            title="Completed"
+            totaltasks={CompletedProject}
+            Icon={FaTasks}
+            subtitle="Task"
+            bgColor="#28A745" // Green
+          />
 
-            {/* <MainCards
+          {/* <MainCards
               title="Yet to Start"
               totaltasks={CancelledProject}
               Icon={FaTasks}
               subtitle="Task"
               bgColor="#B23A48"
             /> */}
-          </div>
+        </div>
+        {isLoading ? (
+          <TableSkeleton />
+        ) : (
           <Table
             columns={columns}
             data={data?.projects || []}
             renderRow={renderRow}
           />
-          <div className="mt-4">
-            <PaginationComponent
-              totalPages={totalPages}
-              currentPage={currentPage}
-              setCurrentPage={setCurrentPage}
-            />
-          </div>
+        )}
+        <div className="mt-4">
+          <PaginationComponent
+            totalPages={totalPages}
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+          />
         </div>
-      )}
+      </div>
       {isModalOpen && (
         <ProjectDetailModal
           project={selectedProject}

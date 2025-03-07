@@ -455,28 +455,34 @@ export const UserTaskDetailsModal = ({ task, onClose, onEdit }) => {
                 </p>
               </div>
               <div className="flex flex-col gap-4 mt-3 overflow-y-scroll overflow-x-hidden p-2">
-                <div>
-                  <h2 className="flex items-center gap-4 text-lg font-semibold text-gray-800">
-                    Daily Updates{" "}
-                    <Calendar1Icon className="ml-2 text-gray-500" />
-                    <MoveToTester
-                      _id={task._id}
-                      move_to_uat={move_to_uat}
-                      testerDetail={task.move_to_uat}
-                    />
-                  </h2>
+                <RoleChecker
+                  allowedRoles={["member"]}
+                  allowedDepartments={["development"]}
+                >
+                  <div>
+                    <h2 className="flex items-center gap-4 text-lg font-semibold text-gray-800">
+                      Daily Updates{" "}
+                      <Calendar1Icon className="ml-2 text-gray-500" />
+                      <MoveToTester
+                        _id={task._id}
+                        move_to_uat={move_to_uat}
+                        testerDetail={task.move_to_uat}
+                      />
+                    </h2>
 
-                  <Selector
-                    label="Status"
-                    id="status"
-                    value={formData.status}
-                    onChange={(e) =>
-                      handleStatusChange(task._id, e.target.value)
-                    }
-                    options={statusOptions}
-                  />
-                </div>
-                <UserDailyUpdateTask _id={task._id} onUpdate={onUpdate} />
+                    <Selector
+                      label="Status"
+                      id="status"
+                      value={formData.status}
+                      onChange={(e) =>
+                        handleStatusChange(task._id, e.target.value)
+                      }
+                      options={statusOptions}
+                    />
+                  </div>
+
+                  <UserDailyUpdateTask _id={task._id} onUpdate={onUpdate} />
+                </RoleChecker>
                 {task.daily_updates && task.daily_updates.length > 0 ? (
                   <ul className="space-y-2 text-sm text-gray-700">
                     {task.daily_updates

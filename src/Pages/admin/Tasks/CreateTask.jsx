@@ -41,7 +41,7 @@ const CreateTask = () => {
   const [milestones, setMilestones] = useState([]);
   const [milestonesError, setMilestoneError] = useState("");
 
-  console.log(ownershipOptions);
+  console.log(milestones);
 
   const {
     isLoading: isProjectLoading,

@@ -42,14 +42,24 @@ import {
 } from "@/utils/categoriesOptions";
 import { VscLoading } from "react-icons/vsc";
 import { Label } from "@/components/ui/label";
+import RoleChecker from "@/lib/RoleChecker";
+import TicketHook from "@/hooks/ticket/TicketHook";
+import { Textarea } from "@/components/ui/textarea";
 
 const UserTicketDetailModal = ({ onClose, ticket, onEdit }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState(ticket);
   const [subCategoryOptions, setSubCategoryOptions] = useState([]);
+  const [status, setStatus] = useState(formData?.status);
+  const [showTextarea, setShowTextarea] = useState(false);
+  const [description, setDescription] = useState(""); // Store textarea input
 
   // console.log(formData);
+
+  const ticketHook = TicketHook();
+
+  const { updateTicketStatus } = ticketHook;
 
   const {
     isError: isUserListError,
@@ -65,6 +75,43 @@ const UserTicketDetailModal = ({ onClose, ticket, onEdit }) => {
     if (e.target.id === "modal-overlay") {
       onClose();
     }
+  };
+
+  const handleStatusChange = (_id, value) => {
+    setStatus(value);
+
+    if (value === "Resolved") {
+      setShowTextarea(true); // Show textarea for description input
+    } else {
+      updateTicketStatus.mutate(
+        { _id, status: value },
+        {
+          onSuccess: () => {
+            setIsEditing(false);
+            setIsVisible(false);
+          },
+        }
+      );
+    }
+  };
+
+  const handleSubmit = () => {
+    if (!description.trim()) {
+      alert("Please enter a description before submitting.");
+      return;
+    }
+
+    updateTicketStatus.mutate(
+      { _id: formData._id, status: "Resolved", description },
+      {
+        onSuccess: () => {
+          setIsEditing(false);
+          setIsVisible(false);
+          setShowTextarea(false);
+          setDescription(""); // Clear the textarea
+        },
+      }
+    );
   };
 
   const renderInput = (name, label, value) => (
@@ -106,20 +153,25 @@ const UserTicketDetailModal = ({ onClose, ticket, onEdit }) => {
     }
   };
 
-  // const handleFileChange = (e) => {
-  //   const files = Array.from(e.target.files);
-  //   console.log(files);
-  //   const validFiles = files.filter((file) => file.size <= 10 * 1024 * 1024); // 10 MB limit
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+    const validFiles = files.filter((file) => file.size <= 10 * 1024 * 1024); // 10 MB limit
 
-  //   if (validFiles.length !== files.length) {
-  //     toast.error("Some files exceed the 10 MB size limit.");
-  //   }
+    const newAttachments = validFiles.map((file) => ({
+      file_name: file.name, // Use the file name
+      file_url: null, // Placeholder until the file is uploaded
+      uploaded_at: new Date().toISOString(), // Current timestamp
+      file, // Include the file object for uploading
+    }));
 
-  //   setFormData((prevData) => ({
-  //     ...prevData,
-  //     attachments: [...prevData.attachments, ...validFiles],
-  //   }));
-  // };
+    setFormData((prevData) => ({
+      ...prevData,
+      attachments: [
+        ...(Array.isArray(prevData.attachments) ? prevData.attachments : []),
+        ...newAttachments,
+      ], // Ensure attachments is an array
+    }));
+  };
 
   const handleDocumentEdit = (index, newFile) => {
     setFormData((prevData) => {
@@ -136,10 +188,10 @@ const UserTicketDetailModal = ({ onClose, ticket, onEdit }) => {
     <div key={index} className="flex items-center gap-2">
       <Input
         type="file"
-        onChange={(e) => handleDocumentEdit(index, e.target.files)}
+        onChange={(e) => handleDocumentEdit(index, e.target.files[0])}
       />
       <a
-        href={`http://192.168.20.11:4001/${doc.fileUrl}`}
+        href={doc.file_url}
         target="_blank"
         rel="noopener noreferrer"
         className="text-blue-600 hover:underline text-sm cursor-pointer"
@@ -151,21 +203,7 @@ const UserTicketDetailModal = ({ onClose, ticket, onEdit }) => {
 
   const handleSave = (e) => {
     e.preventDefault();
-    const formDataToSend = new FormData();
-
-    // Append attachments
-    formData.attachments.forEach((file) => {
-      formDataToSend.append("attachments", file);
-    });
-
-    // Append other form data fields
-    for (const key in formData) {
-      if (key !== "attachments") {
-        formDataToSend.append(key, formData[key]);
-      }
-    }
-
-    onEdit(formDataToSend);
+    onEdit(formData);
     setIsEditing(false);
     setIsVisible(false);
   };
@@ -177,10 +215,6 @@ const UserTicketDetailModal = ({ onClose, ticket, onEdit }) => {
   useEffect(() => {
     setFormData(ticket);
   }, [ticket]);
-
-  // const handleDocumentClick = (fileUrl) => {
-  //   window.open(`http://192.168.20.11:4001${fileUrl}`, "_blank");
-  // };
 
   return (
     <div
@@ -199,24 +233,28 @@ const UserTicketDetailModal = ({ onClose, ticket, onEdit }) => {
         <div className="bg-slate-400 text-white h-14 flex items-center justify-between px-6 rounded-t-xl sticky top-0 z-50">
           <h1 className="text-lg font-semibold">Ticket Overview</h1>
           <div className="flex gap-x-4">
-            {!isEditing && (
-              <button
-                onClick={() => setIsEditing((prev) => !prev)}
-                className="p-2 text-blue-500 hover:text-blue-700 transition-colors"
-              >
-                <FaPen size={20} />
-              </button>
-            )}
+            <RoleChecker
+              allowedRoles={["member", "team lead", "manager"]}
+              allowedDepartments={["testing"]}
+            >
+              {!isEditing && (
+                <button
+                  onClick={() => setIsEditing((prev) => !prev)}
+                  className="p-2 text-blue-500 hover:text-blue-700 transition-colors"
+                >
+                  <FaPen size={20} />
+                </button>
+              )}
 
-            {isEditing && (
-              <button
-                onClick={() => setIsEditing((prev) => !prev)}
-                className="p-2 text-blue-500 hover:text-blue-700 transition-colors"
-              >
-                <FaRedo size={20} />
-              </button>
-            )}
-
+              {isEditing && (
+                <button
+                  onClick={() => setIsEditing((prev) => !prev)}
+                  className="p-2 text-blue-500 hover:text-blue-700 transition-colors"
+                >
+                  <FaRedo size={20} />
+                </button>
+              )}
+            </RoleChecker>
             <button
               onClick={onClose}
               className="p-2 rounded-md hover:bg-white hover:text-red-600 transition-colors"
@@ -309,15 +347,18 @@ const UserTicketDetailModal = ({ onClose, ticket, onEdit }) => {
 
             <div className="flex flex-col">
               <Label htmlFor="attachments">Attachments:</Label>
-              {formData.attachments.map((doc, index) =>
-                renderDocumentEdit(doc, index)
-              )}
-              {/* <Input
+              {formData?.attachments &&
+                formData?.attachments.length > 0 &&
+                formData?.attachments.map((doc, index) =>
+                  renderDocumentEdit(doc, index)
+                )}
+
+              <Input
                 type="file"
                 multiple
                 id="attachments"
                 onChange={handleFileChange}
-              /> */}
+              />
             </div>
             <Button onClick={handleSave} className="mb-4">
               Update Ticket
@@ -335,42 +376,36 @@ const UserTicketDetailModal = ({ onClose, ticket, onEdit }) => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {/* Documents Section */}
-                  {ticket?.attachments?.length > 0 && (
-                    <div className="space-x-2 flex items-center justify-between">
-                      <div className="flex flex-col gap-2">
-                        {ticket?.attachments.map((doc, index) => (
-                          <Tooltip key={index}>
-                            <TooltipTrigger asChild>
-                              <a
-                                href={`http://192.168.20.11:4001/${doc.fileUrl}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-2 text-blue-600 hover:underline text-sm cursor-pointer"
-                              >
-                                <FileText className="h-4 w-4 text-gray-600" />
-                                {doc.file_name || `Document ${index + 1}`}
-                              </a>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              Click to view document
-                            </TooltipContent>
-                          </Tooltip>
-                        ))}
-                      </div>
-                      <div className="flex items-center text-sm text-gray-500">
-                        <Calendar className="h-4 w-4 mr-2" />
-                        {new Date(ticket?.created_at).toLocaleDateString(
-                          "en-US",
-                          {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          }
-                        ) || "Unknown Date"}
-                      </div>
-                    </div>
-                  )}
+                  <div className="space-x-2 flex items-center justify-between">
+                    {[ticket?.attachments].flat().map((doc, index) => (
+                      <Tooltip key={doc?._id || index}>
+                        <TooltipTrigger asChild>
+                          <a
+                            href={`http://192.168.20.11:4001${doc?.file_url}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 text-blue-600 hover:underline text-sm cursor-pointer"
+                          >
+                            <FileText className="h-4 w-4 text-gray-600" />
+                            {doc?.file_name || "Document"}
+                          </a>
+                        </TooltipTrigger>
+                        <TooltipContent>Click to view document</TooltipContent>
+                      </Tooltip>
+                    ))}
 
+                    <div className="flex items-center text-sm text-gray-500">
+                      <Calendar className="h-4 w-4 mr-2" />
+                      {new Date(ticket?.created_at).toLocaleDateString(
+                        "en-US",
+                        {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        }
+                      ) || "Unknown Date"}
+                    </div>
+                  </div>
                   {/* Assigned & Raised Info */}
                   <div className="grid grid-cols-2 gap-4 bg-gray-100 p-3 rounded-md">
                     <Tooltip>
@@ -397,9 +432,7 @@ const UserTicketDetailModal = ({ onClose, ticket, onEdit }) => {
                       <TooltipContent>Raised By</TooltipContent>
                     </Tooltip>
                   </div>
-
                   <Separator />
-
                   {/* Ticket Details */}
                   <div className="space-y-2 border px-2">
                     <Tooltip>
@@ -417,7 +450,6 @@ const UserTicketDetailModal = ({ onClose, ticket, onEdit }) => {
                       </TooltipContent>
                     </Tooltip>
                   </div>
-
                   {/* Task Details */}
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -430,7 +462,6 @@ const UserTicketDetailModal = ({ onClose, ticket, onEdit }) => {
                     </TooltipTrigger>
                     <TooltipContent>Task Title</TooltipContent>
                   </Tooltip>
-
                   {/* Category */}
                   <div className="flex gap-2">
                     <Badge variant="secondary">
@@ -440,7 +471,6 @@ const UserTicketDetailModal = ({ onClose, ticket, onEdit }) => {
                       {ticket?.sub_category || "No Subcategory"}
                     </Badge>
                   </div>
-
                   {/* Priority & Status */}
                   <div className="flex items-center justify-between">
                     <Tooltip>
@@ -485,7 +515,38 @@ const UserTicketDetailModal = ({ onClose, ticket, onEdit }) => {
                       <TooltipContent>Ticket Status</TooltipContent>
                     </Tooltip>
                   </div>
+                  <RoleChecker
+                    allowedDepartments={["development"]}
+                    allowedRoles={["member", "team lead", "manager"]}
+                  >
+                    <Selector
+                      label="Status"
+                      id="status"
+                      value={status}
+                      onChange={(e) =>
+                        handleStatusChange(formData._id, e.target.value)
+                      }
+                      options={statusoptionforTicket}
+                      required
+                    />
 
+                    {showTextarea && (
+                      <div>
+                        <Textarea
+                          value={description}
+                          onChange={(e) => setDescription(e.target.value)}
+                          placeholder="Enter resolution details..."
+                          required
+                        />
+                        <button
+                          onClick={handleSubmit}
+                          className="mt-2 bg-blue-500 text-white p-2 rounded"
+                        >
+                          Submit
+                        </button>
+                      </div>
+                    )}
+                  </RoleChecker>
                   {/* Created At */}
                 </CardContent>
               </Card>

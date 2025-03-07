@@ -104,7 +104,7 @@ export const getTaskRelatedToProject = async (projectId) => {
       console.log("No tasks found for this project.");
       return [];
     }
-    console.log(tasks);
+    // console.log(tasks);
     return tasks;
   } catch (error) {
     console.error("Error fetching tasks related to project:", error);

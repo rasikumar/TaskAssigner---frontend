@@ -8,6 +8,7 @@ import {
 } from "@/API/admin/ticket/ticket_api";
 import { toast } from "react-toastify";
 import { useState } from "react";
+import { updateStatus } from "@/API/user/ticket/ticket";
 
 const TicketHook = (
   currentPage,
@@ -54,6 +55,10 @@ const TicketHook = (
       queryClient.invalidateQueries(["tickets"]);
       toast.success("Ticket updated successfully!");
     },
+    onError: (error) => {
+      // Handle error (e.g., show an error message)
+      console.error("Error submitting form:", error);
+    },
   });
 
   const deleteTicketMutation = useMutation({
@@ -78,6 +83,20 @@ const TicketHook = (
     },
   });
 
+  const updateTicketStatus = useMutation({
+    mutationFn: updateStatus,
+    onSuccess: (data) => {
+      queryClient.invalidateQueries(["tickets"]);
+      toast.success(data.message || "Ticket status updated successfully!");
+    },
+    onError: (error) => {
+      toast.error(
+        error.response.data.message || "Failed to update ticket status"
+      );
+      console.error("Error updating ticket status:", error);
+    },
+  });
+
   return {
     ticketLists,
     isTicketListsLoading,
@@ -88,6 +107,7 @@ const TicketHook = (
     deleteTicketMutation,
     getTicketById,
     selectedTicket,
+    updateTicketStatus,
   };
 };
 

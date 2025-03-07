@@ -1,6 +1,5 @@
 import { getAllUser } from "@/API/admin/userverify/userVerify";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CirclesWithBar } from "react-loader-spinner";
 import Table from "@/components/customUi/Table";
 import { useState } from "react";
 import { UserDetailModal } from "@/components/customUi/user/UserDetailModal";
@@ -8,6 +7,7 @@ import { toast } from "react-toastify";
 // import DeleteDialog from "@/components/DeleteDialog";
 import PaginationComponent from "@/components/customUi/PaginationComponent";
 import { updateUser } from "@/API/user/userVerify/userVerfiy";
+import TableSkeleton from "@/components/loading/TableSkeleton";
 
 const UserDetails = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -61,18 +61,18 @@ const UserDetails = () => {
     updateMutation.mutate(updatedUser);
   };
 
-  if (isLoading)
-    return (
-      <div className="flex items-center justify-center w-full h-full">
-        <CirclesWithBar
-          color="#4fa94d"
-          outerCircleColor="#4fa94d"
-          innerCircleColor="#4fa94d"
-          barColor="#4fa94d"
-          visible={true}
-        />
-      </div>
-    );
+  // if (isLoading)
+  //   return (
+  //     <div className="flex items-center justify-center w-full h-full">
+  //       <CirclesWithBar
+  //         color="#4fa94d"
+  //         outerCircleColor="#4fa94d"
+  //         innerCircleColor="#4fa94d"
+  //         barColor="#4fa94d"
+  //         visible={true}
+  //       />
+  //     </div>
+  //   );
 
   if (isError) return <div>Error fetching user details: {error.message}</div>;
 
@@ -138,7 +138,15 @@ const UserDetails = () => {
 
   return (
     <div className="mx-auto w-full flex flex-col gap-6">
-      <Table columns={columns} data={data?.data || []} renderRow={renderRow} />
+      {isLoading ? (
+        <TableSkeleton />
+      ) : (
+        <Table
+          columns={columns}
+          data={data?.data || []}
+          renderRow={renderRow}
+        />
+      )}
       <PaginationComponent
         totalPages={totalPages}
         currentPage={page}

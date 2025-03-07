@@ -8,7 +8,7 @@ export const fetchAllUserProjects = async (page, limit, searchTerm, status) => {
     const response = await Instance.post(
       `${USER}/getAllProjects/?page=${page}&limit=${limit}${statusQuery}${searchQuery}`
     );
-    console.log(response.data);
+    // console.log(response.data);
     return response.data;
   } catch (err) {
     console.error("Failed to fetch user projects:", err);

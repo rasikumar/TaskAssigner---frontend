@@ -3,8 +3,17 @@ import { ADMIN } from "@/utils/api";
 
 // Create a new project
 export const createProject = async (projectData) => {
+  // console.log(projectData);
   try {
-    const response = await Instance.post(`${ADMIN}/createProject`, projectData);
+    const response = await Instance.post(
+      `${ADMIN}/createProject`,
+      projectData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
     if (response.status === 201) {
       return response.data;
     } else {
@@ -54,7 +63,11 @@ export const fetchProjectById = async (projectId) => {
 // Update a project by ID
 export const updateProject = async (updatedData) => {
   try {
-    const response = await Instance.put(`${ADMIN}/updateProject`, updatedData);
+    const response = await Instance.put(`${ADMIN}/updateProject`, updatedData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
     return response.data;
   } catch (error) {
     console.error("Error updating project:", error);

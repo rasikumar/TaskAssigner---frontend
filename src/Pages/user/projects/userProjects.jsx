@@ -7,7 +7,6 @@ import { UserProjectDetailModal } from "@/components/customUi/user/UserProjectDe
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import CreateProjectUser from "./CreateProjectUser";
-import { CirclesWithBar } from "react-loader-spinner";
 import { Label } from "@/components/ui/label";
 import Selector from "@/components/customUi/Selector";
 import RoleChecker from "@/lib/RoleChecker";
@@ -15,9 +14,14 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "react-toastify";
 import PaginationComponent from "@/components/customUi/PaginationComponent";
+import MainCards from "@/components/ui/cards/MainCards";
+import { FaTasks } from "react-icons/fa";
+import TableSkeleton from "@/components/loading/TableSkeleton";
+import { getTaskRelatedToProject } from "@/API/admin/task/task_api";
 const UserProjects = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
+  const [taskList, setTaskList] = useState([]);
   const [filterStatus, setFilterStatus] = useState(""); // State for filter status
   const [appliedSearchTerm, setAppliedSearchTerm] = useState(""); // For query key
   const [searchTerm, setSearchTerm] = useState(""); // State for search term
@@ -26,9 +30,29 @@ const UserProjects = () => {
 
   const queryClient = useQueryClient();
 
-  const handleProjectClick = (project) => {
+  const handleProjectClick = (project, projectId) => {
     setSelectedProject(project);
+    handleClick(projectId);
     setIsModalOpen(true);
+  };
+
+  const getRelatedMutations = useMutation({
+    mutationFn: getTaskRelatedToProject,
+    onSuccess: (data) => {
+      setTaskList(data.length > 0 ? data : ["No tasks available"]);
+    },
+    onError: (err) => {
+      console.log("Error fetching related tasks", err);
+      setTaskList([]); // Set task list to empty array on error
+    },
+  });
+
+  const handleClick = (projectId) => {
+    getRelatedMutations.mutate(projectId, {
+      onSuccess: (data) => {
+        setTaskList(data.length > 0 ? data : ["No tasks available"]);
+      },
+    });
   };
 
   const handleSearch = () => {
@@ -55,7 +79,14 @@ const UserProjects = () => {
   });
 
   const projectData = userProjectsData?.data;
-  // console.log(userProjectsData);
+
+  const StatusSummary = projectData?.statusSummary;
+  // console.log(StatusSummary);
+
+  const CompletedProject = StatusSummary?.Completed || 0;
+  const InprogressProject = StatusSummary?.["In Progress"] || 0;
+  const NotStartedProject = StatusSummary?.["Not Started"] || 0;
+  const PendingProject = StatusSummary?.Pending || 0;
 
   const updateMutation = useMutation({
     mutationFn: userUpdateProject,
@@ -68,7 +99,7 @@ const UserProjects = () => {
 
   const handleUpdateProject = (updateProject) => {
     updateMutation.mutate(updateProject);
-    console.log(updateProject);
+    // console.log(updateProject);
   };
 
   if (isUserProjectsError) return <div>Error: {userProjectsError.message}</div>;
@@ -84,7 +115,6 @@ const UserProjects = () => {
     { key: "start_date", title: "Start Date" },
     { key: "end_date", title: "End Date" },
     { key: "status", title: "Status" },
-    { key: "action", title: "Action", className: "text-center" },
   ];
 
   const statusoption = [
@@ -147,7 +177,6 @@ const UserProjects = () => {
           {project.project_status}
         </span>
       </td>
-      <td className="px-2 py-3 text-sm text-center"></td>
     </>
   );
 
@@ -184,21 +213,43 @@ const UserProjects = () => {
             />
           </div>
         </div>
+        <div className="flex gap-2">
+          <MainCards
+            title="Yet to Start"
+            totaltasks={NotStartedProject}
+            Icon={FaTasks}
+            subtitle="Task"
+            bgColor="#FFC107" // Amber
+          />
+          <MainCards
+            title="In Progress"
+            totaltasks={InprogressProject}
+            Icon={FaTasks}
+            subtitle="Task"
+            bgColor="#007BFF" // Blue
+          />
+          <MainCards
+            title="Pending"
+            totaltasks={PendingProject}
+            Icon={FaTasks}
+            subtitle="Task"
+            bgColor="#6C757D" // Grey
+          />
+          <MainCards
+            title="Completed"
+            totaltasks={CompletedProject}
+            Icon={FaTasks}
+            subtitle="Task"
+            bgColor="#28A745" // Green
+          />
+        </div>
         {isUserProjectsLoading ? (
-          <div className="flex items-center justify-center w-full h-full">
-            <CirclesWithBar
-              color="#4fa94d"
-              outerCircleColor="#4fa94d"
-              innerCircleColor="#4fa94d"
-              barColor="#4fa94d"
-              visible={true}
-            />
-          </div>
+          <TableSkeleton />
         ) : (
           <Table
             columns={column}
             renderRow={renderRow}
-            data={projectData?.projects}
+            data={projectData?.projects || []}
           />
         )}
         <div className="mt-4">
@@ -214,6 +265,7 @@ const UserProjects = () => {
           project={selectedProject}
           onClose={() => setIsModalOpen(false)}
           onEdit={handleUpdateProject}
+          taskList={taskList}
         />
       )}
     </div>

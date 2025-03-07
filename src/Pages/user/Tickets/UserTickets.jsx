@@ -1,7 +1,6 @@
 // import { fetchAllTickets } from "@/API/admin/ticket/ticket_api";
 import { useState } from "react";
 import Table from "@/components/customUi/Table";
-import { CirclesWithBar } from "react-loader-spinner";
 // import { useQuery } from "@tanstack/react-query";
 import TicketHook from "@/hooks/ticket/TicketHook";
 import { Input } from "@/components/ui/input";
@@ -17,12 +16,13 @@ import {
   TicketMinus,
   TicketPlusIcon,
 } from "lucide-react";
-import DeleteDialog from "@/components/DeleteDialog";
-import TicketDetailModal from "@/components/customUi/admin/TicketDetailModal";
+// import DeleteDialog from "@/components/DeleteDialog";
 import { getpriority } from "@/utils/prorityUtils";
 import { getStatus } from "@/utils/statusUtils";
 import { statusoptionforTicket } from "@/utils/statusOptionsforTicket";
 import RoleChecker from "@/lib/RoleChecker";
+import TableSkeleton from "@/components/loading/TableSkeleton";
+import UserTicketDetailModal from "@/components/customUi/user/UserTicketDetailModal";
 // import CreateFile from "./CreateFIle";
 
 const UserTickets = () => {
@@ -39,16 +39,16 @@ const UserTickets = () => {
     ticketListsError,
     isTicketListsError,
     updateTicketMutation,
-    deleteTicketMutation,
+    // deleteTicketMutation,
     getTicketById,
     selectedTicket,
   } = TicketHook(currentPage, filterStatus, itemsPerPage);
   // console.log(ticketListsError);
 
-  const handleDeleteTicket = (ticketId) => {
-    // console.log(ticketId);
-    deleteTicketMutation.mutate(ticketId);
-  };
+  // const handleDeleteTicket = (ticketId) => {
+  //   // console.log(ticketId);
+  //   deleteTicketMutation.mutate(ticketId);
+  // };
 
   const getTicketId = (ticketId) => {
     getTicketById.mutate(ticketId);
@@ -67,7 +67,6 @@ const UserTickets = () => {
     { key: "date", title: "Date" },
     { key: "status", title: "Status", className: "text-center" },
     { key: "priority", title: "Priority", className: "text-center" },
-    { key: "action", title: "Action", className: "text-center" },
   ];
 
   const totalpages = Math.ceil((ticketLists?.data?.total || 0) / itemsPerPage);
@@ -78,7 +77,7 @@ const UserTickets = () => {
 
   const handleSearch = () => {
     setCurrentPage(1); // Reset to first page
-    setAppliedSearchTerm(searchTerm); // Update appliedSearchTerm when button is clicked
+    setAppliedSearchTerm(appliedSearchTerm); // Update appliedSearchTerm when button is clicked
   };
 
   const renderRow = (ticketDetails) => (
@@ -152,13 +151,15 @@ const UserTickets = () => {
           {ticketDetails.priority}
         </span>
       </td>
-      <td className="px-2 py-3 text-sm text-center">
-        <DeleteDialog
-          message="Are you sure you want to delete"
-          onConfirm={() => handleDeleteTicket(ticketDetails._id)}
-          isLoading={deleteTicketMutation.isPending}
-        />
-      </td>
+      {/* <RoleChecker allowedDepartments={["testing"]} allowedRoles={[]}>
+        <td className="px-2 py-3 text-sm text-center">
+          <DeleteDialog
+            message="Are you sure you want to delete"
+            onConfirm={() => handleDeleteTicket(ticketDetails._id)}
+            isLoading={deleteTicketMutation.isPending}
+          />
+        </td>
+      </RoleChecker> */}
     </>
   );
 
@@ -237,15 +238,7 @@ const UserTickets = () => {
         {isTicketListsError ? (
           <div>{ticketListsError.response.data.message}</div>
         ) : isTicketListsLoading ? (
-          <div className="flex items-center justify-center w-full h-full ">
-            <CirclesWithBar
-              color="#4fa94d"
-              outerCircleColor="#4fa94d"
-              innerCircleColor="#4fa94d"
-              barColor="#4fa94d"
-              visible={true}
-            />
-          </div>
+          <TableSkeleton />
         ) : (
           <div>
             <Table
@@ -264,7 +257,7 @@ const UserTickets = () => {
         </div>
       </div>
       {isModalOpen && (
-        <TicketDetailModal
+        <UserTicketDetailModal
           ticket={selectedTicket}
           onClose={() => setIsModalOpen(false)}
           onEdit={handleUpdateTask}

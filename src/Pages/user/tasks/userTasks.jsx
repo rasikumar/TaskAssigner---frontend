@@ -1,6 +1,5 @@
 // import DeleteDialog from "@/components/DeleteDialog";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { CirclesWithBar } from "react-loader-spinner";
 import { useState } from "react";
 import { toast } from "react-toastify";
 
@@ -23,6 +22,7 @@ import { Label } from "@/components/ui/label";
 import Selector from "@/components/customUi/Selector";
 import MainCards from "@/components/ui/cards/MainCards";
 import { FaTasks } from "react-icons/fa";
+import TableSkeleton from "@/components/loading/TableSkeleton";
 
 const UserTasks = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -246,20 +246,12 @@ const UserTasks = () => {
         />
       </div>
       {isLoading ? (
-        <div className="flex items-center justify-center w-full h-full">
-          <CirclesWithBar
-            color="#4fa94d"
-            outerCircleColor="#4fa94d"
-            innerCircleColor="#4fa94d"
-            barColor="#4fa94d"
-            visible={true}
-          />
-        </div>
+        <TableSkeleton />
       ) : (
         <div className="flex flex-col justify-start gap-2 relative">
           <Table
             columns={columns}
-            data={data?.tasks || []}
+            data={data?.uatTasks || data?.tasks || []}
             renderRow={renderRow}
           />
           <div className="mt-4">

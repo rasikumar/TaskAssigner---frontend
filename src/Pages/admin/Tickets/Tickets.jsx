@@ -228,7 +228,7 @@ const Tickets = () => {
             bgColor="#28A745"
           />
         </div>
-        {isTicketListsError ? (
+        {isTicketListsError && ticketListsError?.response?.data?.message ? (
           <div>{ticketListsError.response.data.message}</div>
         ) : isTicketListsLoading ? (
           <div className="flex items-center justify-center w-full h-full ">
@@ -249,6 +249,7 @@ const Tickets = () => {
             />
           </div>
         )}
+
         <div>
           <PaginationComponent
             totalPages={totalpages}
