@@ -1,5 +1,4 @@
 /* eslint-disable react/prop-types */
-const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 import { useEffect, useRef, useState } from "react";
 import { FaPen, FaRedo, FaRegWindowClose } from "react-icons/fa";
@@ -21,6 +20,14 @@ import { Textarea } from "../../ui/textarea";
 import Selector from "../Selector";
 import RoleChecker from "@/lib/RoleChecker";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { userGetProjectView } from "@/API/user/projects/project";
+import { useMutation } from "@tanstack/react-query";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export const UserProjectDetailModal = ({
   project,
@@ -38,8 +45,25 @@ export const UserProjectDetailModal = ({
 
   // console.log(taskList);
 
+  const [pdfUrl, setPdfUrl] = useState(null);
+  const [isOpen, setIsOpen] = useState(false);
+
   const EndDate = useRef(null);
   const StartDate = useRef(null);
+
+  const mutateDocumentId = useMutation({
+    mutationFn: userGetProjectView,
+    // onSuccess: (data) => {
+    //   // Update the document in the database
+    //   console.log(data);
+    //   // setIsEditing(false);
+    //   // onClose();
+    // },
+    onError: (error) => {
+      console.error("Error Viewing document:", error);
+      setErrorMessage("Error Viewing document. Please try again later.");
+    },
+  });
 
   useEffect(() => {
     setIsVisible(true);
@@ -157,7 +181,19 @@ export const UserProjectDetailModal = ({
   ];
 
   // console.log("dd", taskList);
-
+  const handleDocumentClick = (documentId) => {
+    // console.log(documentId);
+    mutateDocumentId.mutate(documentId, {
+      onSuccess: (file) => {
+        if (file) {
+          const blob = new Blob([file], { type: "application/pdf" });
+          const url = URL.createObjectURL(blob);
+          setPdfUrl(url);
+          setIsOpen(true); // Open modal
+        }
+      },
+    });
+  };
   return (
     <div
       id="modal-overlay"
@@ -378,14 +414,14 @@ export const UserProjectDetailModal = ({
                 <h2 className="text-taskBlack text-xl font-semibold">
                   {project.project_ownership.name}
                 </h2>
-                <a
-                  href={`${BASE_URL}${project.attachments?.file_url || ""}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  type="application/pdf"
+                <button
+                  onClick={() =>
+                    handleDocumentClick(project?.attachments?.file_url)
+                  }
+                  className="flex items-center gap-2 text-blue-600 hover:underline text-sm cursor-pointer"
                 >
                   {project?.attachments?.file_name || ""}
-                </a>
+                </button>
               </div>
               <h1 className="text-taskBlack text-lg font-semibold">
                 {project.project_name}
@@ -547,7 +583,20 @@ export const UserProjectDetailModal = ({
             </div>
           )}
         </div>
-
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+          <DialogContent className="max-w-3xl">
+            <DialogHeader>
+              <DialogTitle>View Document</DialogTitle>
+            </DialogHeader>
+            {pdfUrl && (
+              <embed
+                src={pdfUrl}
+                type="application/pdf"
+                className="w-full h-[500px] border rounded-md"
+              />
+            )}
+          </DialogContent>
+        </Dialog>
         {errorMessage && (
           <div className="mt-4 text-red-500 text-sm text-center">
             {errorMessage}

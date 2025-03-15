@@ -5,6 +5,7 @@ import {
   deleteTicket,
   fetchAllTickets,
   fetchTicketsById,
+  getTicketDocument,
 } from "@/API/admin/ticket/ticket_api";
 import { toast } from "react-toastify";
 import { useState } from "react";
@@ -12,13 +13,14 @@ import { updateStatus } from "@/API/user/ticket/ticket";
 
 const TicketHook = (
   currentPage,
-  // appliedSearchTerm,
   filterStatus,
-  itemsPerPage
+  itemsPerPage,
+  appliedSearchTerm
 ) => {
   const [selectedTicket, setSelectedTicket] = useState(null);
   const queryClient = useQueryClient();
-
+  const [file, setFile] = useState("");
+  // console.log(appliedSearchTerm);
   const {
     data: ticketLists,
     isLoading: isTicketListsLoading,
@@ -28,11 +30,17 @@ const TicketHook = (
     queryKey: [
       "tickets",
       currentPage,
-      // appliedSearchTerm,
       filterStatus,
       itemsPerPage,
+      appliedSearchTerm,
     ],
-    queryFn: () => fetchAllTickets(currentPage, filterStatus, itemsPerPage),
+    queryFn: () =>
+      fetchAllTickets(
+        currentPage,
+        filterStatus,
+        itemsPerPage,
+        appliedSearchTerm
+      ),
     staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
 
@@ -58,6 +66,15 @@ const TicketHook = (
     onError: (error) => {
       // Handle error (e.g., show an error message)
       console.error("Error submitting form:", error);
+    },
+  });
+
+  const getDocumentById = useMutation({
+    mutationFn: (documentId) => getTicketDocument(documentId),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries(["tickets"]);
+      // console.log(data)
+      setFile(data);
     },
   });
 
@@ -108,6 +125,8 @@ const TicketHook = (
     getTicketById,
     selectedTicket,
     updateTicketStatus,
+    getDocumentById,
+    file,
   };
 };
 

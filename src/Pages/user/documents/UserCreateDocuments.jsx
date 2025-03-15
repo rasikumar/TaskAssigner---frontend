@@ -16,12 +16,14 @@ const UserCreateDocuments = () => {
   const [description, setDescription] = useState("");
   const [preview, setPreview] = useState(null);
   const [dragActive, setDragActive] = useState(false);
+  const [errors, setErrors] = useState({ title: false, description: false, file: false });
 
   const { uploadDocuments } = DocumentHook();
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     setFile(selectedFile);
+    setErrors((prev) => ({ ...prev, file: false }));
     if (selectedFile && selectedFile.type.startsWith("image/")) {
       setPreview(URL.createObjectURL(selectedFile));
     } else {
@@ -35,8 +37,15 @@ const UserCreateDocuments = () => {
   };
 
   const handleUpload = async () => {
-    if (!file) {
-      toast.error("Please select a file to upload.");
+    let newErrors = {
+      title: !title,
+      description: !description,
+      file: !file,
+    };
+    setErrors(newErrors);
+    
+    if (newErrors.title || newErrors.description || newErrors.file) {
+      toast.error("Please fill all required fields.");
       return;
     }
 
@@ -47,7 +56,7 @@ const UserCreateDocuments = () => {
 
     uploadDocuments.mutate(formData);
     setIsOpen(false);
-    setFile("");
+    setFile(null);
     setTitle("");
     setDescription("");
   };
@@ -66,6 +75,7 @@ const UserCreateDocuments = () => {
     setDragActive(false);
     const selectedFile = e.dataTransfer.files[0];
     setFile(selectedFile);
+    setErrors((prev) => ({ ...prev, file: false }));
     if (selectedFile && selectedFile.type.startsWith("image/")) {
       setPreview(URL.createObjectURL(selectedFile));
     } else {
@@ -91,19 +101,23 @@ const UserCreateDocuments = () => {
             type="text"
             placeholder="Title"
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="w-full p-2 mb-4 border border-gray-300 rounded"
+            onChange={(e) => {
+              setTitle(e.target.value);
+              setErrors((prev) => ({ ...prev, title: false }));
+            }}
+            className={`w-full p-2 mb-4 border ${errors.title ? "border-red-500" : "border-gray-300"} rounded`}
           />
           <Textarea
             placeholder="Description"
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="w-full p-2 mb-4 border border-gray-300 rounded"
+            onChange={(e) => {
+              setDescription(e.target.value);
+              setErrors((prev) => ({ ...prev, description: false }));
+            }}
+            className={`w-full p-2 mb-4 border ${errors.description ? "border-red-500" : "border-gray-300"} rounded`}
           />
           <Label
-            className={`w-full h-48 border border-gray-300 text-center flex items-center justify-center cursor-pointer relative ${
-              dragActive ? "bg-gray-200" : ""
-            }`}
+            className={`w-full h-48 border ${errors.file ? "border-red-500" : "border-gray-300"} text-center flex items-center justify-center cursor-pointer relative ${dragActive ? "bg-gray-200" : ""}`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}

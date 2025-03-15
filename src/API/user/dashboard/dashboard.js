@@ -11,13 +11,14 @@ export const fetchDashBoard = async () => {
     throw error;
   }
 };
-export const fetchFullDashBoard = async () => {
+export const fetchProjectDataUser = async () => {
   try {
-    const responses = await Instance.post(`${USER}/dashboard`);
-    const response = responses.data.result;
+    const responses = await Instance.post(`${USER}/getAllProjects`);
+    // console.log(response.data);
+    const response = responses.data;
     return response;
   } catch (error) {
-    console.error("error fetching dashboard");
+    console.error("error fetching getAllProjects");
     throw error;
   }
 };

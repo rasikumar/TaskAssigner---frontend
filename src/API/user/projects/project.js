@@ -49,3 +49,15 @@ export const userGetAllProjectList = async () => {
     throw error;
   }
 };
+
+export const userGetProjectView = async (projectId) => {
+  try {
+    const response = await Instance.get(`${USER}/get_project_document/${projectId}`, {
+      responseType: "blob", // Get binary file
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching project view:", error);
+    throw error;
+  }
+};

@@ -1,22 +1,31 @@
 import {
   deleteDocument,
   getAllDocument,
+  getDocument,
   uploadDocument,
 } from "@/API/user/document/document";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { toast } from "react-toastify";
 
 const DOCUMENTS_QUERY_KEY = "documents";
 const DocumentHook = () => {
   const queryClient = useQueryClient();
-
+  const [file, setFile] = useState("");
   // user
   const uploadDocuments = useMutation({
     mutationFn: uploadDocument,
     onSuccess: (data) => {
       queryClient.invalidateQueries([DOCUMENTS_QUERY_KEY]);
-      // console.log(data?.message)
       toast.success(data?.message || "document created successfully!");
+    },
+  });
+
+  const getDocumentById = useMutation({
+    mutationFn: (documentId) => getDocument(documentId),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries([DOCUMENTS_QUERY_KEY]);
+      setFile(data);
     },
   });
 
@@ -46,6 +55,8 @@ const DocumentHook = () => {
     isDocumentLoadin,
     documentError,
     isDocumentError,
+    getDocumentById,
+    file
   };
 };
 

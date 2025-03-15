@@ -5,8 +5,8 @@ import SummaryCard from "@/components/ProjectSummaryChart";
 import MainCards from "@/components/ui/cards/MainCards";
 import { useQuery } from "@tanstack/react-query";
 import { FaTasks } from "react-icons/fa";
-import { CirclesWithBar } from "react-loader-spinner";
 import { RecentProjects } from "./RecentProjects";
+import { VscLoading } from "react-icons/vsc";
 
 const Dashboard = () => {
   const { data, isLoading, isError, error } = useQuery({
@@ -38,30 +38,12 @@ const Dashboard = () => {
     queryFn: adminDashboard,
   });
 
-  if (isLoading || isProjectLoading) {
-    return (
-      <div className="flex items-center justify-center w-full h-screen">
-        <CirclesWithBar
-          color="#4fa94d"
-          outerCircleColor="#4fa94d"
-          innerCircleColor="#4fa94d"
-          barColor="#4fa94d"
-          visible={true}
-        />
-      </div>
-    );
+  if (isAdminError) {
+    return <div>Error: {adminError?.message}</div>;
   }
 
-  if (isAdminError || isProjectError || isError) {
-    return (
-      <div>
-        Error: {adminError?.message || projectError?.message || error.message}
-      </div>
-    );
-  }
-
-  const tasks = data.tasks || [];
-  const projects = projectData.projects || [];
+  const tasks = data?.tasks || [];
+  const projects = projectData?.projects || [];
 
   const projectDetails = projects.map((project) => ({
     estimatedHours: project?.estimated_hours,
@@ -154,79 +136,82 @@ const Dashboard = () => {
           <h1 className="text-lg font-semibold inline-flex items-center gap-10 w-full">
             Projects{" "}
           </h1>
-          {projects.length === 0 ? (
-            <div className="flex items-center justify-center w-full h-40 bg-gray-100 rounded-lg shadow">
-              <p className="text-gray-500 text-lg font-medium">
-                No Projects available
-              </p>
-            </div>
+          {isProjectError ? (
+            <>{projectError}</>
+          ) : isProjectLoading ? (
+            <p className="animate-spin fixed">
+              <VscLoading />
+            </p>
           ) : (
-            <div className="grid grid-cols-1 2xl:grid-cols-3 xl:grid-cols-2 gap-4">
-              <MainCards
-                title="Total Projects"
-                totaltasks={projectData?.total}
-                Icon={FaTasks}
-                subtitle="Projects"
-                bgColor="#B23A48"
-              />
-              <MainCards
-                title="In-progress"
-                btn="View All"
-                totaltasks={InprogressProject}
-                Icon={FaTasks}
-                subtitle="Projects"
-                bgColor="#DCA74B"
-                path="./projects"
-              />
-              <MainCards
-                title="Completed"
-                btn="View All"
-                totaltasks={CompletedProject}
-                Icon={FaTasks}
-                subtitle="Projects"
-                bgColor="#566E3D"
-                path="./projects"
-              />
-            </div>
+            <>
+              <div className="grid grid-cols-1 2xl:grid-cols-3 xl:grid-cols-2 gap-4">
+                <MainCards
+                  title="Total Projects"
+                  totaltasks={projectData?.total}
+                  Icon={FaTasks}
+                  subtitle="Projects"
+                  bgColor="#B23A48"
+                />
+                <MainCards
+                  title="In-progress"
+                  btn="View All"
+                  totaltasks={InprogressProject}
+                  Icon={FaTasks}
+                  subtitle="Projects"
+                  bgColor="#DCA74B"
+                  path="./projects"
+                />
+                <MainCards
+                  title="Completed"
+                  btn="View All"
+                  totaltasks={CompletedProject}
+                  Icon={FaTasks}
+                  subtitle="Projects"
+                  bgColor="#566E3D"
+                  path="./projects"
+                />
+              </div>
+            </>
           )}
-
           <h1 className="text-lg font-semibold inline-flex items-center gap-10 w-full">
             Tasks{" "}
           </h1>
-          {tasks.length === 0 ? (
-            <div className="flex items-center justify-center w-full h-40 bg-gray-100 rounded-lg shadow">
-              <p className="text-gray-500 text-lg font-medium">
-                No tasks available
-              </p>
-            </div>
+          {isError ? (
+            <>{error}</>
+          ) : isLoading ? (
+            <p className="animate-spin fixed">
+              <VscLoading />
+            </p>
           ) : (
-            <div className="grid grid-cols-1 2xl:grid-cols-3 xl:grid-cols-2 gap-4">
-              <MainCards
-                title="Total Tasks"
-                totaltasks={data?.total}
-                Icon={FaTasks}
-                subtitle="Task"
-                bgColor="#B23A48"
-              />
-              <MainCards
-                title="In-progress"
-                btn="View All"
-                totaltasks={InprogressTask}
-                Icon={FaTasks}
-                subtitle="Task"
-                bgColor="#DCA74B"
-                path="./tasks"
-              />
-              <MainCards
-                title="Completed"
-                btn="View All"
-                totaltasks={CompletedTask}
-                Icon={FaTasks}
-                subtitle="Task"
-                bgColor="#566E3D"
-                path="./tasks"
-              />
-            </div>
+            <>
+              <div className="grid grid-cols-1 2xl:grid-cols-3 xl:grid-cols-2 gap-4">
+                <MainCards
+                  title="Total Tasks"
+                  totaltasks={data?.total}
+                  Icon={FaTasks}
+                  subtitle="Task"
+                  bgColor="#B23A48"
+                />
+                <MainCards
+                  title="In-progress"
+                  btn="View All"
+                  totaltasks={InprogressTask}
+                  Icon={FaTasks}
+                  subtitle="Task"
+                  bgColor="#DCA74B"
+                  path="./tasks"
+                />
+                <MainCards
+                  title="Completed"
+                  btn="View All"
+                  totaltasks={CompletedTask}
+                  Icon={FaTasks}
+                  subtitle="Task"
+                  bgColor="#566E3D"
+                  path="./tasks"
+                />
+              </div>
+            </>
           )}
         </div>
 

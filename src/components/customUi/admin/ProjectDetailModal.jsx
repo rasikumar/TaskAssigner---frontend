@@ -1,11 +1,10 @@
 /* eslint-disable react/prop-types */
-const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 import { useEffect, useRef, useState } from "react";
 import { FaPen, FaRedo, FaRegWindowClose } from "react-icons/fa";
 import { Input } from "../../ui/input";
 import { Button } from "../../ui/button";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { CirclesWithBar } from "react-loader-spinner";
 import {
   Select,
@@ -20,6 +19,13 @@ import { Textarea } from "../../ui/textarea";
 import { getAllEmployeeOwnerShip } from "@/API/admin/adminDashborad";
 import Selector from "../Selector";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { GetProjectView } from "@/API/admin/projects/project_api";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export const ProjectDetailModal = ({ project, onClose, onEdit, taskList }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -31,6 +37,8 @@ export const ProjectDetailModal = ({ project, onClose, onEdit, taskList }) => {
   const [milestoneData, setMilestoneData] = useState(project.milestones || []);
 
   // console.log(formData);
+  const [pdfUrl, setPdfUrl] = useState(null);
+  const [isOpen, setIsOpen] = useState(false);
 
   const EndDate = useRef(null);
   const StartDate = useRef(null);
@@ -52,6 +60,20 @@ export const ProjectDetailModal = ({ project, onClose, onEdit, taskList }) => {
   } = useQuery({
     queryKey: ["userData"],
     queryFn: getAllEmployeeOwnerShip,
+  });
+
+  const mutateDocumentId = useMutation({
+    mutationFn: GetProjectView,
+    // onSuccess: (data) => {
+    //   // Update the document in the database
+    //   console.log(data);
+    //   // setIsEditing(false);
+    //   // onClose();
+    // },
+    onError: (error) => {
+      console.error("Error Viewing document:", error);
+      setErrorMessage("Error Viewing document. Please try again later.");
+    },
   });
 
   // console.log(userData);
@@ -154,6 +176,19 @@ export const ProjectDetailModal = ({ project, onClose, onEdit, taskList }) => {
     // { value: "Cancelled", label: "Cancelled" },
   ];
 
+  const handleDocumentClick = (documentId) => {
+    // console.log(documentId);
+    mutateDocumentId.mutate(documentId, {
+      onSuccess: (file) => {
+        if (file) {
+          const blob = new Blob([file], { type: "application/pdf" });
+          const url = URL.createObjectURL(blob);
+          setPdfUrl(url);
+          setIsOpen(true); // Open modal
+        }
+      },
+    });
+  };
   // console.log("dd", taskList);
 
   return (
@@ -371,14 +406,14 @@ export const ProjectDetailModal = ({ project, onClose, onEdit, taskList }) => {
                 <h2 className="text-taskBlack text-xl font-semibold">
                   {project.project_ownership.name}
                 </h2>
-                <a
-                  href={`${BASE_URL}${project.attachments?.file_url || ""}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  type="application/pdf"
+                <button
+                  onClick={() =>
+                    handleDocumentClick(project?.attachments?.file_url)
+                  }
+                  className="flex items-center gap-2 text-blue-600 hover:underline text-sm cursor-pointer"
                 >
                   {project?.attachments?.file_name || ""}
-                </a>
+                </button>
               </div>
               <h1 className="text-taskBlack text-lg font-semibold">
                 {project.project_name}
@@ -513,7 +548,20 @@ export const ProjectDetailModal = ({ project, onClose, onEdit, taskList }) => {
             </div>
           )}
         </div>
-
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+          <DialogContent className="max-w-3xl">
+            <DialogHeader>
+              <DialogTitle>View Document</DialogTitle>
+            </DialogHeader>
+            {pdfUrl && (
+              <embed
+                src={pdfUrl}
+                type="application/pdf"
+                className="w-full h-[500px] border rounded-md"
+              />
+            )}
+          </DialogContent>
+        </Dialog>
         {errorMessage && (
           <div className="mt-4 text-red-500 text-sm text-center">
             {errorMessage}

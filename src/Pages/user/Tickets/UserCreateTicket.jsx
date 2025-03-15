@@ -98,7 +98,7 @@ const UserCreateTicket = () => {
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
-    console.log(files);
+    // console.log(files);
     const validFiles = files.filter((file) => file.size <= 10 * 1024 * 1024); // 10 MB limit
 
     if (validFiles.length !== files.length) {

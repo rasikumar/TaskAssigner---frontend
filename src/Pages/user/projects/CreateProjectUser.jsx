@@ -27,7 +27,7 @@ const CreateProjectUser = () => {
     milestones: [], // Add milestones to formData
     attachment: [],
   });
-
+  console.log(formData);
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
   const [ownershipOptions, setOwnershipOptions] = useState([]);
@@ -159,25 +159,29 @@ const CreateProjectUser = () => {
   };
 
   const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (formData.milestones.length === 0) {
+      return; // Simply exit without showing a toast
+    }
+
     const formDataToSend = new FormData();
 
-    // Append attachment
+    // Append attachments
     formData.attachment.forEach((file) => {
       formDataToSend.append("attachment", file);
     });
 
+    // Convert milestones to JSON if the API expects it
+    formDataToSend.append("milestones", JSON.stringify(formData.milestones));
+
     // Append other form data fields
     for (const key in formData) {
-      if (key !== "attachment") {
+      if (key !== "attachment" && key !== "milestones") {
         formDataToSend.append(key, formData[key]);
       }
     }
 
-    e.preventDefault();
-    // if (formData.milestones.length === 0) {
-    //   toast.error("Please add at least one milestone.");
-    //   return;
-    // }
     mutations.mutate(formDataToSend);
   };
 

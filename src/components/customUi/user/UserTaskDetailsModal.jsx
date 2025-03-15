@@ -30,6 +30,7 @@ export const UserTaskDetailsModal = ({ task, onClose, onEdit }) => {
   const [status, setStatus] = useState("");
 
   const queryClient = useQueryClient();
+  // console.log(task);
 
   const EndDate = useRef(null);
   const StartDate = useRef(null);

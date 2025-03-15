@@ -32,7 +32,7 @@ const UserTickets = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
   const [itemsPerPage] = useState(10);
-
+  
   const {
     ticketLists,
     isTicketListsLoading,
@@ -42,7 +42,7 @@ const UserTickets = () => {
     // deleteTicketMutation,
     getTicketById,
     selectedTicket,
-  } = TicketHook(currentPage, filterStatus, itemsPerPage);
+  } = TicketHook(currentPage, filterStatus, itemsPerPage, appliedSearchTerm);
   // console.log(ticketListsError);
 
   // const handleDeleteTicket = (ticketId) => {
@@ -77,7 +77,7 @@ const UserTickets = () => {
 
   const handleSearch = () => {
     setCurrentPage(1); // Reset to first page
-    setAppliedSearchTerm(appliedSearchTerm); // Update appliedSearchTerm when button is clicked
+    setAppliedSearchTerm(searchTerm); // Update appliedSearchTerm when button is clicked
   };
 
   const renderRow = (ticketDetails) => (

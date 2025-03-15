@@ -33,15 +33,34 @@ export const deleteTicket = async (ticketId) => {
   }
 };
 
+export const getTicketDocument = async (documentId) => {
+  try {
+    const response = await Instance.get(
+      `${ADMIN}/get_ticket_document/${documentId}`,
+      {
+        responseType: "blob", // Get binary file
+      }
+    );
+    // console.log(response.data)
+    return response.data; // Return Blob directly
+  } catch (error) {
+    console.error("Error fetching Ticket document", error);
+    throw error;
+  }
+};
+
 export const fetchAllTickets = async (
   currentPage,
   filterStatus,
-  itemsPerPage
+  itemsPerPage,
+  appliedSearchTerm
 ) => {
+  // console.log(appliedSearchTerm);
   const statusQuery = filterStatus ? `&status=${filterStatus}` : "";
+  const searchQuery = appliedSearchTerm ? `&search=${appliedSearchTerm}` : "";
   try {
     const response = await Instance.get(
-      `${ADMIN}/getall_ticket/?page=${currentPage}&limit=${itemsPerPage}${statusQuery}`
+      `${ADMIN}/getall_ticket/?page=${currentPage}&limit=${itemsPerPage}${statusQuery}${searchQuery}`
     );
 
     // Check if data is empty
@@ -68,7 +87,7 @@ export const fetchTicketsById = async (ticketId) => {
 };
 
 export const updateTicket = async (updatedData) => {
-  console.log(updatedData);
+  // console.log(updatedData);
   const formData = new FormData();
 
   for (const key in updatedData) {
@@ -87,4 +106,3 @@ export const updateTicket = async (updatedData) => {
     throw error;
   }
 };
-

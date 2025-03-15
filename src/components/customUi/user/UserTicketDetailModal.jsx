@@ -1,9 +1,9 @@
 /* eslint-disable react/prop-types */
 import { useEffect, useState } from "react";
 
-import { getEmpMails } from "@/API/admin/userverify/userVerify";
-
 import { useQuery } from "@tanstack/react-query";
+
+import { getEmpMails } from "@/API/user/userVerify/userVerfiy";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -45,6 +45,12 @@ import { Label } from "@/components/ui/label";
 import RoleChecker from "@/lib/RoleChecker";
 import TicketHook from "@/hooks/ticket/TicketHook";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const UserTicketDetailModal = ({ onClose, ticket, onEdit }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -55,11 +61,16 @@ const UserTicketDetailModal = ({ onClose, ticket, onEdit }) => {
   const [showTextarea, setShowTextarea] = useState(false);
   const [description, setDescription] = useState(""); // Store textarea input
 
+  const [pdfUrl, setPdfUrl] = useState(null);
+  const [isOpen, setIsOpen] = useState(false);
+
   // console.log(formData);
 
-  const ticketHook = TicketHook();
+  const attachmentsArray = Array.isArray(formData?.attachments)
+    ? formData.attachments
+    : [formData?.attachments]; // Convert single object to array
 
-  const { updateTicketStatus } = ticketHook;
+  const { updateTicketStatus, getDocumentById } = TicketHook();
 
   const {
     isError: isUserListError,
@@ -153,30 +164,26 @@ const UserTicketDetailModal = ({ onClose, ticket, onEdit }) => {
     }
   };
 
-  const handleFileChange = (e) => {
-    const files = Array.from(e.target.files);
-    const validFiles = files.filter((file) => file.size <= 10 * 1024 * 1024); // 10 MB limit
+  const handleDocumentEdit = (index, file) => {
+    if (!file) return;
 
-    const newAttachments = validFiles.map((file) => ({
-      file_name: file.name, // Use the file name
-      file_url: null, // Placeholder until the file is uploaded
-      uploaded_at: new Date().toISOString(), // Current timestamp
-      file, // Include the file object for uploading
-    }));
-
-    setFormData((prevData) => ({
-      ...prevData,
-      attachments: [
-        ...(Array.isArray(prevData.attachments) ? prevData.attachments : []),
-        ...newAttachments,
-      ], // Ensure attachments is an array
-    }));
-  };
-
-  const handleDocumentEdit = (index, newFile) => {
     setFormData((prevData) => {
-      const updatedAttachments = [...prevData.attachments];
-      updatedAttachments[index] = newFile;
+      const newAttachment = {
+        file_name: file.name,
+      };
+
+      // Ensure attachments is always an array
+      const updatedAttachments = Array.isArray(prevData.attachments)
+        ? [...prevData.attachments]
+        : [];
+
+      // If replacing an existing file
+      if (updatedAttachments[index]) {
+        updatedAttachments[index] = newAttachment;
+      } else {
+        updatedAttachments.push(newAttachment);
+      }
+
       return {
         ...prevData,
         attachments: updatedAttachments,
@@ -184,22 +191,20 @@ const UserTicketDetailModal = ({ onClose, ticket, onEdit }) => {
     });
   };
 
-  const renderDocumentEdit = (doc, index) => (
-    <div key={index} className="flex items-center gap-2">
-      <Input
-        type="file"
-        onChange={(e) => handleDocumentEdit(index, e.target.files[0])}
-      />
-      <a
-        href={doc.file_url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-blue-600 hover:underline text-sm cursor-pointer"
-      >
-        {doc.file_name || `Document ${index + 1}`}
-      </a>
-    </div>
-  );
+  const handleDocumentClick = (fileUrl) => {
+    // console.log(fileUrl);
+    getDocumentById.mutate(fileUrl, {
+      onSuccess: (file) => {
+        if (file) {
+          const blob = new Blob([file], { type: "application/pdf" });
+          const url = URL.createObjectURL(blob);
+          setPdfUrl(url);
+          setIsOpen(true); // Open modal
+        }
+      },
+    });
+  };
+  // console.log(pdfUrl);
 
   const handleSave = (e) => {
     e.preventDefault();
@@ -347,7 +352,7 @@ const UserTicketDetailModal = ({ onClose, ticket, onEdit }) => {
 
             <div className="flex flex-col">
               <Label htmlFor="attachments">Attachments:</Label>
-              {formData?.attachments &&
+              {/* {formData?.attachments &&
                 formData?.attachments.length > 0 &&
                 formData?.attachments.map((doc, index) =>
                   renderDocumentEdit(doc, index)
@@ -358,7 +363,61 @@ const UserTicketDetailModal = ({ onClose, ticket, onEdit }) => {
                 multiple
                 id="attachments"
                 onChange={handleFileChange}
-              />
+              /> */}
+              {/* {formData?.attachments.length > 0 ? ( */}
+              {attachmentsArray.map((doc, index) => (
+                <div key={index} className="flex items-center gap-2 mt-2">
+                  {/* Display File Name Inside Input Field */}
+                  <input
+                    type="text"
+                    value={doc?.file_name || `Document ${index + 1}`}
+                    className="border p-2 text-sm w-full"
+                    readOnly
+                  />
+
+                  {/* Hidden File Input for Upload */}
+                  <Input
+                    type="file"
+                    onChange={(e) =>
+                      handleDocumentEdit(index, e.target.files[0])
+                    }
+                    className="hidden"
+                    id={`file-input-${index}`}
+                  />
+
+                  {/* Label to Trigger File Selection */}
+                  <label
+                    htmlFor={`file-input-${index}`}
+                    className="bg-gray-200 px-3 py-1 rounded cursor-pointer text-sm"
+                  >
+                    Upload
+                  </label>
+
+                  {/* File Download Link */}
+                  {/* <a
+                    href={doc?.file_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline text-sm cursor-pointer"
+                  >
+                    View
+                  </a> */}
+
+                  {/* Remove Button */}
+                  {/* <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleRemoveDocument(index)}
+                  >
+                    Remove
+                  </Button> */}
+                </div>
+              ))}
+
+              {/* ))
+              ) : (
+                <p className="text-gray-500">No attachments added.</p>
+              )} */}
             </div>
             <Button onClick={handleSave} className="mb-4">
               Update Ticket
@@ -380,15 +439,13 @@ const UserTicketDetailModal = ({ onClose, ticket, onEdit }) => {
                     {[ticket?.attachments].flat().map((doc, index) => (
                       <Tooltip key={doc?._id || index}>
                         <TooltipTrigger asChild>
-                          <a
-                            href={`http://192.168.20.11:4001${doc?.file_url}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                          <button
+                            onClick={() => handleDocumentClick(doc?.file_url)}
                             className="flex items-center gap-2 text-blue-600 hover:underline text-sm cursor-pointer"
                           >
                             <FileText className="h-4 w-4 text-gray-600" />
                             {doc?.file_name || "Document"}
-                          </a>
+                          </button>
                         </TooltipTrigger>
                         <TooltipContent>Click to view document</TooltipContent>
                       </Tooltip>
@@ -547,6 +604,20 @@ const UserTicketDetailModal = ({ onClose, ticket, onEdit }) => {
                       </div>
                     )}
                   </RoleChecker>
+                  <Dialog open={isOpen} onOpenChange={setIsOpen}>
+                    <DialogContent className="max-w-3xl">
+                      <DialogHeader>
+                        <DialogTitle>View Document</DialogTitle>
+                      </DialogHeader>
+                      {pdfUrl && (
+                        <embed
+                          src={pdfUrl}
+                          type="application/pdf"
+                          className="w-full h-[500px] border rounded-md"
+                        />
+                      )}
+                    </DialogContent>
+                  </Dialog>
                   {/* Created At */}
                 </CardContent>
               </Card>

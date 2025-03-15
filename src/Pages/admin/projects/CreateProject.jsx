@@ -387,8 +387,6 @@
 
 // export default CreateProject;
 
-
-
 import { useState, useRef, useEffect } from "react";
 import { Input } from "../../../components/ui/input";
 import { Textarea } from "../../../components/ui/textarea";
@@ -550,25 +548,30 @@ const CreateProject = () => {
   };
 
   const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (formData.milestones.length === 0) {
+      toast.error("Please add at least one milestone.");
+      return;
+    }
+
     const formDataToSend = new FormData();
 
-    // Append attachment
+    // Append attachments
     formData.attachment.forEach((file) => {
       formDataToSend.append("attachment", file);
     });
 
+    // Convert milestones to JSON if the API expects it
+    formDataToSend.append("milestones", JSON.stringify(formData.milestones));
+
     // Append other form data fields
     for (const key in formData) {
-      if (key !== "attachment") {
+      if (key !== "attachment" && key !== "milestones") {
         formDataToSend.append(key, formData[key]);
       }
     }
 
-    e.preventDefault();
-    // if (formData.milestones.length === 0) {
-    //   toast.error("Please add at least one milestone.");
-    //   return;
-    // }
     mutations.mutate(formDataToSend);
   };
 

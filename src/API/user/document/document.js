@@ -2,7 +2,6 @@ import Instance from "@/API/Instance";
 import { USER } from "@/utils/api";
 
 export const uploadDocument = async (documentData) => {
-  console.log(documentData);
   try {
     const response = await Instance.post(
       `${USER}/upload_document`,
@@ -23,7 +22,7 @@ export const uploadDocument = async (documentData) => {
 export const getAllDocument = async () => {
   try {
     const response = await Instance.get(`${USER}/getAllfiles`);
-    console.log(response.data);
+    // console.log(response.data);
     return response.data;
   } catch (error) {
     console.error("Failed to fetch all documents:", error);
@@ -31,8 +30,25 @@ export const getAllDocument = async () => {
   }
 };
 
+export const getDocument = async (documentID) => {
+  try {
+    const response = await Instance.get(`${USER}/uploads/${documentID}`, {
+      responseType: "blob",
+    });
+    // const fileURL = URL.createObjectURL(
+    //   new Blob([response.data], { type: "application/pdf" })
+    // );
+    // window.open(fileURL); // Opens the PDF in a new tab
+    // console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Failed to fetch document:", error);
+    throw error;
+  }
+};
+
 export const deleteDocument = async (documentId) => {
-  console.log(documentId);
+  // console.log(documentId);
   try {
     const response = await Instance.delete(`${USER}/delete/${documentId}`);
     console.log(response.data);

@@ -1,15 +1,38 @@
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import RoleChecker from "@/lib/RoleChecker";
 import CreateDocuments from "./UserCreateDocuments";
 import DocumentHook from "@/hooks/document/documentHook";
 import DeleteDialog from "@/components/DeleteDialog";
-import { Link } from "react-router";
 
 function UserDocuments() {
-  const { getAllDocuments, deleteDocuments } = DocumentHook();
+  const { getAllDocuments, deleteDocuments, getDocumentById } = DocumentHook();
+  const [pdfUrl, setPdfUrl] = useState(null);
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleDeleteDocument = (documentId) => {
     deleteDocuments.mutate(documentId);
   };
+
+  const handleDocumentClick = (fileUrl) => {
+    getDocumentById.mutate(fileUrl, {
+      onSuccess: (file) => {
+        if (file) {
+          const blob = new Blob([file], { type: "application/pdf" });
+          const url = URL.createObjectURL(blob);
+          setPdfUrl(url);
+          setIsOpen(true); // Open modal
+        }
+      },
+    });
+  };
+
+  // console.log(pdfUrl)
 
   return (
     <div>
@@ -21,9 +44,10 @@ function UserDocuments() {
           <CreateDocuments />
         </RoleChecker>
       </div>
+
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {getAllDocuments?.files?.length === 0 ? (
-          <p>No documents available.</p>
+          <p className="text-black">No documents available.</p>
         ) : (
           getAllDocuments?.files?.map((doc) => (
             <div
@@ -31,12 +55,9 @@ function UserDocuments() {
               className="p-4 bg-white border border-gray-300 rounded shadow hover:shadow-lg transition-shadow duration-300"
             >
               <div className="flex justify-between items-center">
-                <Link
-                  to={`http://192.168.20.11:4001${doc.attachments?.file_url}`}
-                  className="text-xl font-semibold text-gray-800"
-                >
+                <h3 className="text-xl font-semibold text-gray-800">
                   {doc.title}
-                </Link>
+                </h3>
                 <RoleChecker
                   allowedRoles={["manager"]}
                   allowedDepartments={["human-resource"]}
@@ -47,25 +68,36 @@ function UserDocuments() {
                 </RoleChecker>
               </div>
               <p className="my-2 text-gray-600">{doc.description}</p>
-              {Array.isArray(doc.attachments) && doc.attachments.length > 0 ? (
-                <>
-                  {console.log("File URL:", doc.attachments[0]?.file_url)}
-                  <a
-                    href={`${doc.attachments[0]?.file_url}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-500 hover:underline"
-                  >
-                    View Document
-                  </a>
-                </>
-              ) : (
-                <p className="text-gray-500">No document available</p>
-              )}
+              <button
+                onClick={() => handleDocumentClick(doc.attachments?.file_name)}
+                className="text-blue-500 hover:underline"
+              >
+                View Document
+              </button>
             </div>
           ))
         )}
       </div>
+
+      {/* ShadCN Dialog for PDF View */}
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>View Document</DialogTitle>
+          </DialogHeader>
+          {pdfUrl && (
+            <object
+              data={pdfUrl}
+              type="application/pdf"
+              className="w-full h-[500px] border rounded-md"
+            >
+              <p>
+                PDF cannot be displayed. <a href={pdfUrl}>Download here</a>
+              </p>
+            </object>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

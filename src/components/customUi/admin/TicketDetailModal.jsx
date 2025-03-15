@@ -42,6 +42,13 @@ import {
 } from "@/utils/categoriesOptions";
 import { VscLoading } from "react-icons/vsc";
 import { Label } from "@/components/ui/label";
+import TicketHook from "@/hooks/ticket/TicketHook";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const TicketDetailModal = ({ onClose, ticket, onEdit }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -49,7 +56,11 @@ const TicketDetailModal = ({ onClose, ticket, onEdit }) => {
   const [formData, setFormData] = useState(ticket);
   const [subCategoryOptions, setSubCategoryOptions] = useState([]);
 
-  console.log(formData?.attachments);
+  const [pdfUrl, setPdfUrl] = useState(null);
+  const [isOpen, setIsOpen] = useState(false);
+  // console.log(formData?.attachments);
+
+  const { getDocumentById } = TicketHook();
 
   const {
     isError: isUserListError,
@@ -134,6 +145,20 @@ const TicketDetailModal = ({ onClose, ticket, onEdit }) => {
         ...prevData,
         attachments: updatedAttachments,
       };
+    });
+  };
+
+  const handleDocumentClick = (fileUrl) => {
+    // console.log(fileUrl);
+    getDocumentById.mutate(fileUrl, {
+      onSuccess: (file) => {
+        if (file) {
+          const blob = new Blob([file], { type: "application/pdf" });
+          const url = URL.createObjectURL(blob);
+          setPdfUrl(url);
+          setIsOpen(true); // Open modal
+        }
+      },
     });
   };
 
@@ -329,15 +354,13 @@ const TicketDetailModal = ({ onClose, ticket, onEdit }) => {
                     {[ticket?.attachments].flat().map((doc, index) => (
                       <Tooltip key={doc?._id || index}>
                         <TooltipTrigger asChild>
-                          <a
-                            href={`http://192.168.20.11:4001/${doc?.fileUrl}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                          <button
+                            onClick={() => handleDocumentClick(doc?.file_url)}
                             className="flex items-center gap-2 text-blue-600 hover:underline text-sm cursor-pointer"
                           >
                             <FileText className="h-4 w-4 text-gray-600" />
                             {doc?.file_name || "Document"}
-                          </a>
+                          </button>
                         </TooltipTrigger>
                         <TooltipContent>Click to view document</TooltipContent>
                       </Tooltip>
@@ -465,6 +488,20 @@ const TicketDetailModal = ({ onClose, ticket, onEdit }) => {
                     </Tooltip>
                   </div>
                   {/* Created At */}
+                  <Dialog open={isOpen} onOpenChange={setIsOpen}>
+                    <DialogContent className="max-w-3xl">
+                      <DialogHeader>
+                        <DialogTitle>View Document</DialogTitle>
+                      </DialogHeader>
+                      {pdfUrl && (
+                        <embed
+                          src={pdfUrl}
+                          type="application/pdf"
+                          className="w-full h-[500px] border rounded-md"
+                        />
+                      )}
+                    </DialogContent>
+                  </Dialog>
                 </CardContent>
               </Card>
             </TooltipProvider>

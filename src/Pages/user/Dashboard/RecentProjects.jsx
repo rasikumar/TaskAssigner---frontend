@@ -1,12 +1,27 @@
 /* eslint-disable react/prop-types */
 import { ProjectsCard } from "@/components/ui/cards/ProjectsCard";
-import { Link } from "react-router";
+import { Link } from "react-router"; // Make sure to import from 'react-router-dom'
 
-export const RecentProjects = ({ projectData = [] }) => {
-  const recentProjects = projectData.slice(-4); // Get the last four projects
+export const RecentProjects = ({ projectData }) => {
+  // Save project data in session storage
+
+  const { projectss, projectDetails } = projectData;
+  console.log("asd", projectDetails);
+
+  // Add percentage calculation to projectDetails
+  const projectDetailsWithPercentage = projectDetails.map((project) => {
+    const percentage = project.estimatedHours
+      ? ((project.totalHoursSpent / project.estimatedHours) * 100).toFixed(2)
+      : 0; // Handle division by zero
+
+    return { ...project, percentage };
+  });
+
+  // Get the last four projects
+  const recentProjects = projectss?.slice(-4);
 
   return (
-    <section className="bg-gray-400 py-8 w-full mx-auto rounded-xl px-6">
+    <section className="bg-gray-400 flex flex-col py-8 mx-auto rounded-xl px-6 w-full">
       {/* Header */}
       <div className="text-center mb-6">
         <h1 className="text-3xl text-white font-semibold mb-2">
@@ -16,36 +31,35 @@ export const RecentProjects = ({ projectData = [] }) => {
       </div>
 
       {/* View All Link */}
-      {recentProjects.length > 0 && (
-        <div className="text-center mb-6">
-          <Link
-            to="./projects"
-            className="text-white bg-blue-600 px-4 py-2 rounded-md font-medium hover:bg-blue-500 transition duration-300"
-          >
-            View All Projects
-          </Link>
-        </div>
-      )}
+      <div className="text-center mb-6">
+        <Link
+          to="./projects"
+          className="text-white bg-blue-600 px-4 py-2 rounded-md font-medium hover:bg-blue-500 transition duration-300"
+        >
+          View All Projects
+        </Link>
+      </div>
 
       {/* Projects Grid */}
-      {recentProjects.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {recentProjects.map((project) => (
-            <div key={project.id} className=" transition duration-300">
-              <ProjectsCard
-                title={project.project_name}
-                subtitle={project.project_description}
-                priority={project.project_status}
-                progressBar={21}
-              />
+      <div className="flex flex-wrap items-center justify-center w-full m-auto gap-6">
+        {recentProjects?.map((project, index) => {
+          const percentage =
+            projectDetailsWithPercentage[index]?.percentage || 0;
+
+          return (
+            <div key={project._id} className="flex transition duration-300">
+              <Link to={`./projects`} className="flex">
+                <ProjectsCard
+                  title={project.project_name}
+                  subtitle={project.project_description}
+                  priority={project.project_status}
+                  progressBar={percentage} // Pass percentage to progressBar
+                />
+              </Link>
             </div>
-          ))}
-        </div>
-      ) : (
-        <div className="text-center text-white">
-          No recent projects available.
-        </div>
-      )}
+          );
+        })}
+      </div>
     </section>
   );
 };

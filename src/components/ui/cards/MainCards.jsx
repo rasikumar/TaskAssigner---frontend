@@ -1,39 +1,41 @@
 /* eslint-disable react/prop-types */
-import { Link } from "react-router"; // Correct import
+import { Link } from "react-router"; // ✅ Corrected import
 import { motion, animate, useMotionValue, useTransform } from "framer-motion";
 import { useState, useEffect } from "react";
 
 export default function MainCards({
   title,
   btn,
-  totaltasks = [],
+  totaltasks = 0, // ✅ Ensure it's a number
   Icon,
   subtitle,
   path,
   bgColor,
   onClick,
 }) {
-  const count = useMotionValue(0); // Initialize motion value
-  const roundedCount = useTransform(count, (value) => Math.round(value)); // Transform count to rounded values
-  const [displayCount, setDisplayCount] = useState(0); // State to display count
+  const count = useMotionValue(0); // ✅ Motion value for animation
+  const roundedCount = useTransform(count, (value) => Math.round(value)); // ✅ Round values for smooth animation
+  const [displayCount, setDisplayCount] = useState(0); // ✅ State to display count
 
   useEffect(() => {
-    // Animate the count value using `animate` function
+    if (typeof totaltasks !== "number") return; // ✅ Prevent animation if totaltasks is invalid
+
+    // ✅ Animate the count value correctly
     const animation = animate(count, totaltasks, {
       duration: 1.5,
       ease: "easeInOut",
     });
 
-    // Subscribe to updates and update the displayed count
+    // ✅ Subscribe to rounded count updates
     const unsubscribe = roundedCount.on("change", (latest) => {
-      setDisplayCount(latest); // Update the state for rendering
+      setDisplayCount(latest);
     });
 
     return () => {
-      animation.stop(); // Cleanup animation
-      unsubscribe(); // Unsubscribe from updates
+      animation.stop(); // ✅ Cleanup animation on unmount
+      unsubscribe(); // ✅ Unsubscribe from updates
     };
-  }, [count, roundedCount, totaltasks]); // Dependencies
+  }, [totaltasks]); // ✅ Re-run effect only when `totaltasks` changes
 
   const cardContent = (
     <div
@@ -50,7 +52,7 @@ export default function MainCards({
       {/* Content */}
       <div className="flex items-end justify-between">
         <div className="flex items-end gap-2">
-          {/* Display animated count */}
+          {/* ✅ Display animated count */}
           <motion.h4 className="text-2xl">{displayCount}</motion.h4>
           <p>{subtitle}</p>
         </div>

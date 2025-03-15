@@ -1,42 +1,105 @@
 import { FaTasks } from "react-icons/fa";
-import SummaryCard from "@/components/ProjectSummaryChart";
+// import SummaryCard from "@/components/ProjectSummaryChart";
 import MainCards from "@/components/ui/cards/MainCards";
 import RoleChecker from "@/lib/RoleChecker";
-import { RecentProjects } from "./RecentProjects";
+import UserDashBoardHook from "@/hooks/UserDashBoardHook";
+import { VscLoading } from "react-icons/vsc";
 import { RecentTask } from "./RecentTask";
-import UserDashBoardHook from "@/hooks/UserDashBoardHook"; // Import the hook
-import { CirclesWithBar } from "react-loader-spinner"; // For loading indicator
+import SummaryCard from "@/components/ProjectSummaryChart";
+import { RecentProjects } from "./RecentProjects";
 
 const UserDashboard = () => {
-  const {
-    userTaskData,
-    isUserTaskDataLoading,
-    isUserTaskDataError,
-    userTaskDataError,
-  } = UserDashBoardHook();
-
-  console.log(userTaskData);
-
   const getName = localStorage.getItem("name");
   const name = getName ? getName.replace(/^"|"$/g, "") : "Loading...";
+  const getRole = localStorage.getItem("role");
+  const role = getRole ? getRole.replace(/^"|"$/g, "") : "Loading...";
 
-  if (isUserTaskDataLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <CirclesWithBar color="#4CAF50" height={80} width={80} />
-      </div>
-    );
-  }
+  const {
+    userTaskData,
+    isUserTaskDataError,
+    userTaskDataError,
+    isUserTaskDataLoading,
+    userProjectData,
+    userProjectDataError,
+    isUserProjectDataError,
+    isUserProjectDataLoading,
+  } = UserDashBoardHook();
 
-  if (isUserTaskDataError) {
-    return (
-      <div className="flex justify-center items-center min-h-screen text-red-500">
-        <p>Error: {userTaskDataError?.message || "Failed to fetch data"}</p>
-      </div>
-    );
-  }
+  // const CompletedTask = StatusSummary?.Completed || 0;
+  // const InprogressTask = StatusSummary?.["In progress"] || 0;
+  // const NotStartedTask = StatusSummary?.["Not started"] || 0;
+  // const PendingTask = StatusSummary?.Pending || 0;
+  // const CancelledTask = StatusSummary?.Cancelled || 0;
 
-  const { projects, tasks } = userTaskData || {};
+  // const taskDataForChart = [
+  //   {
+  //     browser: "Completed",
+  //     visitors: CompletedTask,
+  //     color: "#4CAF50",
+  //   },
+  //   {
+  //     browser: "In Progress",
+  //     visitors: InprogressTask,
+  //     color: "#FFC107",
+  //   },
+  //   {
+  //     browser: "Not Started",
+  //     visitors: NotStartedTask,
+  //     color: "#2F195F",
+  //   },
+  //   {
+  //     browser: "Pending",
+  //     visitors: PendingTask,
+  //     color: "#A2C5AC",
+  //   },
+  //   {
+  //     browser: "Cancelled",
+  //     visitors: CancelledTask,
+  //     color: "#F44336",
+  //   },
+  // ];
+
+  const projectData = userProjectData?.data?.statusSummary || {}; // Ensure it's always an object
+
+  const projectss = userProjectData?.data?.projects || [];
+
+  const projectDetails = projectss.map((project) => ({
+    estimatedHours: project?.estimated_hours,
+    totalHoursSpent: project?.totalHoursSpent,
+  }));
+  console.log(projectDetails);
+
+  const CompletedProject = projectData?.Completed || 0;
+  const InprogressProject = projectData?.["In Progress"] || 0;
+  const NotStartedProject = projectData?.["Not Started"] || 0;
+  const PendingProject = projectData?.Pending || 0;
+
+  const projectDataForChart = [
+    {
+      browser: "Completed",
+      visitors: CompletedProject,
+      color: "#4CAF50",
+    },
+    {
+      browser: "In Progress",
+      visitors: InprogressProject,
+      color: "#FFC107",
+    },
+    {
+      browser: "Pending",
+      visitors: PendingProject,
+      color: "#15B097",
+    },
+    {
+      browser: "Not Started",
+      visitors: NotStartedProject,
+      color: "#F44336",
+    },
+  ];
+
+  // console.log(userProjectData.data?.statusSummary);
+
+  const userRole = role || "guest";
 
   return (
     <section className="flex flex-col gap-6">
@@ -56,86 +119,102 @@ const UserDashboard = () => {
           <RoleChecker allowedRoles={["manager", "team lead"]}>
             <h1 className="text-lg font-semibold">Projects</h1>
             <div className="grid grid-cols-1 2xl:grid-cols-3 xl:grid-cols-2 gap-4">
-              <MainCards
-                title="Yet to Start"
-                btn="View All"
-                totaltasks={projects?.notStarted || []}
-                Icon={FaTasks}
-                subtitle="Projects"
-                bgColor="#B23A48"
-                path="./projects"
-              />
-              <MainCards
-                title="In-progress"
-                btn="View All"
-                totaltasks={projects?.inProgress || []}
-                Icon={FaTasks}
-                subtitle="Projects"
-                bgColor="#DCA74B"
-                path="./projects"
-              />
-              <MainCards
-                title="Completed"
-                btn="View All"
-                totaltasks={projects?.completed || []}
-                Icon={FaTasks}
-                subtitle="Projects"
-                bgColor="#566E3D"
-                path="./projects"
-              />
+              {isUserProjectDataError ? (
+                <>{userProjectDataError}</>
+              ) : isUserProjectDataLoading ? (
+                <p className="animate-spin fixed">
+                  <VscLoading />
+                </p>
+              ) : (
+                <>
+                  <MainCards
+                    title="Yet to Start"
+                    btn="View All"
+                    totaltasks={projectData?.["Not Started"] || []}
+                    Icon={FaTasks}
+                    subtitle="Projects"
+                    bgColor="#B23A48"
+                    path="./projects"
+                  />
+                  <MainCards
+                    title="In-progress"
+                    btn="View All"
+                    totaltasks={projectData?.["In Progress"] || []}
+                    Icon={FaTasks}
+                    subtitle="Projects"
+                    bgColor="#DCA74B"
+                    path="./projects"
+                  />
+                  <MainCards
+                    title="Completed"
+                    btn="View All"
+                    totaltasks={projectData?.Completed || []}
+                    Icon={FaTasks}
+                    subtitle="Projects"
+                    bgColor="#566E3D"
+                    path="./projects"
+                  />
+                </>
+              )}
             </div>
           </RoleChecker>
 
           <h1 className="text-lg font-semibold">Tasks</h1>
           <div className="grid grid-cols-1 2xl:grid-cols-3 xl:grid-cols-2 gap-4">
-            <MainCards
-              title="Yet to Start"
-              btn="View All"
-              totaltasks={tasks?.notStarted || []}
-              Icon={FaTasks}
-              subtitle="Task"
-              bgColor="#B23A48"
-              path="./tasks"
-            />
-            <MainCards
-              title="In-progress"
-              btn="View All"
-              totaltasks={tasks?.inProgress || []}
-              Icon={FaTasks}
-              subtitle="Task"
-              bgColor="#DCA74B"
-              path="./tasks"
-            />
-            <MainCards
-              title="Completed"
-              btn="View All"
-              totaltasks={tasks?.completed || []}
-              Icon={FaTasks}
-              subtitle="Task"
-              bgColor="#566E3D"
-              path="./tasks"
-            />
+            {isUserTaskDataError ? (
+              <>{userTaskDataError}</>
+            ) : isUserTaskDataLoading ? (
+              <p className="animate-spin fixed">
+                <VscLoading />
+              </p>
+            ) : (
+              <>
+                <MainCards
+                  title="Yet to Start"
+                  btn="View All"
+                  totaltasks={[]}
+                  Icon={FaTasks}
+                  subtitle="Task"
+                  bgColor="#B23A48"
+                  path="./tasks"
+                />
+                <MainCards
+                  title="In-progress"
+                  btn="View All"
+                  totaltasks={[]}
+                  Icon={FaTasks}
+                  subtitle="Task"
+                  bgColor="#DCA74B"
+                  path="./tasks"
+                />
+                <MainCards
+                  title="Completed"
+                  btn="View All"
+                  totaltasks={[]}
+                  Icon={FaTasks}
+                  subtitle="Task"
+                  bgColor="#566E3D"
+                  path="./tasks"
+                />
+              </>
+            )}
           </div>
         </div>
-
-        {/* Second Column */}
         <div className="grid 2xl:grid-cols-2 gap-4">
-          <RoleChecker allowedRoles={["manager", "team lead"]}>
-            <SummaryCard
-              title="Project Status"
-              description="Project Completion Overview"
-              chartData={projects} // Use data from hook
-              chartConfig={{
-                Completed: { label: "Completed", color: "#4CAF50" },
-                "In Progress": { label: "In Progress", color: "#FFC107" },
-                "Not Started": { label: "Not Started", color: "#F44336" },
-              }}
-            />
-          </RoleChecker>
+          <SummaryCard
+            title="Project Status"
+            description="Project Completion Overview"
+            chartData={projectDataForChart}
+            chartConfig={{
+              Completed: { label: "Completed", color: "#4CAF50" },
+              "In Progress": { label: "In Progress", color: "#FFC107" },
+              "Not Started": { label: "Not Started", color: "#F44336" },
+            }}
+          />
           <SummaryCard
             title="Task Status"
             description="Task Completion Overview"
-            chartData={tasks} // Use data from hook
+            // chartData={taskDataForChart}
             chartConfig={{
               Completed: { label: "Completed", color: "#4CAF50" },
               "In Progress": { label: "In Progress", color: "#FFC107" },
@@ -146,12 +225,14 @@ const UserDashboard = () => {
       </section>
 
       <RoleChecker allowedRoles={["member"]}>
-        <RecentTask taskData={tasks?.recent || []} />
+        {/* <RecentTask taskData={recent || []} /> */}
       </RoleChecker>
 
-      <RoleChecker allowedRoles={["manager", "team lead"]}>
-        <RecentProjects projectData={projects?.recent || []} />
-      </RoleChecker>
+      {userRole !== "member" && (
+        <RoleChecker allowedRoles={["manager", "team lead"]}>
+          <RecentProjects projectData={{ projectss, projectDetails }} />
+        </RoleChecker>
+      )}
     </section>
   );
 };

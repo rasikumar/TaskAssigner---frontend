@@ -18,7 +18,7 @@ export const moveToTester = async ({ move_to_uat, _id }) => {
 };
 
 export const updateStatus = async (status) => {
-  console.log(status);
+  // console.log(status);
   try {
     const response = await Instance.post(`${USER}/updatetickstatus`, {
       ticketId: status._id,
