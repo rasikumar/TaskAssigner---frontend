@@ -106,3 +106,16 @@ export const updateTicket = async (updatedData) => {
     throw error;
   }
 };
+
+export const updateTesterApproval = async (status) => {
+  try {
+    const response = await Instance.patch(`${ADMIN}/updateTesterApproval`, {
+      taskId: status._id,
+      tester_approval: status.tester_approval,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error updating tester approval", error);
+    throw error;
+  }
+};

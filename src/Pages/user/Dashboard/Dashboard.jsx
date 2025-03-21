@@ -67,7 +67,7 @@ const UserDashboard = () => {
     estimatedHours: project?.estimated_hours,
     totalHoursSpent: project?.totalHoursSpent,
   }));
-  console.log(projectDetails);
+  // console.log(projectDetails);
 
   const CompletedProject = projectData?.Completed || 0;
   const InprogressProject = projectData?.["In Progress"] || 0;

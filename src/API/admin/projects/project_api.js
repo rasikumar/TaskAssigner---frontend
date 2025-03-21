@@ -126,24 +126,10 @@ export const fetchProjectByStatus = async (status) => {
 };
 
 export const getProjectById = async (projectId) => {
-  try {
+  try { 
     const response = await Instance.post(
       `${ADMIN}/getProjectById/${projectId}`
     );
-
-    // Clear previous project data from session storage
-    sessionStorage.removeItem("selectedProject");
-
-    sessionStorage.setItem(
-      "selectedProject",
-      JSON.stringify(response.data.data)
-    );
-
-    // Set a timeout to clear the session storage after 1 minute
-    setTimeout(() => {
-      sessionStorage.removeItem("selectedProject");
-    }, 300000); // 60000 milliseconds = 1 minute
-
     return response.data;
   } catch (error) {
     console.error("Error fetching project by id:", error);

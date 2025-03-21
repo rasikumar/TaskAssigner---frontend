@@ -214,7 +214,7 @@ const UserTickets = () => {
             bgColor="#007BFF"
           />
           <MainCards
-            title="Cancelled"
+            title="Resolved"
             totaltasks={ResolvedTicket}
             Icon={TicketCheckIcon}
             subtitle="Ticket"

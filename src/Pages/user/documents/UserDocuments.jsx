@@ -9,9 +9,17 @@ import RoleChecker from "@/lib/RoleChecker";
 import CreateDocuments from "./UserCreateDocuments";
 import DocumentHook from "@/hooks/document/documentHook";
 import DeleteDialog from "@/components/DeleteDialog";
+import { VscLoading } from "react-icons/vsc";
 
 function UserDocuments() {
-  const { getAllDocuments, deleteDocuments, getDocumentById } = DocumentHook();
+  const {
+    getAllDocuments,
+    isDocumentError,
+    isDocumentLoading,
+    documentError,
+    deleteDocuments,
+    getDocumentById,
+  } = DocumentHook();
   const [pdfUrl, setPdfUrl] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -46,8 +54,13 @@ function UserDocuments() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {getAllDocuments?.files?.length === 0 ? (
-          <p className="text-black">No documents available.</p>
+      {getAllDocuments?.files?.length > 0 ? <></> : <></>}
+        {isDocumentError ? (
+          <p className="text-red-500">{documentError}</p>
+        ) : isDocumentLoading ? (
+          <p className="animate-spin fixed">
+            <VscLoading />
+          </p>
         ) : (
           getAllDocuments?.files?.map((doc) => (
             <div
@@ -68,12 +81,14 @@ function UserDocuments() {
                 </RoleChecker>
               </div>
               <p className="my-2 text-gray-600">{doc.description}</p>
-              <button
-                onClick={() => handleDocumentClick(doc.attachments?.file_name)}
-                className="text-blue-500 hover:underline"
-              >
-                View Document
-              </button>
+              {doc.attachments?.file_name && (
+                <button
+                  onClick={() => handleDocumentClick(doc.attachments.file_name)}
+                  className="text-blue-500 hover:underline"
+                >
+                  View Document
+                </button>
+              )}
             </div>
           ))
         )}

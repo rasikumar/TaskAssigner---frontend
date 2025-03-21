@@ -18,6 +18,7 @@ import MainCards from "@/components/ui/cards/MainCards";
 import { FaTasks } from "react-icons/fa";
 import TableSkeleton from "@/components/loading/TableSkeleton";
 import { getTaskRelatedToProject } from "@/API/admin/task/task_api";
+import { getProjectById } from "@/API/admin/projects/project_api";  
 const UserProjects = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
@@ -31,8 +32,9 @@ const UserProjects = () => {
   const queryClient = useQueryClient();
 
   const handleProjectClick = (project, projectId) => {
-    setSelectedProject(project);
+    // setSelectedProject(project);
     handleClick(projectId);
+    getProjectId.mutate(projectId);
     setIsModalOpen(true);
   };
 
@@ -94,6 +96,14 @@ const UserProjects = () => {
       queryClient.invalidateQueries(["userProjects"]);
       setIsModalOpen(false);
       toast.success("Project updated successfully!");
+    },
+  });
+
+  const getProjectId = useMutation({
+    mutationFn: getProjectById,
+    onSuccess: (data) => {
+      setSelectedProject(data?.data);
+      setIsModalOpen(true);
     },
   });
 

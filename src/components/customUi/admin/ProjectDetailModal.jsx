@@ -34,7 +34,7 @@ export const ProjectDetailModal = ({ project, onClose, onEdit, taskList }) => {
   const [errorMessage, setErrorMessage] = useState("");
   // const [isOpen] = useState(false);
   const [ownershipOptions, setOwnershipOptions] = useState([]);
-  const [milestoneData, setMilestoneData] = useState(project.milestones || []);
+  const [milestoneData, setMilestoneData] = useState(project?.milestones || []);
 
   // console.log(formData);
   const [pdfUrl, setPdfUrl] = useState(null);
@@ -49,7 +49,7 @@ export const ProjectDetailModal = ({ project, onClose, onEdit, taskList }) => {
 
   useEffect(() => {
     setFormData(project);
-    setMilestoneData(project.milestones || []);
+    setMilestoneData(project?.milestones || []);
   }, [project]);
 
   const {
@@ -526,7 +526,7 @@ export const ProjectDetailModal = ({ project, onClose, onEdit, taskList }) => {
                                 className={`mt-2 sm:mt-0 inline-block text-xs font-medium px-3 py-1 rounded-full ${
                                   task.status === "Completed"
                                     ? "bg-green-100 text-green-600"
-                                    : task.status === "In-Progress"
+                                    : task.status === "In progress"
                                     ? "bg-yellow-100 text-yellow-600"
                                     : "bg-red-100 text-red-600"
                                 }`}

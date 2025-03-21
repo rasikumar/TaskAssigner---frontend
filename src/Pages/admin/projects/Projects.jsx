@@ -14,6 +14,7 @@ import {
   updateProject,
 } from "@/API/admin/projects/project_api";
 import { getTaskRelatedToProject } from "@/API/admin/task/task_api";
+import { getProjectById } from "@/API/admin/projects/project_api";
 
 import Table from "@/components/customUi/Table"; // Import the reusable Table component
 import { ProjectDetailModal } from "@/components/customUi/admin/ProjectDetailModal";
@@ -43,8 +44,9 @@ const Projects = () => {
   };
 
   const handleProjectClick = (project, projectId) => {
-    setSelectedProject(project);
+    // setSelectedProject(project);
     handleClick(projectId);
+    getProjectId.mutate(projectId);
     setIsModalOpen(true);
   };
   // console.log(taskList);
@@ -92,6 +94,13 @@ const Projects = () => {
     },
     onError: (err) => {
       console.log("Error deleting project", err);
+    },
+  });
+  const getProjectId = useMutation({
+    mutationFn: getProjectById,
+    onSuccess: (data) => {
+      setSelectedProject(data?.data);
+      setIsModalOpen(true);
     },
   });
 

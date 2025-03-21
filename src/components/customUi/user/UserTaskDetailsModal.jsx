@@ -19,6 +19,8 @@ import { toast, ToastContainer } from "react-toastify";
 import RoleChecker from "@/lib/RoleChecker";
 import MoveToTester from "@/Pages/user/tasks/MoveToTester";
 import { moveToTester } from "@/API/user/ticket/ticket";
+import { updateTesterApproval } from "@/API/admin/ticket/ticket_api";
+import UpdateTesterApproval from "@/Pages/user/tasks/UpdateTesterApproval";
 
 /* eslint-disable react/prop-types */
 export const UserTaskDetailsModal = ({ task, onClose, onEdit }) => {
@@ -87,6 +89,18 @@ export const UserTaskDetailsModal = ({ task, onClose, onEdit }) => {
       queryClient.invalidateQueries(["tasks"]); // Refresh the data
       setIsVisible(false);
       toast.success("Task moved to UAT successfully!");
+    },
+  });
+
+  const updateTester = useMutation({
+    mutationFn: updateTesterApproval,
+    onError: (err) => {
+      toast.error(err.message || "Failed to Update!");
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["tasks"]); // Refresh the data
+      setIsVisible(false);
+      toast.success("Task Data Updated successfully!");
     },
   });
 
@@ -203,6 +217,11 @@ export const UserTaskDetailsModal = ({ task, onClose, onEdit }) => {
     UatStatusChange.mutate({ move_to_uat, _id });
   };
 
+  const UpdateApproval = (tester_approval, _id) => {
+    // console.log(tester_approval, _id);
+    updateTester.mutate({ tester_approval, _id });
+  };
+
   return (
     <div
       id="modal-overlay"
@@ -253,9 +272,16 @@ export const UserTaskDetailsModal = ({ task, onClose, onEdit }) => {
 
         {/* Content */}
         <div className="p-6 ">
-          <h2 className="text-xl font-bold text-indigo-600 mb-2">
-            {task.project?.project_name}
-          </h2>
+          <div>
+            <h2 className="text-xl font-bold text-indigo-600 mb-2">
+              {task.project?.project_name}
+            </h2>
+            <UpdateTesterApproval
+              UpdateApproval={UpdateApproval}
+              _id={task._id}
+              testerDetail={task.tester_approval}
+            />
+          </div>
 
           <hr className="bg-taskBlack h-[0.1rem] border-0" />
 
@@ -464,25 +490,34 @@ export const UserTaskDetailsModal = ({ task, onClose, onEdit }) => {
                     <h2 className="flex items-center gap-4 text-lg font-semibold text-gray-800">
                       Daily Updates{" "}
                       <Calendar1Icon className="ml-2 text-gray-500" />
-                      <MoveToTester
-                        _id={task._id}
-                        move_to_uat={move_to_uat}
-                        testerDetail={task.move_to_uat}
-                      />
+                      {task.status === "Completed" && (
+                        <MoveToTester
+                          _id={task._id}
+                          move_to_uat={move_to_uat}
+                          testerDetail={task.move_to_uat}
+                        />
+                      )}
                     </h2>
-
-                    <Selector
-                      label="Status"
-                      id="status"
-                      value={formData.status}
-                      onChange={(e) =>
-                        handleStatusChange(task._id, e.target.value)
-                      }
-                      options={statusOptions}
-                    />
+                    {task.status === "Completed" ? (
+                      <p className="text-green-600 font-semibold bg-green-100 p-2 rounded-lg">
+                        ✅ Task completed! Please proceed to the Testing Team.
+                      </p>
+                    ) : (
+                      <Selector
+                        label="Status"
+                        id="status"
+                        value={formData.status}
+                        onChange={(e) =>
+                          handleStatusChange(task._id, e.target.value)
+                        }
+                        options={statusOptions}
+                        className="border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    )}
                   </div>
-
-                  <UserDailyUpdateTask _id={task._id} onUpdate={onUpdate} />
+                  {task.status === "In progress" && (
+                    <UserDailyUpdateTask _id={task._id} onUpdate={onUpdate} />
+                  )}
                 </RoleChecker>
                 {task.daily_updates && task.daily_updates.length > 0 ? (
                   <ul className="space-y-2 text-sm text-gray-700">

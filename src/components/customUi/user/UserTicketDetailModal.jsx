@@ -88,6 +88,12 @@ const UserTicketDetailModal = ({ onClose, ticket, onEdit }) => {
     }
   };
 
+  useEffect(() => {
+    if (formData?.status) {
+      setStatus(formData.status);
+    }
+  }, [formData]); // Update status whenever formData changes
+  
   const handleStatusChange = (_id, value) => {
     setStatus(value);
 

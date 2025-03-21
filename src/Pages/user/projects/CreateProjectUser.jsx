@@ -27,7 +27,7 @@ const CreateProjectUser = () => {
     milestones: [], // Add milestones to formData
     attachment: [],
   });
-  console.log(formData);
+  // console.log(formData);
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
   const [ownershipOptions, setOwnershipOptions] = useState([]);

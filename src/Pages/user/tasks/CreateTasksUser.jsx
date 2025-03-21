@@ -405,7 +405,7 @@ const CreateTaskUser = () => {
                       onChange={(e) =>
                         handleSelectChange("start_date", e.target.value)
                       }
-                      className="mt-2 p-2 border rounded-md"
+                      className="mt-2 p-2 border rounded-md transition-all delay-300"
                     />
 
                     {/* <label
