@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { getAllProjectList } from "@/API/admin/projects/project_api";
 import { getTaskRelatedToProject } from "@/API/admin/task/task_api";
@@ -41,6 +41,8 @@ const CreateTicket = () => {
     main_category: "",
     sub_category: "",
     attachments: [],
+    start_date: "",
+    end_date: "",
   });
   const [isOpen, setIsOpen] = useState(false);
   const [step, setStep] = useState(1);
@@ -48,6 +50,8 @@ const CreateTicket = () => {
   const [taskError, setTaskError] = useState("");
   const [subCategoryOptions, setSubCategoryOptions] = useState([]);
   // console.log(formData);
+  const startDateRef = useRef(null);
+  const endDateRef = useRef(null);
   const {
     isLoading: isProjectLoading,
     isError: isProjectError,
@@ -116,6 +120,52 @@ const CreateTicket = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    // Validation checks
+    if (!formData.title) {
+      toast.error("Title is required.");
+      return;
+    }
+    if (!formData.description) {
+      toast.error("Description is required.");
+      return;
+    }
+    if (!formData.project) {
+      toast.error("Project is required.");
+      return;
+    }
+    if (!formData.tasks) {
+      toast.error("Task is required.");
+      return;
+    }
+    if (!formData.assigned_to) {
+      toast.error("Assigned to is required.");
+      return;
+    }
+    if (!formData.priority) {
+      toast.error("Priority is required.");
+      return;
+    }
+    if (!formData.severity) {
+      toast.error("Severity is required.");
+      return;
+    }
+    if (!formData.main_category) {
+      toast.error("Main category is required.");
+      return;
+    }
+    if (!formData.sub_category) {
+      toast.error("Sub category is required.");
+      return;
+    }
+    if (!formData.start_date) {
+      toast.error("Start date is required.");
+      return;
+    }
+    if (!formData.end_date) {
+      toast.error("End date is required.");
+      return;
+    }
+
     const formDataToSend = new FormData();
 
     // Append attachments
@@ -150,11 +200,51 @@ const CreateTicket = () => {
           main_category: "",
           sub_category: "",
           attachments: [],
+          start_date: "",
+          end_date: "",
         });
         setIsOpen(false);
         setStep(1);
       },
     });
+  };
+
+  const handleNextStep = (currentStep) => {
+    if (currentStep === 2 && !formData.tasks) {
+      setTaskError("Please select a Task before proceeding.");
+      return;
+    }
+    if (currentStep === 3) {
+      if (!formData.assigned_to) {
+        toast.error("Assigned to is required.");
+        return;
+      }
+      if (!formData.priority) {
+        toast.error("Priority is required.");
+        return;
+      }
+      if (!formData.severity) {
+        toast.error("Severity is required.");
+        return;
+      }
+      if (!formData.main_category) {
+        toast.error("Main category is required.");
+        return;
+      }
+      if (!formData.sub_category) {
+        toast.error("Sub category is required.");
+        return;
+      }
+      if (!formData.start_date) {
+        toast.error("Start date is required.");
+        return;
+      }
+      if (!formData.end_date) {
+        toast.error("End date is required.");
+        return;
+      }
+    }
+    setStep(currentStep + 1);
   };
 
   return (
@@ -223,22 +313,12 @@ const CreateTicket = () => {
                 <Button onClick={() => setStep(1)} variant="outline">
                   Back
                 </Button>
-                <Button
-                  onClick={() => {
-                    if (!formData.tasks) {
-                      setTaskError("Please select a Task before proceeding.");
-                      return;
-                    }
-                    setStep(3);
-                  }}
-                >
-                  Next
-                </Button>
+                <Button onClick={() => handleNextStep(2)}>Next</Button>
               </div>
             </div>
           )}
           {step === 3 && (
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4 overflow-auto h-96">
               <div className="mb-2">
                 Assigned to
                 {isUserListError ? (
@@ -294,11 +374,39 @@ const CreateTicket = () => {
                 disabled={!formData.main_category}
                 required
               />
+              <div>
+                <Label htmlFor="start_date">Start Date:</Label>
+                <Input
+                  onClick={() => startDateRef.current.showPicker()}
+                  ref={startDateRef}
+                  type="date"
+                  id="start_date"
+                  value={formData.start_date}
+                  onChange={(e) =>
+                    handleSelectChange("start_date", e.target.value)
+                  }
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="end_date">End Date:</Label>
+                <Input
+                  onClick={() => endDateRef.current.showPicker()}
+                  ref={endDateRef}
+                  type="date"
+                  id="end_date"
+                  value={formData.end_date}
+                  onChange={(e) =>
+                    handleSelectChange("end_date", e.target.value)
+                  }
+                  required
+                />
+              </div>
               <div className="flex gap-2">
                 <Button variant="outline" onClick={() => setStep(2)}>
                   Prev
                 </Button>
-                <Button onClick={() => setStep(4)}>Next</Button>
+                <Button onClick={() => handleNextStep(3)}>Next</Button>
               </div>
             </div>
           )}

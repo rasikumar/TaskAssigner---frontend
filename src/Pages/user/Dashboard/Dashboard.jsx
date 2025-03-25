@@ -25,39 +25,43 @@ const UserDashboard = () => {
     isUserProjectDataLoading,
   } = UserDashBoardHook();
 
-  // const CompletedTask = StatusSummary?.Completed || 0;
-  // const InprogressTask = StatusSummary?.["In progress"] || 0;
-  // const NotStartedTask = StatusSummary?.["Not started"] || 0;
-  // const PendingTask = StatusSummary?.Pending || 0;
-  // const CancelledTask = StatusSummary?.Cancelled || 0;
+  // console.log(userTaskData.statusSummary);
 
-  // const taskDataForChart = [
-  //   {
-  //     browser: "Completed",
-  //     visitors: CompletedTask,
-  //     color: "#4CAF50",
-  //   },
-  //   {
-  //     browser: "In Progress",
-  //     visitors: InprogressTask,
-  //     color: "#FFC107",
-  //   },
-  //   {
-  //     browser: "Not Started",
-  //     visitors: NotStartedTask,
-  //     color: "#2F195F",
-  //   },
-  //   {
-  //     browser: "Pending",
-  //     visitors: PendingTask,
-  //     color: "#A2C5AC",
-  //   },
-  //   {
-  //     browser: "Cancelled",
-  //     visitors: CancelledTask,
-  //     color: "#F44336",
-  //   },
-  // ];
+  const taskData = userTaskData?.statusSummary || {};
+
+  const CompletedTask = taskData?.Completed || 0;
+  const InprogressTask = taskData?.["In progress"] || 0;
+  const NotStartedTask = taskData?.["Not started"] || 0;
+  const PendingTask = taskData?.Pending || 0;
+  const CancelledTask = taskData?.Cancelled || 0;
+
+  const taskDataForChart = [
+    {
+      browser: "Completed",
+      visitors: CompletedTask,
+      color: "#4CAF50",
+    },
+    {
+      browser: "In Progress",
+      visitors: InprogressTask,
+      color: "#FFC107",
+    },
+    {
+      browser: "Not Started",
+      visitors: NotStartedTask,
+      color: "#2F195F",
+    },
+    {
+      browser: "Pending",
+      visitors: PendingTask,
+      color: "#A2C5AC",
+    },
+    {
+      browser: "Cancelled",
+      visitors: CancelledTask,
+      color: "#F44336",
+    },
+  ];
 
   const projectData = userProjectData?.data?.statusSummary || {}; // Ensure it's always an object
 
@@ -67,7 +71,6 @@ const UserDashboard = () => {
     estimatedHours: project?.estimated_hours,
     totalHoursSpent: project?.totalHoursSpent,
   }));
-  // console.log(projectDetails);
 
   const CompletedProject = projectData?.Completed || 0;
   const InprogressProject = projectData?.["In Progress"] || 0;
@@ -172,7 +175,7 @@ const UserDashboard = () => {
                 <MainCards
                   title="Yet to Start"
                   btn="View All"
-                  totaltasks={[]}
+                  totaltasks={NotStartedTask}
                   Icon={FaTasks}
                   subtitle="Task"
                   bgColor="#B23A48"
@@ -181,7 +184,7 @@ const UserDashboard = () => {
                 <MainCards
                   title="In-progress"
                   btn="View All"
-                  totaltasks={[]}
+                  totaltasks={InprogressTask}
                   Icon={FaTasks}
                   subtitle="Task"
                   bgColor="#DCA74B"
@@ -190,7 +193,7 @@ const UserDashboard = () => {
                 <MainCards
                   title="Completed"
                   btn="View All"
-                  totaltasks={[]}
+                  totaltasks={CompletedTask}
                   Icon={FaTasks}
                   subtitle="Task"
                   bgColor="#566E3D"
@@ -201,20 +204,22 @@ const UserDashboard = () => {
           </div>
         </div>
         <div className="grid 2xl:grid-cols-2 gap-4">
-          <SummaryCard
-            title="Project Status"
-            description="Project Completion Overview"
-            chartData={projectDataForChart}
-            chartConfig={{
-              Completed: { label: "Completed", color: "#4CAF50" },
-              "In Progress": { label: "In Progress", color: "#FFC107" },
-              "Not Started": { label: "Not Started", color: "#F44336" },
-            }}
-          />
+          <RoleChecker allowedRoles={["manager", "team lead"]}>
+            <SummaryCard
+              title="Project Status"
+              description="Project Completion Overview"
+              chartData={projectDataForChart}
+              chartConfig={{
+                Completed: { label: "Completed", color: "#4CAF50" },
+                "In Progress": { label: "In Progress", color: "#FFC107" },
+                "Not Started": { label: "Not Started", color: "#F44336" },
+              }}
+            />
+          </RoleChecker>
           <SummaryCard
             title="Task Status"
             description="Task Completion Overview"
-            // chartData={taskDataForChart}
+            chartData={taskDataForChart}
             chartConfig={{
               Completed: { label: "Completed", color: "#4CAF50" },
               "In Progress": { label: "In Progress", color: "#FFC107" },

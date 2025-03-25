@@ -417,6 +417,11 @@ const CreateProject = () => {
     attachment: [],
   });
 
+  const [errors, setErrors] = useState({
+    project_name: "",
+    project_description: "",
+  });
+
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
   const [ownershipOptions, setOwnershipOptions] = useState([]);
@@ -427,6 +432,28 @@ const CreateProject = () => {
   const startDateRef = useRef(null);
   const endDateRef = useRef(null);
   const inputRef = useRef(null);
+
+  const validateForm = () => {
+    let valid = true;
+    const newErrors = {
+      project_name: "",
+      project_description: "",
+    };
+
+    if (formData.project_name.length < 10) {
+      newErrors.project_name = "Project name must be at least 10 characters";
+      valid = false;
+    }
+
+    if (formData.project_description.length < 10) {
+      newErrors.project_description =
+        "Description must be at least 10 characters";
+      valid = false;
+    }
+
+    setErrors(newErrors);
+    return valid;
+  };
 
   const mutations = useMutation({
     mutationFn: createProject,
@@ -550,6 +577,10 @@ const CreateProject = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!validateForm()) {
+      return;
+    }
+
     if (formData.milestones.length === 0) {
       toast.error("Please add at least one milestone.");
       return;
@@ -621,6 +652,11 @@ const CreateProject = () => {
                       required
                       placeholder="Enter project title"
                     />
+                    {errors.project_name && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.project_name}
+                      </p>
+                    )}
                   </div>
                   <div>
                     <Textarea
@@ -637,6 +673,11 @@ const CreateProject = () => {
                       placeholder="Enter project description"
                       className="outline-none focus:ring-0 focus:ring-offset-0 "
                     />
+                    {errors.project_name && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.project_name}
+                      </p>
+                    )}
                   </div>
                 </div>
                 <div className="space-y-4">
@@ -700,7 +741,12 @@ const CreateProject = () => {
                     </p>
                   )} */}
                 </div>
-                <h3 className="text-lg font-semibold">Attachments</h3>
+                <h3 className="text-lg font-semibold">
+                  Attachments{" "}
+                  <span className="text-xs font-medium text-gray-400">
+                    (optional)
+                  </span>
+                </h3>
                 <Input
                   type="file"
                   multiple

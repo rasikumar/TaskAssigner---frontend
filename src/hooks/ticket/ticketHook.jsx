@@ -71,10 +71,12 @@ const TicketHook = (
 
   const getDocumentById = useMutation({
     mutationFn: (documentId) => getTicketDocument(documentId),
-    onSuccess: (data) => {
-      queryClient.invalidateQueries(["tickets"]);
-      // console.log(data)
-      setFile(data);
+    onSuccess: (file) => {
+      // console.log("Received file:", file);
+      if (file instanceof Blob) {
+        // console.log("File type:", file.type);
+      }
+      setFile(file);
     },
   });
 

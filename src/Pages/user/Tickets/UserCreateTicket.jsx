@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { getAllProjectList } from "@/API/admin/projects/project_api";
 import { getTaskRelatedToProject } from "@/API/admin/task/task_api";
@@ -41,12 +41,17 @@ const UserCreateTicket = () => {
     main_category: "",
     sub_category: "",
     attachments: [],
+    start_date: "",
+    end_date: "",
   });
   const [isOpen, setIsOpen] = useState(false);
   const [step, setStep] = useState(1);
   const [task, setTask] = useState([]);
   const [taskError, setTaskError] = useState("");
   const [subCategoryOptions, setSubCategoryOptions] = useState([]);
+
+  const startDateRef = useRef(null);
+  const endDateRef = useRef(null);
 
   const {
     isLoading: isProjectLoading,
@@ -150,11 +155,47 @@ const UserCreateTicket = () => {
           main_category: "",
           sub_category: "",
           attachments: [],
+          start_date: "",
+          end_date: "",
         });
         setIsOpen(false);
         setStep(1);
       },
     });
+  };
+
+  const validateStep = (currentStep) => {
+    switch (currentStep) {
+      case 1:
+        if (!formData.project) {
+          toast.error("Please select a project before proceeding.");
+          return false;
+        }
+        break;
+      case 2:
+        if (!formData.tasks) {
+          setTaskError("Please select a Task before proceeding.");
+          return false;
+        }
+        break;
+      case 3:
+        if (
+          !formData.assigned_to ||
+          !formData.priority ||
+          !formData.severity ||
+          !formData.main_category ||
+          !formData.sub_category ||
+          !formData.start_date ||
+          !formData.end_date
+        ) {
+          toast.error("Please fill all required fields before proceeding.");
+          return false;
+        }
+        break;
+      default:
+        return true;
+    }
+    return true;
   };
 
   return (
@@ -225,11 +266,9 @@ const UserCreateTicket = () => {
                 </Button>
                 <Button
                   onClick={() => {
-                    if (!formData.tasks) {
-                      setTaskError("Please select a Task before proceeding.");
-                      return;
+                    if (validateStep(2)) {
+                      setStep(3);
                     }
-                    setStep(3);
                   }}
                 >
                   Next
@@ -294,11 +333,47 @@ const UserCreateTicket = () => {
                 disabled={!formData.main_category}
                 required
               />
+              <div>
+                <Label htmlFor="start_date">Start Date:</Label>
+                <Input
+                  onClick={() => startDateRef.current.showPicker()}
+                  ref={startDateRef}
+                  type="date"
+                  id="start_date"
+                  value={formData.start_date}
+                  onChange={(e) =>
+                    handleSelectChange("start_date", e.target.value)
+                  }
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="end_date">End Date:</Label>
+                <Input
+                  onClick={() => endDateRef.current.showPicker()}
+                  ref={endDateRef}
+                  type="date"
+                  id="end_date"
+                  value={formData.end_date}
+                  onChange={(e) =>
+                    handleSelectChange("end_date", e.target.value)
+                  }
+                  required
+                />
+              </div>
               <div className="flex gap-2">
                 <Button variant="outline" onClick={() => setStep(2)}>
                   Prev
                 </Button>
-                <Button onClick={() => setStep(4)}>Next</Button>
+                <Button
+                  onClick={() => {
+                    if (validateStep(3)) {
+                      setStep(4);
+                    }
+                  }}
+                >
+                  Next
+                </Button>
               </div>
             </div>
           )}

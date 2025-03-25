@@ -19,7 +19,7 @@ const UpdateTesterApproval = ({ _id, UpdateApproval, testerDetail }) => {
         onCheckedChange={(checked) => handleToggle(checked)} // Passes `checked` to handleToggle
         disabled={testerDetail} // Disables the switch if testerDetail is true
       />
-      <Label htmlFor="UpdateTesterApproval">Move To Tester</Label>
+      <Label htmlFor="UpdateTesterApproval">{isToggle? "You Finished the task" : "Make toggle to complete the task"}</Label>
     </div>
   );
 };

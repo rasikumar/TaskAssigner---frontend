@@ -53,23 +53,24 @@ function UserDocuments() {
         </RoleChecker>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-      {getAllDocuments?.files?.length > 0 ? <></> : <></>}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 ">
         {isDocumentError ? (
-          <p className="text-red-500">{documentError}</p>
+          <p>{documentError?.response?.data?.message}</p>
         ) : isDocumentLoading ? (
           <p className="animate-spin fixed">
             <VscLoading />
           </p>
-        ) : (
-          getAllDocuments?.files?.map((doc) => (
+        ) : getAllDocuments?.files?.length > 0 ? (
+          getAllDocuments.files.map((doc) => (
             <div
               key={doc._id}
               className="p-4 bg-white border border-gray-300 rounded shadow hover:shadow-lg transition-shadow duration-300"
             >
               <div className="flex justify-between items-center">
                 <h3 className="text-xl font-semibold text-gray-800">
-                  {doc.title}
+                  {doc.title.length >= 10
+                    ? doc.title
+                    : "Title must be at least 10 characters"}
                 </h3>
                 <RoleChecker
                   allowedRoles={["manager"]}
@@ -91,6 +92,10 @@ function UserDocuments() {
               )}
             </div>
           ))
+        ) : (
+          <p className="animate-spin fixed">
+            <VscLoading />
+          </p>
         )}
       </div>
 

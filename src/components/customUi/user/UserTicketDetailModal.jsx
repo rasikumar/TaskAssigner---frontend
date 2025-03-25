@@ -62,6 +62,7 @@ const UserTicketDetailModal = ({ onClose, ticket, onEdit }) => {
   const [description, setDescription] = useState(""); // Store textarea input
 
   const [pdfUrl, setPdfUrl] = useState(null);
+  const [imageUrl, setImageUrl] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
 
   // console.log(formData);
@@ -93,7 +94,14 @@ const UserTicketDetailModal = ({ onClose, ticket, onEdit }) => {
       setStatus(formData.status);
     }
   }, [formData]); // Update status whenever formData changes
-  
+
+  useEffect(() => {
+    if (formData?.main_category) {
+      const subOptions = subCategoryMapping[formData.main_category] || [];
+      setSubCategoryOptions(subOptions);
+    }
+  }, [formData?.main_category]);
+
   const handleStatusChange = (_id, value) => {
     setStatus(value);
 
@@ -198,18 +206,26 @@ const UserTicketDetailModal = ({ onClose, ticket, onEdit }) => {
   };
 
   const handleDocumentClick = (fileUrl) => {
-    // console.log(fileUrl);
     getDocumentById.mutate(fileUrl, {
       onSuccess: (file) => {
-        if (file) {
-          const blob = new Blob([file], { type: "application/pdf" });
-          const url = URL.createObjectURL(blob);
+        if (!file) return;
+
+        const fileType = file.type || "application/pdf"; // Default to PDF
+
+        const blob = new Blob([file], { type: fileType });
+        const url = URL.createObjectURL(blob);
+
+        if (fileType.includes("pdf")) {
           setPdfUrl(url);
-          setIsOpen(true); // Open modal
+        } else if (fileType.includes("image")) {
+          setImageUrl(url);
         }
+
+        setIsOpen(true);
       },
     });
   };
+
   // console.log(pdfUrl);
 
   const handleSave = (e) => {
@@ -456,18 +472,20 @@ const UserTicketDetailModal = ({ onClose, ticket, onEdit }) => {
                         <TooltipContent>Click to view document</TooltipContent>
                       </Tooltip>
                     ))}
-
-                    <div className="flex items-center text-sm text-gray-500">
-                      <Calendar className="h-4 w-4 mr-2" />
-                      {new Date(ticket?.created_at).toLocaleDateString(
-                        "en-US",
-                        {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        }
-                      ) || "Unknown Date"}
-                    </div>
+                  </div>
+                  <div className="flex items-center text-sm text-gray-500">
+                    <Calendar className="h-4 w-4 mr-2" />
+                    {new Date(ticket?.start_date).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    }) || "Unknown Date"}{" "}
+                    - <Calendar className="h-4 w-4 mr-2" />
+                    {new Date(ticket?.end_date).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    }) || "Unknown Date"}
                   </div>
                   {/* Assigned & Raised Info */}
                   <div className="grid grid-cols-2 gap-4 bg-gray-100 p-3 rounded-md">
@@ -615,15 +633,27 @@ const UserTicketDetailModal = ({ onClose, ticket, onEdit }) => {
                       <DialogHeader>
                         <DialogTitle>View Document</DialogTitle>
                       </DialogHeader>
-                      {pdfUrl && (
+
+                      {pdfUrl ? (
                         <embed
                           src={pdfUrl}
                           type="application/pdf"
                           className="w-full h-[500px] border rounded-md"
                         />
+                      ) : imageUrl ? (
+                        <img
+                          src={imageUrl}
+                          alt="Document Preview"
+                          className="w-full max-h-[500px] object-contain border rounded-md"
+                        />
+                      ) : (
+                        <p className="text-center text-gray-500">
+                          Unsupported file type
+                        </p>
                       )}
                     </DialogContent>
                   </Dialog>
+
                   {/* Created At */}
                 </CardContent>
               </Card>

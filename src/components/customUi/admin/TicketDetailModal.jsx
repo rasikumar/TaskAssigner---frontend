@@ -57,8 +57,13 @@ const TicketDetailModal = ({ onClose, ticket, onEdit }) => {
   const [subCategoryOptions, setSubCategoryOptions] = useState([]);
 
   const [pdfUrl, setPdfUrl] = useState(null);
+  const [imageUrl, setImageUrl] = useState(null);
+
   const [isOpen, setIsOpen] = useState(false);
   // console.log(formData?.attachments);
+  const attachmentsArray = Array.isArray(formData?.attachments)
+    ? formData.attachments
+    : [formData?.attachments]; // Convert single object to array
 
   const { getDocumentById } = TicketHook();
 
@@ -117,30 +122,46 @@ const TicketDetailModal = ({ onClose, ticket, onEdit }) => {
     }
   };
 
-  const handleFileChange = (e) => {
-    const files = Array.from(e.target.files);
-    const validFiles = files.filter((file) => file.size <= 10 * 1024 * 1024); // 10 MB limit
+  // // const handleFileChange = (e) => {
+  // //   const files = Array.from(e.target.files);
+  // //   const validFiles = files.filter((file) => file.size <= 10 * 1024 * 1024); // 10 MB limit
 
-    const newAttachments = validFiles.map((file) => ({
-      file_name: file.name, // Use the file name
-      file_url: null, // Placeholder until the file is uploaded
-      uploaded_at: new Date().toISOString(), // Current timestamp
-      file, // Include the file object for uploading
-    }));
+  // //   const newAttachments = validFiles.map((file) => ({
+  // //     file_name: file.name, // Use the file name
+  // //     file_url: null, // Placeholder until the file is uploaded
+  // //     uploaded_at: new Date().toISOString(), // Current timestamp
+  // //     file, // Include the file object for uploading
+  // //   }));
 
-    setFormData((prevData) => ({
-      ...prevData,
-      attachments: [
-        ...(Array.isArray(prevData.attachments) ? prevData.attachments : []),
-        ...newAttachments,
-      ], // Ensure attachments is an array
-    }));
-  };
+  //   setFormData((prevData) => ({
+  //     ...prevData,
+  //     attachments: [
+  //       ...(Array.isArray(prevData.attachments) ? prevData.attachments : []),
+  //       ...newAttachments,
+  //     ], // Ensure attachments is an array
+  //   }));
+  // };
 
   const handleDocumentEdit = (index, newFile) => {
+    if (!newFile) return;
+
     setFormData((prevData) => {
-      const updatedAttachments = [...prevData.attachments];
-      updatedAttachments[index] = newFile;
+      const newAttachment = {
+        file_name: newFile.name,
+      };
+
+      // Ensure attachments is always an array
+      const updatedAttachments = Array.isArray(prevData.attachments)
+        ? [...prevData.attachments]
+        : [];
+
+      // If replacing an existing file
+      if (updatedAttachments[index]) {
+        updatedAttachments[index] = newAttachment;
+      } else {
+        updatedAttachments.push(newAttachment);
+      }
+
       return {
         ...prevData,
         attachments: updatedAttachments,
@@ -149,15 +170,22 @@ const TicketDetailModal = ({ onClose, ticket, onEdit }) => {
   };
 
   const handleDocumentClick = (fileUrl) => {
-    // console.log(fileUrl);
     getDocumentById.mutate(fileUrl, {
       onSuccess: (file) => {
-        if (file) {
-          const blob = new Blob([file], { type: "application/pdf" });
-          const url = URL.createObjectURL(blob);
+        if (!file) return;
+
+        const fileType = file.type || "application/pdf"; // Default to PDF
+
+        const blob = new Blob([file], { type: fileType });
+        const url = URL.createObjectURL(blob);
+
+        if (fileType.includes("pdf")) {
           setPdfUrl(url);
-          setIsOpen(true); // Open modal
+        } else if (fileType.includes("image")) {
+          setImageUrl(url);
         }
+
+        setIsOpen(true);
       },
     });
   };
@@ -189,6 +217,13 @@ const TicketDetailModal = ({ onClose, ticket, onEdit }) => {
   useEffect(() => {
     setIsVisible(true);
   }, []);
+
+  useEffect(() => {
+    if (formData?.main_category) {
+      const subOptions = subCategoryMapping[formData.main_category] || [];
+      setSubCategoryOptions(subOptions);
+    }
+  }, [formData?.main_category]);
 
   useEffect(() => {
     setFormData(ticket);
@@ -321,18 +356,54 @@ const TicketDetailModal = ({ onClose, ticket, onEdit }) => {
 
             <div className="flex flex-col">
               <Label htmlFor="attachments">Attachments:</Label>
-              {formData?.attachments &&
-                formData?.attachments.length > 0 &&
-                formData?.attachments.map((doc, index) =>
-                  renderDocumentEdit(doc, index)
-                )}
+              {attachmentsArray.map((doc, index) => (
+                <div key={index} className="flex items-center gap-2 mt-2">
+                  {/* Display File Name Inside Input Field */}
+                  <input
+                    type="text"
+                    value={doc?.file_name || `Document ${index + 1}`}
+                    className="border p-2 text-sm w-full"
+                    readOnly
+                  />
 
-              <Input
-                type="file"
-                multiple
-                id="attachments"
-                onChange={handleFileChange}
-              />
+                  {/* Hidden File Input for Upload */}
+                  <Input
+                    type="file"
+                    onChange={(e) =>
+                      renderDocumentEdit(index, e.target.files[0])
+                    }
+                    className="hidden"
+                    id={`file-input-${index}`}
+                  />
+
+                  {/* Label to Trigger File Selection */}
+                  <label
+                    htmlFor={`file-input-${index}`}
+                    className="bg-gray-200 px-3 py-1 rounded cursor-pointer text-sm"
+                  >
+                    Upload
+                  </label>
+
+                  {/* File Download Link */}
+                  {/* <a
+                    href={doc?.file_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline text-sm cursor-pointer"
+                  >
+                    View
+                  </a> */}
+
+                  {/* Remove Button */}
+                  {/* <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleRemoveDocument(index)}
+                  >
+                    Remove
+                  </Button> */}
+                </div>
+              ))}
             </div>
             <Button onClick={handleSave} className="mb-4">
               Update Ticket
@@ -365,18 +436,20 @@ const TicketDetailModal = ({ onClose, ticket, onEdit }) => {
                         <TooltipContent>Click to view document</TooltipContent>
                       </Tooltip>
                     ))}
-
-                    <div className="flex items-center text-sm text-gray-500">
-                      <Calendar className="h-4 w-4 mr-2" />
-                      {new Date(ticket?.created_at).toLocaleDateString(
-                        "en-US",
-                        {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        }
-                      ) || "Unknown Date"}
-                    </div>
+                  </div>
+                  <div className="flex items-center text-sm text-gray-500">
+                    <Calendar className="h-4 w-4 mr-2" />
+                    {new Date(ticket?.start_date).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    }) || "Unknown Date"}{" "}
+                    - <Calendar className="h-4 w-4 mr-2" />
+                    {new Date(ticket?.end_date).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    }) || "Unknown Date"}
                   </div>
                   {/* Assigned & Raised Info */}
                   <div className="grid grid-cols-2 gap-4 bg-gray-100 p-3 rounded-md">
@@ -493,12 +566,23 @@ const TicketDetailModal = ({ onClose, ticket, onEdit }) => {
                       <DialogHeader>
                         <DialogTitle>View Document</DialogTitle>
                       </DialogHeader>
-                      {pdfUrl && (
+
+                      {pdfUrl ? (
                         <embed
                           src={pdfUrl}
                           type="application/pdf"
                           className="w-full h-[500px] border rounded-md"
                         />
+                      ) : imageUrl ? (
+                        <img
+                          src={imageUrl}
+                          alt="Document Preview"
+                          className="w-full max-h-[500px] object-contain border rounded-md"
+                        />
+                      ) : (
+                        <p className="text-center text-gray-500">
+                          Unsupported file type
+                        </p>
                       )}
                     </DialogContent>
                   </Dialog>

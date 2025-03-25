@@ -18,7 +18,7 @@ import MainCards from "@/components/ui/cards/MainCards";
 import { FaTasks } from "react-icons/fa";
 import TableSkeleton from "@/components/loading/TableSkeleton";
 import { getTaskRelatedToProject } from "@/API/admin/task/task_api";
-import { getProjectById } from "@/API/admin/projects/project_api";  
+import { getProjectById } from "@/API/admin/projects/project_api";
 const UserProjects = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
@@ -96,6 +96,9 @@ const UserProjects = () => {
       queryClient.invalidateQueries(["userProjects"]);
       setIsModalOpen(false);
       toast.success("Project updated successfully!");
+    },
+    onError: (data) => {
+      toast.error(data.response?.data?.error || "Failed to update project");
     },
   });
 

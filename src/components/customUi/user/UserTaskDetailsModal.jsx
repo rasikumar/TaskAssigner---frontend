@@ -272,15 +272,20 @@ export const UserTaskDetailsModal = ({ task, onClose, onEdit }) => {
 
         {/* Content */}
         <div className="p-6 ">
-          <div>
+          <div className="flex flex-col justify-between mb-4">
             <h2 className="text-xl font-bold text-indigo-600 mb-2">
               {task.project?.project_name}
             </h2>
-            <UpdateTesterApproval
-              UpdateApproval={UpdateApproval}
-              _id={task._id}
-              testerDetail={task.tester_approval}
-            />
+            <RoleChecker
+              allowedRoles={["team lead", "manager", "member"]}
+              allowedDepartments={["testing"]}
+            >
+              <UpdateTesterApproval
+                UpdateApproval={UpdateApproval}
+                _id={task._id}
+                testerDetail={task.tester_approval}
+              />
+            </RoleChecker>
           </div>
 
           <hr className="bg-taskBlack h-[0.1rem] border-0" />

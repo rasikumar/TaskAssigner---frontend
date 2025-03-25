@@ -10,7 +10,6 @@ import { createProject } from "@/API/admin/projects/project_api";
 import { getAllEmployeeOwnerShip } from "@/API/admin/adminDashborad";
 
 import { PlusIcon } from "lucide-react";
-// import { VscLoading } from "react-icons/vsc";
 import Modal from "@/components/customUi/Modal";
 import { GrClose } from "react-icons/gr";
 import Selector from "@/components/customUi/Selector";
@@ -24,10 +23,15 @@ const CreateProjectUser = () => {
     start_date: "",
     end_date: "",
     estimated_hours: "",
-    milestones: [], // Add milestones to formData
+    milestones: [],
     attachment: [],
   });
-  // console.log(formData);
+
+  const [errors, setErrors] = useState({
+    project_name: "",
+    project_description: "",
+  });
+
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
   const [ownershipOptions, setOwnershipOptions] = useState([]);
@@ -38,6 +42,27 @@ const CreateProjectUser = () => {
   const startDateRef = useRef(null);
   const endDateRef = useRef(null);
   const inputRef = useRef(null);
+
+  const validateForm = () => {
+    let valid = true;
+    const newErrors = {
+      project_name: "",
+      project_description: "",
+    };
+
+    if (formData.project_name.length < 10) {
+      newErrors.project_name = "Project name must be at least 10 characters";
+      valid = false;
+    }
+
+    if (formData.project_description.length < 10) {
+      newErrors.project_description = "Description must be at least 10 characters";
+      valid = false;
+    }
+
+    setErrors(newErrors);
+    return valid;
+  };
 
   const mutations = useMutation({
     mutationFn: createProject,
@@ -51,7 +76,7 @@ const CreateProjectUser = () => {
         start_date: "",
         end_date: "",
         estimated_hours: "",
-        milestones: [], // Reset milestones in formData
+        milestones: [],
         attachment: [],
       });
       setIsOpen(false);
@@ -91,26 +116,17 @@ const CreateProjectUser = () => {
   } = useQuery({
     queryKey: ["userData"],
     queryFn: getAllEmployeeOwnerShip,
-    enabled: isOpen, // Only fetch when the dialog is open
+    enabled: isOpen,
   });
 
-  // console.log(formData);
-  // Map user data into dropdown options when data is available
   useEffect(() => {
     if (userData) {
       const options = [
-        // ...userData.teamLeads
-        //   .filter((lead) => lead.admin_verify === "true") // Check admin_verify for team leads
-        //   .map((lead) => ({
-        //     id: lead.id,
-        //     name: `Team Lead - ${lead.name}`,
-        //   })),
-
         ...userData.managers
           .filter(
             (manager) =>
               manager.admin_verify === true && manager.hr_approval == true
-          ) // Check admin_verify for managers
+          )
           .map((manager) => ({
             id: manager.id,
             name: `Manager - ${manager.name}`,
@@ -129,6 +145,14 @@ const CreateProjectUser = () => {
       ...prevData,
       [name]: value,
     }));
+
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        [name]: "",
+      }));
+    }
   };
 
   const handleAddMilestone = () => {
@@ -145,8 +169,7 @@ const CreateProjectUser = () => {
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
-    // console.log(files);
-    const validFiles = files.filter((file) => file.size <= 10 * 1024 * 1024); // 10 MB limit
+    const validFiles = files.filter((file) => file.size <= 10 * 1024 * 1024);
 
     if (validFiles.length !== files.length) {
       toast.error("Some files exceed the 10 MB size limit.");
@@ -161,21 +184,22 @@ const CreateProjectUser = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!validateForm()) {
+      return;
+    }
+
     if (formData.milestones.length === 0) {
-      return; // Simply exit without showing a toast
+      return;
     }
 
     const formDataToSend = new FormData();
 
-    // Append attachments
     formData.attachment.forEach((file) => {
       formDataToSend.append("attachment", file);
     });
 
-    // Convert milestones to JSON if the API expects it
     formDataToSend.append("milestones", JSON.stringify(formData.milestones));
 
-    // Append other form data fields
     for (const key in formData) {
       if (key !== "attachment" && key !== "milestones") {
         formDataToSend.append(key, formData[key]);
@@ -229,8 +253,13 @@ const CreateProjectUser = () => {
                         handleSelectChange("project_name", e.target.value)
                       }
                       required
-                      placeholder="Enter project title"
+                      placeholder="Enter project title (min 10 characters)"
                     />
+                    {errors.project_name && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.project_name}
+                      </p>
+                    )}
                   </div>
                   <div>
                     <Textarea
@@ -244,16 +273,20 @@ const CreateProjectUser = () => {
                         )
                       }
                       required
-                      placeholder="Enter project description"
+                      placeholder="Enter project description (min 10 characters)"
                       className="outline-none focus:ring-0 focus:ring-offset-0 "
                     />
+                    {errors.project_description && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.project_description}
+                      </p>
+                    )}
                   </div>
                 </div>
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold">Ownership</h3>
                   <div>
                     <Selector
-                      // label="Ownership"
                       id="project_ownership"
                       name="project_ownership"
                       value={formData.project_ownership}
@@ -274,8 +307,8 @@ const CreateProjectUser = () => {
                   <div className="flex items-center gap-2">
                     <Button
                       onClick={() => {
-                        setShowMilestoneInput(true); // Show the input field
-                        setTimeout(() => inputRef.current?.focus(), 0); // Set focus after re-render
+                        setShowMilestoneInput(true);
+                        setTimeout(() => inputRef.current?.focus(), 0);
                       }}
                       className="p-2"
                     >
@@ -304,13 +337,8 @@ const CreateProjectUser = () => {
                       </li>
                     ))}
                   </ul>
-                  {/* {formData.milestones.length === 0 && (
-                    <p className="text-red-500 text-sm">
-                      At least one milestone is required.
-                    </p>
-                  )} */}
                 </div>
-                <h3 className="text-lg font-semibold">Attachments</h3>
+                <h3 className="text-lg font-semibold">Attachments <span>(optional)</span></h3>
                 <Input
                   type="file"
                   multiple

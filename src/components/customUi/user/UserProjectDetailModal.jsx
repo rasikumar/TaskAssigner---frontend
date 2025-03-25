@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 
 import { useEffect, useRef, useState } from "react";
-import { FaPen, FaRedo, FaRegWindowClose } from "react-icons/fa";
+import { FaPen, FaRedo, FaRegWindowClose, FaTimes } from "react-icons/fa";
 import { Input } from "../../ui/input";
 import { Button } from "../../ui/button";
 // import { useQuery } from "@tanstack/react-query";
@@ -42,7 +42,7 @@ export const UserProjectDetailModal = ({
   // const [isOpen] = useState(false);
   // const [ownershipOptions, setOwnershipOptions] = useState([]);
   const [milestoneData, setMilestoneData] = useState(project?.milestones || []);
-
+  const [milestoneError, setMilestoneError] = useState("");
 
   const [pdfUrl, setPdfUrl] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -130,9 +130,18 @@ export const UserProjectDetailModal = ({
   const handleSave = (e) => {
     e.preventDefault();
 
+    // Validate milestones
+    for (const milestone of milestoneData) {
+      if (!milestone.name.trim()) {
+        setMilestoneError("Milestone name cannot be empty.");
+        return;
+      }
+    }
+
     const updatedFormData = { ...formData, milestones: milestoneData };
 
     setErrorMessage(""); // Clear error message
+    setMilestoneError(""); // Clear milestone error
     onEdit(updatedFormData); // Submit changes including milestones
     // console.log(updatedFormData);
   };
@@ -359,45 +368,63 @@ export const UserProjectDetailModal = ({
                 </h2>
 
                 {milestoneData.map((milestone, index) => (
-                  <div key={milestone._id} className="mb-2 flex gap-2">
+                  <div
+                    key={milestone._id || index}
+                    className="mb-2 flex gap-2 items-center"
+                  >
                     <Input
                       type="text"
                       value={milestone.name}
                       onChange={(e) =>
                         handleMilestoneChange(index, "name", e.target.value)
                       }
-                      className="w-full p-2 border-b-2 focus:outline-none focus:ring-2 focus:ring-primary"
+                      className={`w-full p-2 border-b-2 focus:outline-none focus:ring-2 focus:ring-primary ${
+                        milestone.status === "Completed" &&
+                        "bg-green-400 cursor-not-allowed"
+                      }`}
                     />
-                    <Select
-                      value={milestone.status}
-                      onValueChange={(value) =>
-                        handleMilestoneChange(index, "status", value)
-                      }
-                      className="w-full p-2 border rounded-md mt-2"
-                    >
-                      <SelectTrigger className="outline-none focus:ring-0 focus:ring-offset-0">
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectLabel>Select a Status</SelectLabel>
-                          <SelectItem value="Not Started">
-                            Not Started
-                          </SelectItem>
-                          <SelectItem value="In Progress">
-                            In Progress
-                          </SelectItem>
-                          <SelectItem value="Completed">Completed</SelectItem>
-                          <SelectItem value="Pending">Pending</SelectItem>
-                          <SelectItem value="On Hold">On Hold</SelectItem>
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                    <Button onClick={() => handleMilestoneDelete(index)}>
-                      Delete
-                    </Button>
+
+                    {milestone.status === "Completed" ? (
+                      ""
+                    ) : (
+                      <Select
+                        value={milestone.status}
+                        onValueChange={(value) =>
+                          handleMilestoneChange(index, "status", value)
+                        }
+                        className="w-full p-2 border rounded-md mt-2"
+                      >
+                        <SelectTrigger className="outline-none focus:ring-0 focus:ring-offset-0">
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectLabel>Select a Status</SelectLabel>
+                            <SelectItem value="Not Started">
+                              Not Started
+                            </SelectItem>
+                            <SelectItem value="In Progress">
+                              In Progress
+                            </SelectItem>
+                            <SelectItem value="Pending">Pending</SelectItem>
+                            <SelectItem value="On Hold">On Hold</SelectItem>
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                    )}
+                    {!milestone._id && (
+                      <button
+                        onClick={() => handleMilestoneDelete(index)}
+                        className="p-2 text-red-500 hover:text-red-700 transition-colors"
+                      >
+                        <FaTimes size={20} />
+                      </button>
+                    )}
                   </div>
                 ))}
+                {milestoneError && (
+                  <div className="text-red-500 text-sm">{milestoneError}</div>
+                )}
                 <Button onClick={handleMilestoneAdd} className="mb-2">
                   Add
                 </Button>
@@ -514,10 +541,14 @@ export const UserProjectDetailModal = ({
                         {project.milestones.map((milestone) => (
                           <div
                             key={milestone._id}
-                            className="flex items-center justify-between p-3 border rounded-lg shadow-md bg-white"
+                            className={`flex items-center justify-between p-3 border rounded-lg shadow-md bg-white ${
+                              milestone.status &&
+                              milestone.tester_status === "Completed" &&
+                              "border-green-500"
+                            } `}
                           >
                             <div>
-                              <h3 className="text-sm font-semibold text-gray-800">
+                              <h3 className="text-sm font-semibold text-gray-800 ">
                                 {milestone.name}
                               </h3>
                             </div>
