@@ -120,7 +120,7 @@ const Dashboard = () => {
         <h1 className="text-2xl font-extrabold mb-2 tracking-wide">
           Welcome,{" "}
           <span className="text-yellow-300">
-            {isAdminLoading ? "Admin" : adminData?.data.mail}!
+            {isAdminLoading ? "Admin" : adminData?.data?.mail}!
             {/* {adminData?.data.mail || "Admin"}! */}
           </span>
         </h1>
