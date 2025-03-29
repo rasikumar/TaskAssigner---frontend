@@ -9,6 +9,11 @@ import {
   FaTicketAlt,
   FaCheck,
   FaProjectDiagram,
+  FaPalette,
+  FaBullhorn,
+  FaFlask,
+  FaUsers,
+  FaCode,
 } from "react-icons/fa";
 import { GrDocumentPdf, GrUserManager } from "react-icons/gr";
 // import { teams } from "@/data/teams";
@@ -16,7 +21,41 @@ import Instance from "@/API/Instance";
 import { Outlet, useNavigate } from "react-router";
 import AdminSidebarFooter from "./SideBar/AdminSidebarFooter";
 import { cn } from "@/lib/utils";
-import { selectItemsData } from "@/utils/selectDepartment";
+import AdminTeams from "@/hooks/teams/AdminTeams";
+// import { selectItemsData } from "@/utils/selectDepartment";
+
+const selectItemsData = [
+  {
+    id: 1,
+    value: "development",
+    label: "Development",
+    icon: <FaCode />, // Better represents coding/development
+  },
+  {
+    id: 2,
+    value: "design",
+    label: "Design",
+    icon: <FaPalette />, // Represents creative design
+  },
+  {
+    id: 3,
+    value: "marketing",
+    label: "Marketing",
+    icon: <FaBullhorn />, // Represents marketing/advertising
+  },
+  {
+    id: 4,
+    value: "testing",
+    label: "Testing",
+    icon: <FaFlask />, // Represents testing/experimentation
+  },
+  {
+    id: 5,
+    value: "human-resource",
+    label: "Human Resource",
+    icon: <FaUsers />, // Represents people/team
+  },
+];
 
 const AdminSidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -49,6 +88,22 @@ const AdminSidebar = () => {
     fetchData();
   }, []);
 
+  const AdminTeamsHook = AdminTeams;
+
+  const { getAllEmpByDepartment } = AdminTeamsHook();
+  const handleTeamSelect = (team) => {
+    getAllEmpByDepartment.mutate(team?.value, {
+      onSuccess: (data) => {
+        navigate(`/admin/dashboard/teams/${team?.value}`, {
+          state: { data }, // This is where you pass the data
+        });
+      },
+      onError: (error) => {
+        console.error("Error fetching employees:", error);
+      },
+    });
+  };
+
   return (
     <div className={cn("flex h-screen w-full p-4 absolute bg-slate-100")}>
       <div
@@ -72,10 +127,12 @@ const AdminSidebar = () => {
             label="Team Management"
             Icon={GrUserManager}
             links={selectItemsData.map((team) => ({
-              to: `./teams/${team.value.toLowerCase().replace(/\s+/g, "-")}`,
-              label: team.value,
+              to: `./teams/${team.value}`, // Unique path for each team
+              label: team.label,
               icon: team.icon,
+              value: team.value,
             }))}
+            onSelect={handleTeamSelect}
           />
           <SidebarLink
             to="/admin/dashboard/projects"
@@ -89,7 +146,6 @@ const AdminSidebar = () => {
             label="Tasks Management"
             isCollapsed={isCollapsed}
           />
-
           <SidebarLink
             to="/admin/dashboard/ticket"
             Icon={FaTicketAlt}

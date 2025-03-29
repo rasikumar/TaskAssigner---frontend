@@ -1,48 +1,59 @@
 /* eslint-disable react/prop-types */
+// Dropdown.jsx
 import { useState } from "react";
-import { useLocation } from "react-router";
-import SidebarLink from "./SidebarLink";
+import { NavLink } from "react-router";
 
-const Dropdown = ({ isCollapsed, label, Icon, links }) => {
+const Dropdown = ({ isCollapsed, label, Icon, links, onSelect }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const location = useLocation();
-
-  // Check if any link in the dropdown is active
-  const isDropdownActive = links.some((link) =>
-    location.pathname.startsWith(link.to)
-  );
-
-  const toggleDropdown = () => setIsOpen(!isOpen);
 
   return (
-    <div>
+    <div className="relative font-semibold">
       <button
-        onClick={toggleDropdown}
-        className={`flex items-center transition-all duration-300 ${
-          isCollapsed ? "justify-center" : "px-4"
-        } ${
-          isDropdownActive
-            ? "bg-bg rounded-xl p-4" // Active styles for dropdown header
-            : "text-taskBlack"
+        onClick={() => setIsOpen(!isOpen)}
+        className={`flex items-center w-full p-2 rounded-lg transition-colors hover:bg-gray-100 ${
+          isCollapsed ? "justify-center" : "justify-start gap-3"
         }`}
       >
-        <Icon className={`text-xl ${isCollapsed ? "ml-5" : ""}`} />
+        <Icon className="text-lg" />
         {!isCollapsed && (
-          <span className="ml-2 2xl:text-base text-xs font-semibold">
-            {label}
-          </span>
+          <>
+            <span className="flex-1 text-left">{label}</span>
+            <svg
+              className={`w-4 h-4 transition-transform ${
+                isOpen ? "rotate-180" : ""
+              }`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </>
         )}
       </button>
-      {isOpen && (
-        <div className="flex flex-col gap-4 my-4 capitalize">
-          {links.map((link, index) => (
-            <SidebarLink
-              key={index}
+
+      {!isCollapsed && isOpen && (
+        <div className="ml-6 mt-1 space-y-1">
+          {links.map((link) => (
+            <NavLink
+              key={link.to}
               to={link.to}
-              Icon={link.icon}
-              label={link.label}
-              isCollapsed={isCollapsed}
-            />
+              onClick={() => onSelect(link)}
+              className={({ isActive }) =>
+                `flex items-center p-2 rounded-lg transition-colors ${
+                  isActive ? "bg-bg" : "hover:bg-gray-100"
+                }`
+              }
+            >
+              {link.icon && <span className="mr-2">{link.icon}</span>}
+              <span>{link.label}</span>
+            </NavLink>
           ))}
         </div>
       )}

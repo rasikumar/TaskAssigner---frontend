@@ -15,7 +15,7 @@ import AdminSidebars from "./components/AdminSidebar";
 import Userverify from "./Pages/admin/user-verify/Userverify";
 // import TeamList from "./Pages/admin/teams";
 import TeamPage from "./Pages/admin/teams/[teamName]";
-import RolePage from "./Pages/admin/roles/[roleName]";
+// import RolePage from "./Pages/admin/roles/[roleName]";
 
 // User
 import UserSidebar from "./components/UserSidebar";
@@ -25,7 +25,9 @@ import UserTasks from "./Pages/user/tasks/UserTasks";
 import UserProjects from "./Pages/user/projects/userProjects";
 import UserTicket from "./Pages/user/Tickets/UserTickets";
 import UsersVerify from "./Pages/user/user-verify/Userverify";
-import MemberDetailPage from "./Pages/admin/people/[peopleName]";
+import UserTeamPage from "./Pages/user/teams/[teamName]";
+
+// import MemberDetailPage from "./Pages/admin/people/[peopleName]";
 import ScrollToTop from "./lib/ScrollToTop";
 import Projects from "./Pages/admin/projects/Projects";
 import { useEffect, useState } from "react";
@@ -95,7 +97,7 @@ const App = () => {
                   </ProtectedRoute>
                 }
               />
-              <Route
+              {/* <Route
                 path="teams/:teamName/:roleName"
                 element={
                   <ProtectedRoute allowedRoles={["admin"]}>
@@ -110,7 +112,7 @@ const App = () => {
                     <MemberDetailPage />
                   </ProtectedRoute>
                 }
-              />
+              /> */}
 
               <Route
                 path="tasks" // Relative path
@@ -196,6 +198,15 @@ const App = () => {
                     }
                   >
                     <UserProjects />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="teams/:teamName"
+                element={
+                  <ProtectedRoute allowedRoles={["manager"]}>
+                    <UserTeamPage />
                   </ProtectedRoute>
                 }
               />

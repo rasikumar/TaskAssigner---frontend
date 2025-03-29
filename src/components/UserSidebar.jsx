@@ -9,13 +9,52 @@ import {
   FaTicketAlt,
   FaCheck,
   FaProjectDiagram,
+  FaCode,
+  FaPalette,
+  FaBullhorn,
+  FaFlask,
+  FaUsers,
 } from "react-icons/fa";
 import { GrDocumentPdf, GrUserManager } from "react-icons/gr";
-import { teams } from "@/data/teams";
+// import { teams } from "@/data/teams";
 import { Outlet, useNavigate } from "react-router";
 import UserSidebarFooter from "./SideBar/UserSidebarFooter";
 import RoleChecker from "@/lib/RoleChecker";
 import { cn } from "@/lib/utils";
+import Teams from "@/hooks/teams/Teams";
+
+const selectItemsData = [
+  {
+    id: 1,
+    value: "development",
+    label: "Development",
+    icon: <FaCode />, // Better represents coding/development
+  },
+  {
+    id: 2,
+    value: "design",
+    label: "Design",
+    icon: <FaPalette />, // Represents creative design
+  },
+  {
+    id: 3,
+    value: "marketing",
+    label: "Marketing",
+    icon: <FaBullhorn />, // Represents marketing/advertising
+  },
+  {
+    id: 4,
+    value: "testing",
+    label: "Testing",
+    icon: <FaFlask />, // Represents testing/experimentation
+  },
+  {
+    id: 5,
+    value: "human-resource",
+    label: "Human Resource",
+    icon: <FaUsers />, // Represents people/team
+  },
+];
 
 const AdminSidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -43,6 +82,22 @@ const AdminSidebar = () => {
   };
 
   // console.log(name);
+  const userTeamsHook = Teams;
+
+  const { userGetAllEmpByDepartment } = userTeamsHook();
+
+  const handleTeamSelect = (team) => {
+    userGetAllEmpByDepartment.mutate(team?.value, {
+      onSuccess: (data) => {
+        navigate(`/dashboard/teams/${team?.value}`, {
+          state: { data },
+        });
+      },
+      onError: (error) => {
+        console.error("Error fetching employees:", error);
+      },
+    });
+  };
 
   return (
     <div className={cn("flex h-screen w-full p-4 absolute bg-slate-100")}>
@@ -70,11 +125,13 @@ const AdminSidebar = () => {
               isCollapsed={isCollapsed}
               label="Team Management"
               Icon={GrUserManager}
-              links={teams.map((team) => ({
-                to: `./teams/${team.name.toLowerCase().replace(/\s+/g, "-")}`,
+              links={selectItemsData.map((team) => ({
+                to: `./teams/${team.value}`, // Unique path for each team
+                label: team.label,
                 icon: team.icon,
-                label: team.name,
+                value: team.value,
               }))}
+              onSelect={handleTeamSelect}
             />
           </RoleChecker>
           <RoleChecker allowedRoles={["manager"]}>
@@ -93,7 +150,7 @@ const AdminSidebar = () => {
           />
           <RoleChecker
             allowedRoles={["manager", "team lead", "member"]}
-            allowedDepartments={["development", "testing"]}
+            // allowedDepartments={["development", "testing"]}
           >
             <SidebarLink
               to="/dashboard/ticket"

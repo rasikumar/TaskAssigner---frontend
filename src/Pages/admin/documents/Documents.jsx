@@ -32,7 +32,7 @@ function Documents() {
       },
     });
   };
-  console.log(pdfUrl);
+  // console.log(pdfUrl);
 
 
   return (
