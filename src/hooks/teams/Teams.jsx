@@ -14,7 +14,7 @@ const Teams = () => {
     mutationFn: (departmentId) => userGetEmpByDepartment(departmentId),
     onSuccess: (data) => {
       queryClient.invalidateQueries([USER_DOCUMENTS_QUERY_KEY]);
-      console.log(data);
+      // console.log(data);
       return data;
     },
     onError: (error) => {

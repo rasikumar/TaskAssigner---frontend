@@ -128,6 +128,7 @@ const Tasks = () => {
     { value: "Not started", label: "Not Started" },
     { value: "In progress", label: "In Progress" },
     { value: "Completed", label: "Completed" },
+    { value: "Cancelled", label: "Cancelled" },
     { value: "Pending", label: "Pending" },
   ];
 
