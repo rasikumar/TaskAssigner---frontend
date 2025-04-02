@@ -72,6 +72,17 @@ const AdminSidebar = () => {
   const getRole = location.state?.data?.role || localStorage.getItem("role");
   const role = getRole ? getRole.replace(/^"|"$/g, "") : "Loading...";
 
+  const getDepartment =
+    location.state?.data?.department || localStorage.getItem("department");
+  const department = getDepartment
+    ? getDepartment.replace(/^"|"$/g, "")
+    : "Loading...";
+
+  // Filter selectItemsData based on department
+  const filteredSelectItemsData = selectItemsData.filter(
+    (item) => item.value === department
+  );
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
@@ -117,16 +128,13 @@ const AdminSidebar = () => {
             label="Dashboard"
             isCollapsed={isCollapsed}
           />
-          <RoleChecker
-            allowedRoles={["manager"]}
-            // allowedDepartments={["human-resource"]}
-          >
+          <RoleChecker allowedRoles={["manager"]}>
             <Dropdown
               isCollapsed={isCollapsed}
               label="Team Management"
               Icon={GrUserManager}
-              links={selectItemsData.map((team) => ({
-                to: `./teams/${team.value}`, // Unique path for each team
+              links={filteredSelectItemsData.map((team) => ({
+                to: `./teams/${team.value}`,
                 label: team.label,
                 icon: team.icon,
                 value: team.value,
@@ -148,10 +156,7 @@ const AdminSidebar = () => {
             label="Tasks Management"
             isCollapsed={isCollapsed}
           />
-          <RoleChecker
-            allowedRoles={["manager", "team lead", "member"]}
-            // allowedDepartments={["development", "testing"]}
-          >
+          <RoleChecker allowedRoles={["manager", "team lead", "member"]}>
             <SidebarLink
               to="/dashboard/ticket"
               Icon={FaTicketAlt}
