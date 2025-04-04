@@ -40,7 +40,7 @@ const UserLogin = () => {
       if (response.status === 200 && response.data.status) {
         localStorage.setItem("token", response.data.token);
 
-        toast.success("Login successful! Redirecting to the dashboard...");
+        toast.success("Login successful!");
 
         // Redirect to the dashboard with replace to prevent back navigation
         setTimeout(() => {
@@ -118,24 +118,24 @@ const UserLogin = () => {
                 </div>
               </div>
 
-              <p className="text-sm font-semibold">
+              {/* <p className="text-sm font-semibold">
                 Having trouble signing in?{" "}
                 <span className="text-primary cursor-pointer">
                   Forget password
                 </span>
-              </p>
+              </p> */}
 
               <Button className="w-full" onClick={handleSubmit}>
                 Sign In
               </Button>
             </div>
 
-            <p className="text-sm text-center mt-4">
+            {/* <p className="text-sm text-center mt-4">
               Don&apos;t have an account?{" "}
               <span className="font-semibold text-primary cursor-pointer">
                 Request Now
               </span>
-            </p>
+            </p> */}
           </div>
         </div>
       </div>

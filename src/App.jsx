@@ -41,7 +41,7 @@ const App = () => {
   const [isDesktop, setIsDesktop] = useState(true);
 
   const checkScreenSize = () => {
-    setIsDesktop(window.innerWidth > 768); // Adjust 768px based on your needs
+    setIsDesktop(window.innerWidth > 767); // Adjust 768px based on your needs
   };
 
   useEffect(() => {
@@ -245,9 +245,9 @@ const App = () => {
                   <ProtectedRoute
                     allowedRoles={["member", "manager", "team lead"]}
                     departmentPermissions={{
-                      member: ["development", "testing"],
-                      manager: ["development", "testing"],
-                      "team lead": ["development", "testing"],
+                      member: ["development", "testing", "human-resource"],
+                      manager: ["development", "testing", "human-resource"],
+                      "team lead": ["development", "testing", "human-resource"],
                     }}
                   >
                     <UserTicket />

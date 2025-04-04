@@ -1,12 +1,11 @@
 import { getAllProjectList } from "@/API/admin/projects/project_api";
-import { Button } from "@/components/ui/button"; // Custom button component
-import { Input } from "@/components/ui/input"; // Custom input component
-import { Textarea } from "@/components/ui/textarea"; // Custom textarea component
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Combobox } from "@/components/customUi/Handle";
 import Modal from "@/components/customUi/Modal";
-// import { Label } from "@/components/ui/label";
 import Selector from "@/components/customUi/Selector";
 import { getEmpMails } from "@/API/admin/userverify/userVerify";
 import { getAllEmployeeOwnerShip } from "@/API/admin/adminDashborad";
@@ -15,6 +14,8 @@ import { toast, ToastContainer } from "react-toastify";
 import { getMilestonesForProject } from "@/API/admin/milestone/milestone";
 import { VscLoading } from "react-icons/vsc";
 import { priorityOptions } from "@/utils/prorityOptions";
+import DatePicker from "@/components/Datepicker";
+
 const CreateTask = () => {
   const [formData, setFormData] = useState({
     project: null,
@@ -29,19 +30,21 @@ const CreateTask = () => {
     start_date: "",
     end_date: "",
   });
-  // console.log(formData);
 
-  const startDateRef = useRef(null);
-  const endDateRef = useRef(null);
+  const [errors, setErrors] = useState({
+    task_title: "",
+    task_description: "",
+    project: "",
+    milestone: "",
+    assigned_to: "",
+    report_to: "",
+  });
 
   const queryClient = useQueryClient();
-  const [step, setStep] = useState(1); // Step 1: Project selection, Step 2: Task details
+  const [step, setStep] = useState(1);
   const [isOpen, setIsOpen] = useState(false);
   const [ownershipOptions, setOwnershipOptions] = useState([]);
   const [milestones, setMilestones] = useState([]);
-  const [milestonesError, setMilestoneError] = useState("");
-
-  console.log(milestones);
 
   const {
     isLoading: isProjectLoading,
@@ -53,8 +56,6 @@ const CreateTask = () => {
     queryFn: getAllProjectList,
     enabled: isOpen,
   });
-
-  // console.log(projectlist);
 
   const {
     isError: isUserListError,
@@ -75,32 +76,22 @@ const CreateTask = () => {
   } = useQuery({
     queryKey: ["userData"],
     queryFn: getAllEmployeeOwnerShip,
-    enabled: isOpen, // Only fetch when the dialog is open
+    enabled: isOpen,
   });
 
-  // console.log(userList);
-  // Map user data into dropdown options when data is available
   useEffect(() => {
     if (userData) {
       const options = [
-        // ...userData.teamLeads
-        //   .filter((lead) => lead.admin_verify === "true") // Check admin_verify for team leads
-        //   .map((lead) => ({
-        //     value: lead.id,
-        //     label: `Team Lead - ${lead.name}`,
-        //   })),
-
         ...userData.managers
           .filter(
             (manager) =>
               manager.admin_verify === true && manager.hr_approval === true
-          ) // Check admin_verify for managers
+          )
           .map((manager) => ({
             value: manager.id,
             label: `Manager - ${manager.name}`,
           })),
       ];
-      // console.log(options);
       setOwnershipOptions(options);
     }
   }, [userData]);
@@ -108,10 +99,7 @@ const CreateTask = () => {
   const taskmutations = useMutation({
     mutationFn: createTask,
     onSuccess: (data) => {
-      // Invalidate the query to refresh the task list elsewhere if necessary
       queryClient.invalidateQueries(["tasks"]);
-
-      // Reset the form data, keeping the modal open
       setFormData({
         project: null,
         milestone: "",
@@ -125,34 +113,29 @@ const CreateTask = () => {
         start_date: "",
         end_date: "",
       });
-
-      // Optionally, refresh other state variables
-      setMilestones([]); // Clear milestones if needed
-      setOwnershipOptions([]); // Reset ownership options
-
-      // Keep the modal open and reset the step to 1 (Project Selection)
+      setMilestones([]);
+      setOwnershipOptions([]);
       setIsOpen(false);
       setStep(1);
       toast.success(data?.message || "Task created successfully!");
     },
     onError: (err) => {
-      // Handle errors and display a toast message
       toast.error(
-        err.response.data.message ||
+        err.response?.data?.message ||
           "An error occurred while creating the task."
       );
     },
   });
-
-  // console.log(userList);
-  // console.log(ownershipOptions);
-  // console.log(userList);
 
   const handleSelectChange = (name, value) => {
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
+    // Clear error when field is changed
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
   };
 
   const sendProjectId = async (projectId) => {
@@ -164,8 +147,63 @@ const CreateTask = () => {
     }
   };
 
-  const handleSumbit = async (e) => {
+  const handleNextStep = (currentStep) => {
+    let isValid = true;
+    const newErrors = { ...errors };
+
+    if (currentStep === 1 && !formData.project) {
+      newErrors.project = "Please select a project before proceeding.";
+      isValid = false;
+    }
+
+    if (currentStep === 2 && !formData.milestone) {
+      newErrors.milestone = "Please select a milestone before proceeding.";
+      isValid = false;
+    }
+
+    if (currentStep === 3) {
+      if (!formData.assigned_to) {
+        newErrors.assigned_to = "Please select 'Assigned to' before proceeding.";
+        isValid = false;
+      }
+      if (!formData.report_to) {
+        newErrors.report_to = "Please select 'Report to' before proceeding.";
+        isValid = false;
+      }
+    }
+
+    setErrors(newErrors);
+    if (isValid) {
+      setStep(currentStep + 1);
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    let hasError = false;
+    const newErrors = { ...errors };
+
+    if (formData.task_title.length < 5 || formData.task_title.length > 30) {
+      newErrors.task_title = "Task title must be between 5 and 30 characters.";
+      hasError = true;
+    } else {
+      newErrors.task_title = "";
+    }
+
+    if (
+      formData.task_description.length < 10 ||
+      formData.task_description.length > 100
+    ) {
+      newErrors.task_description =
+        "Task description must be between 10 and 100 characters.";
+      hasError = true;
+    } else {
+      newErrors.task_description = "";
+    }
+
+    setErrors(newErrors);
+    if (hasError) return;
+
     taskmutations.mutate(formData);
   };
 
@@ -175,7 +213,6 @@ const CreateTask = () => {
         Create Task
       </Button>
 
-      {/* Main Form */}
       <Modal
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
@@ -185,38 +222,42 @@ const CreateTask = () => {
           Fill in the details below to create a new task.
         </p>
 
-        {/* Step 1: Select Project */}
         {step === 1 && (
           <>
             {isProjectError ? (
-              <>
-                <p>isProjectError Fetch {projectError.message}</p>
-              </>
+              <p className="text-red-500">Error fetching projects: {projectError.message}</p>
             ) : isProjectLoading ? (
-              <>
-                <p className="animate-spin fixed">
-                  <VscLoading />
-                </p>
-              </>
+              <div className="flex justify-center">
+                <VscLoading className="animate-spin" />
+              </div>
             ) : (
               <>
                 <Combobox
-                  items={projectlist} // Array of projects
-                  value={formData.project} // Controlled state
+                  items={projectlist}
+                  value={formData.project}
                   onChange={(value) => {
-                    setFormData((prevData) => ({
-                      ...prevData,
-                      project: value, // Update the project value in the form data
-                    }));
-                    sendProjectId(value); // Send the project ID to the API
-                    setStep(2); // Move to the next step
+                    handleSelectChange("project", value);
+                    sendProjectId(value);
                   }}
                   placeholder="Select a project..."
                 />
+                {errors.project && (
+                  <p className="text-sm text-red-500 mt-1">{errors.project}</p>
+                )}
+                <div className="flex gap-x-2 mt-4">
+                  <Button
+                    type="button"
+                    onClick={() => handleNextStep(1)}
+                    disabled={!formData.project}
+                  >
+                    Next
+                  </Button>
+                </div>
               </>
             )}
           </>
         )}
+
         {step === 2 && (
           <div className="flex flex-col gap-2">
             <Selector
@@ -224,12 +265,7 @@ const CreateTask = () => {
               id="milestone"
               value={formData.milestone}
               onChange={(e) => {
-                const selectedMilestone = e.target.value;
-                handleSelectChange("milestone", selectedMilestone);
-
-                if (selectedMilestone) {
-                  setMilestoneError("");
-                }
+                handleSelectChange("milestone", e.target.value);
               }}
               options={milestones.map((milestone) => ({
                 value: milestone._id,
@@ -237,25 +273,17 @@ const CreateTask = () => {
               }))}
               required={true}
             />
-            {milestonesError && (
-              <div className="text-sm text-red-500">{milestonesError}</div>
+            {errors.milestone && (
+              <div className="text-sm text-red-500">{errors.milestone}</div>
             )}
-            <div className="flex gap-x-2">
+            <div className="flex gap-x-2 mt-4">
               <Button variant="outline" onClick={() => setStep(1)}>
                 Back
               </Button>
-
               <Button
                 type="button"
-                onClick={() => {
-                  if (!formData.milestone) {
-                    setMilestoneError(
-                      "Please select a milestone before proceeding."
-                    );
-                    return;
-                  }
-                  setStep(3);
-                }}
+                onClick={() => handleNextStep(2)}
+                disabled={!formData.milestone}
               >
                 Next
               </Button>
@@ -264,71 +292,67 @@ const CreateTask = () => {
         )}
 
         {step === 3 && (
-          <div>
-            <div className="flex flex-col gap-4">
-              {isUserListError ? (
-                <>
-                  <p>UserList Error {UserListError.message}</p>
-                </>
-              ) : isUserListLoading ? (
-                <>
-                  <p className="animate-spin fixed">
-                    <VscLoading />
-                  </p>
-                </>
-              ) : (
-                <>
-                  <Combobox
-                    items={userList} // Array of projects
-                    value={formData.assigned_to} // Controlled state
-                    onChange={(value) => {
-                      setFormData((prevData) => ({
-                        ...prevData,
-                        assigned_to: value, // Update the project value in the form data
-                      }));
-                    }}
-                    placeholder="Assigned to"
-                  />
-                </>
-              )}
-              {isUserDataError ? (
-                <>
-                  <p>userData Fetch Err {UserDataError.message}</p>
-                </>
-              ) : isUserDataLoading ? (
-                <>
-                  <p className="animate-spin fixed">
-                    <VscLoading />
-                  </p>
-                </>
-              ) : (
-                <>
-                  <Combobox
-                    items={ownershipOptions} // Array of projects
-                    value={formData.report_to} // Controlled state
-                    onChange={(value) => {
-                      setFormData((prevData) => ({
-                        ...prevData,
-                        report_to: value, // Update the project value in the form data
-                      }));
-                      setStep(3); // Move to the next step
-                    }}
-                    placeholder="Report to"
-                  />
-                </>
-              )}
-              <div className="flex gap-x-2">
-                <Button variant="outline" onClick={() => setStep(2)}>
-                  Back
-                </Button>
-                <Button onClick={() => setStep(4)}>Next</Button>
+          <div className="flex flex-col gap-4">
+            {isUserListError ? (
+              <p className="text-red-500">Error fetching users: {UserListError.message}</p>
+            ) : isUserListLoading ? (
+              <div className="flex justify-center">
+                <VscLoading className="animate-spin" />
               </div>
+            ) : (
+              <>
+                <Combobox
+                  items={userList}
+                  value={formData.assigned_to}
+                  onChange={(value) => {
+                    handleSelectChange("assigned_to", value);
+                  }}
+                  placeholder="Assigned to"
+                />
+                {errors.assigned_to && (
+                  <p className="text-sm text-red-500">{errors.assigned_to}</p>
+                )}
+              </>
+            )}
+
+            {isUserDataError ? (
+              <p className="text-red-500">Error fetching managers: {UserDataError.message}</p>
+            ) : isUserDataLoading ? (
+              <div className="flex justify-center">
+                <VscLoading className="animate-spin" />
+              </div>
+            ) : (
+              <>
+                <Combobox
+                  items={ownershipOptions}
+                  value={formData.report_to}
+                  onChange={(value) => {
+                    handleSelectChange("report_to", value);
+                  }}
+                  placeholder="Report to"
+                />
+                {errors.report_to && (
+                  <p className="text-sm text-red-500">{errors.report_to}</p>
+                )}
+              </>
+            )}
+
+            <div className="flex gap-x-2 mt-4">
+              <Button variant="outline" onClick={() => setStep(2)}>
+                Back
+              </Button>
+              <Button
+                onClick={() => handleNextStep(3)}
+                disabled={!formData.assigned_to || !formData.report_to}
+              >
+                Next
+              </Button>
             </div>
           </div>
         )}
-        {/* Step 2: Task Details */}
+
         {step === 4 && (
-          <form onSubmit={handleSumbit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label
                 htmlFor="task_title"
@@ -340,13 +364,16 @@ const CreateTask = () => {
                 id="task_title"
                 name="task_title"
                 value={formData.task_title}
-                onChange={(e) =>
-                  handleSelectChange("task_title", e.target.value)
-                }
+                onChange={(e) => {
+                  handleSelectChange("task_title", e.target.value);
+                }}
                 required
                 className="mt-2 p-2 border rounded-md w-full"
                 placeholder="Enter task title"
               />
+              {errors.task_title && (
+                <p className="text-sm text-red-500">{errors.task_title}</p>
+              )}
             </div>
 
             <div>
@@ -360,45 +387,31 @@ const CreateTask = () => {
                 id="task_description"
                 name="task_description"
                 value={formData.task_description}
-                onChange={(e) =>
-                  handleSelectChange("task_description", e.target.value)
-                }
+                onChange={(e) => {
+                  handleSelectChange("task_description", e.target.value);
+                }}
                 required
                 className="mt-2 p-2 border rounded-md w-full"
                 placeholder="Enter task description"
               />
+              {errors.task_description && (
+                <p className="text-sm text-red-500">
+                  {errors.task_description}
+                </p>
+              )}
             </div>
 
-            <div className="flex items-center gap-5">
-              {/* <label
-                      htmlFor="start_date"
-                      className="block text-sm font-medium text-gray-700"
-                    >
-                      Start Date
-                    </label> */}
-              <Input
-                onClick={() => startDateRef.current.showPicker()}
-                ref={startDateRef}
-                id="start_date"
-                name="start_date"
-                type="date"
-                value={formData.start_date}
-                onChange={(e) =>
-                  handleSelectChange("start_date", e.target.value)
-                }
-                className="mt-2 p-2 border rounded-md"
+            <div className="flex items-center gap-1">
+              <DatePicker
+                selectedDate={formData.start_date}
+                onChange={(date) => handleSelectChange("start_date", date)}
+                placeholder="Start Date"
               />
-
               <span>To</span>
-              <Input
-                onClick={() => endDateRef.current.showPicker()}
-                ref={endDateRef}
-                id="end_date"
-                name="end_date"
-                type="date"
-                value={formData.end_date}
-                onChange={(e) => handleSelectChange("end_date", e.target.value)}
-                className="mt-2 p-2 border rounded-md"
+              <DatePicker
+                selectedDate={formData.end_date}
+                onChange={(date) => handleSelectChange("end_date", date)}
+                placeholder="End Date"
               />
             </div>
 
@@ -420,7 +433,16 @@ const CreateTask = () => {
               >
                 Back
               </Button>
-              <Button type="submit">Create Task</Button>
+              <Button type="submit" disabled={taskmutations.isLoading}>
+                {taskmutations.isLoading ? (
+                  <span className="flex items-center">
+                    <VscLoading className="animate-spin mr-2" />
+                    Creating...
+                  </span>
+                ) : (
+                  "Create Task"
+                )}
+              </Button>
             </div>
           </form>
         )}

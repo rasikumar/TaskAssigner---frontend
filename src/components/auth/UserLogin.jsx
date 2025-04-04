@@ -37,7 +37,7 @@ const UserLogin = () => {
           localStorage.setItem("mail", JSON.stringify(response.data.data.mail));
           localStorage.setItem("department", JSON.stringify(response.data.data.department));
 
-          toast.success(response.data.message);
+          toast.success("Login successful!");
         } else {
           toast.error("Unauthenticated");
         }
@@ -114,24 +114,24 @@ const UserLogin = () => {
                 </div>
               </div>
 
-              <p className="text-sm font-semibold">
+              {/* <p className="text-sm font-semibold">
                 Having trouble signing in?{" "}
                 <span className="text-primary cursor-pointer">
                   Forget password
                 </span>
-              </p>
+              </p> */}
 
               <Button className="w-full" onClick={handleSubmit}>
                 Sign In
               </Button>
             </div>
 
-            <p className="text-sm text-center mt-4">
+            {/* <p className="text-sm text-center mt-4">
               Don&apos;t have an account?{" "}
               <span className="font-semibold text-primary cursor-pointer">
                 Request Now
               </span>
-            </p>
+            </p> */}
           </div>
         </div>
       </div>

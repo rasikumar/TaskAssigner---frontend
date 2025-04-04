@@ -26,22 +26,36 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { GrDocument } from "react-icons/gr";
+import { toast } from "react-toastify";
+import { format } from "date-fns";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 
 export const ProjectDetailModal = ({ project, onClose, onEdit, taskList }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState(project);
   const [errorMessage, setErrorMessage] = useState("");
-  // const [isOpen] = useState(false);
   const [ownershipOptions, setOwnershipOptions] = useState([]);
   const [milestoneData, setMilestoneData] = useState(project?.milestones || []);
-
-  // console.log(formData);
+  const [fileInputKey, setFileInputKey] = useState(Date.now());
   const [pdfUrl, setPdfUrl] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [errors, setErrors] = useState({});
+  const projectNameRef = useRef(null);
+  const projectDescriptionRef = useRef(null);
+  const estimatedHoursRef = useRef(null);
 
-  const EndDate = useRef(null);
-  const StartDate = useRef(null);
+  const attachmentsArray = Array.isArray(formData?.attachments)
+    ? formData.attachments
+    : [formData?.attachments]; // Convert single object to array
 
   useEffect(() => {
     setIsVisible(true);
@@ -64,34 +78,20 @@ export const ProjectDetailModal = ({ project, onClose, onEdit, taskList }) => {
 
   const mutateDocumentId = useMutation({
     mutationFn: GetProjectView,
-    // onSuccess: (data) => {
-    //   // Update the document in the database
-    //   console.log(data);
-    //   // setIsEditing(false);
-    //   // onClose();
-    // },
     onError: (error) => {
       console.error("Error Viewing document:", error);
       setErrorMessage("Error Viewing document. Please try again later.");
     },
   });
 
-  // console.log(userData);
   useEffect(() => {
     if (userData) {
       const options = [
-        // ...userData.teamLeads
-        //   .filter((lead) => lead.admin_verify === "true") // Check admin_verify for team leads
-        //   .map((lead) => ({
-        //     id: lead.id,
-        //     name: `Team Lead - ${lead.name}`,
-        //   })),
-
         ...userData.managers
           .filter(
             (manager) =>
               manager.admin_verify === true && manager.hr_approval === true
-          ) // Check admin_verify for managers
+          )
           .map((manager) => ({
             id: manager.id,
             name: `Manager - ${manager.name}`,
@@ -100,8 +100,6 @@ export const ProjectDetailModal = ({ project, onClose, onEdit, taskList }) => {
       setOwnershipOptions(options);
     }
   }, [userData]);
-
-  // console.log(ownershipOptions);
 
   if (isLoading) {
     return <CirclesWithBar />;
@@ -123,19 +121,82 @@ export const ProjectDetailModal = ({ project, onClose, onEdit, taskList }) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const validateForm = () => {
+    let valid = true;
+    const newErrors = {
+      project_name: "",
+      project_description: "",
+      milestones: "",
+      estimated_hours: "",
+    };
+
+    if (formData.project_name.length < 10) {
+      newErrors.project_name = "Project name must be at least 10 characters";
+      valid = false;
+      projectNameRef.current?.focus();
+    }
+
+    if (formData.project_description.length < 10) {
+      newErrors.project_description =
+        "Description must be at least 10 characters";
+      valid = false;
+      if (!newErrors.project_name) {
+        projectDescriptionRef.current?.focus();
+      }
+    }
+
+    if (formData.milestones.length === 0) {
+      newErrors.milestones = "Please add at least one milestone";
+      valid = false;
+    }
+
+    if (!formData.estimated_hours || formData.estimated_hours < 20) {
+      newErrors.estimated_hours = "Estimated hours Minimum 20 Hours Required";
+      valid = false;
+      if (
+        !newErrors.project_name &&
+        !newErrors.project_description &&
+        !newErrors.milestones
+      ) {
+        estimatedHoursRef.current?.focus();
+      }
+    }
+
+    setErrors(newErrors);
+    return valid;
+  };
+
   const handleSave = (e) => {
     e.preventDefault();
 
-    const updatedFormData = { ...formData, milestones: milestoneData };
+    if (!validateForm()) {
+      return;
+    }
+
+    // Ensure at least one milestone is added
+    if (milestoneData.length === 0) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        milestones: "Please add at least one milestone",
+      }));
+      return;
+    }
+
+    const updatedFormData = {
+      ...formData,
+      milestones: milestoneData,
+      attachments:
+        Array.isArray(formData.attachments) && formData.attachments.length === 1
+          ? formData.attachments[0].file || formData.attachments[0]
+          : formData.attachments.file || formData.attachments,
+    };
 
     setErrorMessage(""); // Clear error message
     onEdit(updatedFormData); // Submit changes including milestones
-    // console.log(updatedFormData);
   };
 
   const handleMilestoneChange = (index, field, value) => {
     const updatedMilestones = [...milestoneData];
-    // console.log(updatedMilestones);
     updatedMilestones[index][field] = value;
     setMilestoneData(updatedMilestones);
   };
@@ -165,6 +226,55 @@ export const ProjectDetailModal = ({ project, onClose, onEdit, taskList }) => {
         onChange={handleChange}
         className="w-full p-2 border-b-2 focus:outline-none focus:ring-2 focus:ring-primary"
       />
+      {errors[name] && (
+        <p className="text-red-500 text-xs mt-1">{errors[name]}</p>
+      )}
+    </div>
+  );
+
+  const renderMilestones = () => (
+    <div className="flex gap-2 flex-col">
+      <h2 className="text-lg font-semibold text-gray-800 mb-4">Milestones</h2>
+      {milestoneData.map((milestone, index) => (
+        <div key={milestone._id} className="mb-2 flex gap-2">
+          <Input
+            type="text"
+            value={milestone.name}
+            onChange={(e) =>
+              handleMilestoneChange(index, "name", e.target.value)
+            }
+            className="w-full p-2 border-b-2 focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+          <Select
+            value={milestone.status}
+            onValueChange={(value) =>
+              handleMilestoneChange(index, "status", value)
+            }
+            className="w-full p-2 border rounded-md mt-2"
+          >
+            <SelectTrigger className="outline-none focus:ring-0 focus:ring-offset-0">
+              <SelectValue placeholder="Select status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Select a Status</SelectLabel>
+                <SelectItem value="Not Started">Not Started</SelectItem>
+                <SelectItem value="In Progress">In Progress</SelectItem>
+                <SelectItem value="Completed">Completed</SelectItem>
+                <SelectItem value="Pending">Pending</SelectItem>
+                <SelectItem value="On Hold">On Hold</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+          <Button onClick={() => handleMilestoneDelete(index)}>Delete</Button>
+        </div>
+      ))}
+      <Button onClick={handleMilestoneAdd} className="mb-2">
+        Add
+      </Button>
+      {errors.milestones && (
+        <p className="text-red-500 text-xs mt-1">{errors.milestones}</p>
+      )}
     </div>
   );
 
@@ -173,23 +283,85 @@ export const ProjectDetailModal = ({ project, onClose, onEdit, taskList }) => {
     { value: "In Progress", label: "In Progress" },
     { value: "Pending", label: "Pending" },
     { value: "Completed", label: "Completed" },
-    // { value: "Cancelled", label: "Cancelled" },
   ];
 
   const handleDocumentClick = (documentId) => {
-    // console.log(documentId);
     mutateDocumentId.mutate(documentId, {
       onSuccess: (file) => {
         if (file) {
           const blob = new Blob([file], { type: "application/pdf" });
           const url = URL.createObjectURL(blob);
           setPdfUrl(url);
-          setIsOpen(true); // Open modal
+          setIsOpen(true);
         }
       },
     });
   };
-  // console.log("dd", taskList);
+
+  const handleDocumentEdit = (index, file) => {
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024 || file.type !== "application/pdf") {
+      toast.error("Only PDF files under 10 MB are allowed.");
+      setFileInputKey(Date.now());
+      return;
+    }
+    setFormData((prevData) => {
+      const newAttachment = {
+        file_name: file.name,
+        file: file,
+      };
+
+      const updatedAttachments = Array.isArray(prevData.attachments)
+        ? [...prevData.attachments]
+        : [];
+
+      if (updatedAttachments[index]) {
+        updatedAttachments[index] = newAttachment;
+      } else {
+        updatedAttachments.push(newAttachment);
+      }
+
+      return {
+        ...prevData,
+        attachments: updatedAttachments,
+      };
+    });
+  };
+
+  const DatePicker = ({ date, setDate, label }) => (
+    <div className="mb-4">
+      <label className="block text-sm font-semibold text-gray-700">
+        {label}
+      </label>
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            variant={"outline"}
+            className={cn(
+              "w-full justify-start text-left font-normal",
+              !date && "text-muted-foreground"
+            )}
+          >
+            <CalendarIcon className="mr-2 h-4 w-4" />
+            {date ? (
+              format(new Date(date), "dd/MM/yyyy")
+            ) : (
+              <span>Pick a date</span>
+            )}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0">
+          <Calendar
+            mode="single"
+            selected={date ? new Date(date) : undefined}
+            onSelect={(selectedDate) => setDate(selectedDate?.toISOString())}
+            initialFocus
+          />
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
 
   return (
     <div
@@ -236,10 +408,29 @@ export const ProjectDetailModal = ({ project, onClose, onEdit, taskList }) => {
           </div>
         </div>
 
-        {/* Editable Fields */}
         <div className="mt-6 h-96 px-4 ">
           {isEditing ? (
             <>
+              {renderInput(
+                "project_name",
+                "Project Name",
+                formData.project_name
+              )}
+              <Textarea
+                value={formData.project_description}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    project_description: e.target.value,
+                  })
+                }
+                ref={projectDescriptionRef}
+              />
+              {errors.project_description && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.project_description}
+                </p>
+              )}
               <h3 className="block text-sm font-semibold text-gray-700">
                 Ownership
               </h3>
@@ -252,12 +443,10 @@ export const ProjectDetailModal = ({ project, onClose, onEdit, taskList }) => {
                     (option) => option.id === value
                   );
                   if (selectedOwnership) {
-                    console.log("Selected Ownership:", selectedOwnership); // Debugging log
                     setFormData({
                       ...formData,
                       project_ownership: selectedOwnership,
                     });
-                    console.log("Updated formData:", formData); // Debugging log
                   }
                 }}
                 required
@@ -277,26 +466,6 @@ export const ProjectDetailModal = ({ project, onClose, onEdit, taskList }) => {
                   </SelectGroup>
                 </SelectContent>
               </Select>
-              {renderInput(
-                "project_name",
-                "Project Name",
-                formData.project_name
-              )}
-              {/* {renderInput(
-                "project_description",
-                "Project Description",
-                formData.project_description
-              )} */}
-              <Textarea
-                value={formData.project_description}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    project_description: e.target.value,
-                  })
-                }
-              />
-
               <Selector
                 id="project_status"
                 label="project_status"
@@ -313,88 +482,46 @@ export const ProjectDetailModal = ({ project, onClose, onEdit, taskList }) => {
                 formData.estimated_hours
               )}
 
-              <div className="mb-4">
-                Start Date
-                <Input
-                  onClick={() => StartDate.current.showPicker()}
-                  ref={StartDate}
-                  id="StartDate"
-                  name="StartDate"
-                  type="date"
-                  value={
-                    formData.startDate ? formData.startDate.split("T")[0] : ""
-                  }
-                  onChange={(e) =>
-                    setFormData({ ...formData, startDate: e.target.value })
-                  }
-                  required
-                />
-              </div>
+              <DatePicker
+                date={formData.startDate}
+                setDate={(date) =>
+                  setFormData({ ...formData, startDate: date })
+                }
+                label="Start Date"
+              />
+              <DatePicker
+                date={formData.endDate}
+                setDate={(date) => setFormData({ ...formData, endDate: date })}
+                label="End Date"
+              />
 
-              <div className="mb-4">
-                End Date
-                <Input
-                  onClick={() => EndDate.current.showPicker()}
-                  ref={EndDate}
-                  id="endDate"
-                  name="endDate"
-                  type="date"
-                  value={formData.endDate ? formData.endDate.split("T")[0] : ""}
-                  onChange={(e) =>
-                    setFormData({ ...formData, endDate: e.target.value })
-                  }
-                  required
-                />
-              </div>
-              <div className="flex gap-2 flex-col">
-                <h2 className="text-lg font-semibold text-gray-800 mb-4">
-                  Milestones
-                </h2>
+              {attachmentsArray.map((doc, index) => (
+                <div key={index} className="flex items-center gap-2 mt-2">
+                  <input
+                    type="text"
+                    value={doc?.file_name || `Document ${index + 1}`}
+                    className="border p-2 text-sm w-full"
+                    readOnly
+                  />
+                  <Input
+                    type="file"
+                    onChange={(e) =>
+                      handleDocumentEdit(index, e.target.files[0])
+                    }
+                    key={fileInputKey}
+                    className="hidden"
+                    id={`file-input-${index}`}
+                  />
+                  <label
+                    htmlFor={`file-input-${index}`}
+                    className="bg-gray-200 px-3 py-1 rounded cursor-pointer text-sm"
+                  >
+                    Upload
+                  </label>
+                </div>
+              ))}
 
-                {milestoneData.map((milestone, index) => (
-                  <div key={milestone._id} className="mb-2 flex gap-2">
-                    <Input
-                      type="text"
-                      value={milestone.name}
-                      onChange={(e) =>
-                        handleMilestoneChange(index, "name", e.target.value)
-                      }
-                      className="w-full p-2 border-b-2 focus:outline-none focus:ring-2 focus:ring-primary"
-                    />
-                    <Select
-                      value={milestone.status}
-                      onValueChange={(value) =>
-                        handleMilestoneChange(index, "status", value)
-                      }
-                      className="w-full p-2 border rounded-md mt-2"
-                    >
-                      <SelectTrigger className="outline-none focus:ring-0 focus:ring-offset-0">
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectLabel>Select a Status</SelectLabel>
-                          <SelectItem value="Not Started">
-                            Not Started
-                          </SelectItem>
-                          <SelectItem value="In Progress">
-                            In Progress
-                          </SelectItem>
-                          <SelectItem value="Completed">Completed</SelectItem>
-                          <SelectItem value="Pending">Pending</SelectItem>
-                          <SelectItem value="On Hold">On Hold</SelectItem>
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                    <Button onClick={() => handleMilestoneDelete(index)}>
-                      Delete
-                    </Button>
-                  </div>
-                ))}
-                <Button onClick={handleMilestoneAdd} className="mb-2">
-                  Add
-                </Button>
-              </div>
+              {renderMilestones()}
 
               <Button onClick={handleSave} className="mb-4">
                 Update Project
@@ -412,7 +539,10 @@ export const ProjectDetailModal = ({ project, onClose, onEdit, taskList }) => {
                   }
                   className="flex items-center gap-2 text-blue-600 hover:underline text-sm cursor-pointer"
                 >
-                  {project?.attachments?.file_name || ""}
+                  <GrDocument />
+                  {project?.attachments?.file_name?.length > 30
+                    ? project?.attachments?.file_name.slice(0, 30) + "..."
+                    : project?.attachments?.file_name}
                 </button>
               </div>
               <h1 className="text-taskBlack text-lg font-semibold">
@@ -518,9 +648,6 @@ export const ProjectDetailModal = ({ project, onClose, onEdit, taskList }) => {
                                 <h3 className="text-sm font-semibold text-gray-800">
                                   {task.task_title}
                                 </h3>
-                                {/* <p className="text-sm text-gray-500">
-                                  {task.task_description}
-                                </p> */}
                               </div>
                               <span
                                 className={`mt-2 sm:mt-0 inline-block text-xs font-medium px-3 py-1 rounded-full ${

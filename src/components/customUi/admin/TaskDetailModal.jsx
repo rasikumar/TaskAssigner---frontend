@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { getEmpMails } from "@/API/admin/userverify/userVerify";
 import { getAllEmployeeOwnerShip } from "@/API/admin/adminDashborad";
@@ -25,6 +25,7 @@ import { statusOptions } from "@/utils/statusOptions";
 import { Calendar1Icon } from "lucide-react";
 import { FaPen, FaRedo, FaRegWindowClose, FaTrash } from "react-icons/fa";
 import { VscLoading, VscMilestone } from "react-icons/vsc";
+import DatePicker from "@/components/Datepicker";
 export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -33,9 +34,6 @@ export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
   const [ownershipOptions, setOwnershipOptions] = useState([]);
 
   const queryClient = useQueryClient();
-
-  const EndDate = useRef(null);
-  const StartDate = useRef(null);
 
   const {
     isError: isUserListError,
@@ -262,39 +260,25 @@ export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
                 />
               </div>
 
-              <div className="mb-4">
+              <div className="mb-4 flex flex-col">
                 <Label>Start Date</Label>
-                <Input
-                  onClick={() => StartDate.current.showPicker()}
-                  ref={StartDate}
-                  id="StartDate"
-                  name="StartDate"
-                  type="date"
-                  value={
-                    formData.start_date ? formData.start_date.split("T")[0] : ""
+                <DatePicker
+                  selectedDate={formData.start_date}
+                  onChange={(date) =>
+                    setFormData({ ...formData, start_date: date })
                   }
-                  onChange={(e) =>
-                    setFormData({ ...formData, start_date: e.target.value })
-                  }
-                  required
+                  placeholder="Select Start Date"
                 />
               </div>
 
-              <div className="mb-4">
+              <div className="mb-4 flex flex-col">
                 <Label>End Date</Label>
-                <Input
-                  onClick={() => EndDate.current.showPicker()}
-                  ref={EndDate}
-                  id="endDate"
-                  name="endDate"
-                  type="date"
-                  value={
-                    formData.end_date ? formData.end_date.split("T")[0] : ""
+                <DatePicker
+                  selectedDate={formData.end_date}
+                  onChange={(date) =>
+                    setFormData({ ...formData, end_date: date })
                   }
-                  onChange={(e) =>
-                    setFormData({ ...formData, end_date: e.target.value })
-                  }
-                  required
+                  placeholder="Select End Date"
                 />
               </div>
 

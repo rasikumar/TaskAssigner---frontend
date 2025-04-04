@@ -175,27 +175,52 @@ const Projects = () => {
       >
         {project.project_name}
       </td>
-      <td className="px-2 py-3 text-sm text-center">
+      <td
+        className="px-2 py-3 text-sm text-center"
+        onClick={() => {
+          handleProjectClick(project, project._id); // Pass projectId here
+        }}
+      >
         {project.project_ownership.name || "No name available"}
       </td>
-      <td className="px-2 py-3 text-sm text-center">
+      <td
+        className="px-2 py-3 text-sm text-center"
+        onClick={() => {
+          handleProjectClick(project, project._id); // Pass projectId here
+        }}
+      >
         {project.estimated_hours}
       </td>
-      <td className="px-2 py-3 text-sm">
+      <td
+        className="px-2 py-3 text-sm"
+        onClick={() => {
+          handleProjectClick(project, project._id); // Pass projectId here
+        }}
+      >
         {new Date(project.startDate).toLocaleDateString("en-GB", {
           day: "2-digit",
           month: "2-digit",
           year: "numeric",
         })}
       </td>
-      <td className="px-2 py-3 text-sm">
+      <td
+        className="px-2 py-3 text-sm"
+        onClick={() => {
+          handleProjectClick(project, project._id); // Pass projectId here
+        }}
+      >
         {new Date(project.endDate).toLocaleDateString("en-GB", {
           day: "2-digit",
           month: "2-digit",
           year: "numeric",
         })}
       </td>
-      <td className={`px-2 py-3 text-sm ${getStatus(project.project_status)}`}>
+      <td
+        className={`px-2 py-3 text-sm ${getStatus(project.project_status)}`}
+        onClick={() => {
+          handleProjectClick(project, project._id); // Pass projectId here
+        }}
+      >
         {project.project_status}
       </td>
       <td className="px-2 py-3 text-sm text-center">

@@ -72,16 +72,16 @@ const AdminSidebar = () => {
   const getRole = location.state?.data?.role || localStorage.getItem("role");
   const role = getRole ? getRole.replace(/^"|"$/g, "") : "Loading...";
 
-  const getDepartment =
-    location.state?.data?.department || localStorage.getItem("department");
-  const department = getDepartment
-    ? getDepartment.replace(/^"|"$/g, "")
-    : "Loading...";
+  // const getDepartment =
+  //   location.state?.data?.department || localStorage.getItem("department");
+  // const department = getDepartment
+  //   ? getDepartment.replace(/^"|"$/g, "")
+  //   : "Loading...";
 
-  // Filter selectItemsData based on department
-  const filteredSelectItemsData = selectItemsData.filter(
-    (item) => item.value === department
-  );
+  // // Filter selectItemsData based on department
+  // const filteredSelectItemsData = selectItemsData.filter(
+  //   (item) => item.value === department
+  // );
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -133,7 +133,7 @@ const AdminSidebar = () => {
               isCollapsed={isCollapsed}
               label="Team Management"
               Icon={GrUserManager}
-              links={filteredSelectItemsData.map((team) => ({
+              links={selectItemsData.map((team) => ({
                 to: `./teams/${team.value}`,
                 label: team.label,
                 icon: team.icon,

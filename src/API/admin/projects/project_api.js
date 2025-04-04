@@ -62,12 +62,14 @@ export const fetchProjectById = async (projectId) => {
 
 // Update a project by ID
 export const updateProject = async (updatedData) => {
+  console.log("from api", updatedData);
   try {
     const response = await Instance.put(`${ADMIN}/updateProject`, updatedData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
     });
+    console.log("response", response.data);
     return response.data;
   } catch (error) {
     console.error("Error updating project:", error);
@@ -126,7 +128,7 @@ export const fetchProjectByStatus = async (status) => {
 };
 
 export const getProjectById = async (projectId) => {
-  try { 
+  try {
     const response = await Instance.post(
       `${ADMIN}/getProjectById/${projectId}`
     );
@@ -139,9 +141,12 @@ export const getProjectById = async (projectId) => {
 
 export const GetProjectView = async (projectId) => {
   try {
-    const response = await Instance.get(`${ADMIN}/get_project_document/${projectId}`, {
-      responseType: "blob", // Get binary file
-    });
+    const response = await Instance.get(
+      `${ADMIN}/get_project_document/${projectId}`,
+      {
+        responseType: "blob", // Get binary file
+      }
+    );
     return response.data;
   } catch (error) {
     console.error("Error fetching project view:", error);
