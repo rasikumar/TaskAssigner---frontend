@@ -26,13 +26,15 @@ const CreateDocuments = () => {
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
-    setFile(selectedFile);
-    setErrors((prev) => ({ ...prev, file: false }));
-    if (selectedFile && selectedFile.type.startsWith("image/")) {
-      setPreview(URL.createObjectURL(selectedFile));
+    if (selectedFile && selectedFile.type === "application/pdf") {
+      setFile(selectedFile);
+      setErrors((prev) => ({ ...prev, file: false }));
     } else {
-      setPreview(null);
+      setFile(null);
+      setErrors((prev) => ({ ...prev, file: true }));
+      toast.error("Only PDF files are allowed.");
     }
+    setPreview(null);
   };
 
   const handleRemoveFile = () => {
@@ -42,14 +44,17 @@ const CreateDocuments = () => {
 
   const handleUpload = async () => {
     let newErrors = {
-      title: !title,
-      description: !description,
-      file: !file,
+      title: title.length < 10,
+      description: description.length < 20,
+      file: !file || file.type !== "application/pdf",
     };
     setErrors(newErrors);
 
     if (newErrors.title || newErrors.description || newErrors.file) {
-      toast.error("Please fill all required fields.");
+      if (newErrors.title) toast.error("Title must be at least 10 characters.");
+      if (newErrors.description)
+        toast.error("Description must be at least 20 characters.");
+      if (newErrors.file) toast.error("Only PDF files are allowed.");
       return;
     }
 
@@ -78,13 +83,15 @@ const CreateDocuments = () => {
     e.preventDefault();
     setDragActive(false);
     const selectedFile = e.dataTransfer.files[0];
-    setFile(selectedFile);
-    setErrors((prev) => ({ ...prev, file: false }));
-    if (selectedFile && selectedFile.type.startsWith("image/")) {
-      setPreview(URL.createObjectURL(selectedFile));
+    if (selectedFile && selectedFile.type === "application/pdf") {
+      setFile(selectedFile);
+      setErrors((prev) => ({ ...prev, file: false }));
     } else {
-      setPreview(null);
+      setFile(null);
+      setErrors((prev) => ({ ...prev, file: true }));
+      toast.error("Only PDF files are allowed.");
     }
+    setPreview(null);
   };
 
   return (

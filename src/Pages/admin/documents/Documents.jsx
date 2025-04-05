@@ -34,7 +34,6 @@ function Documents() {
   };
   // console.log(pdfUrl);
 
-
   return (
     <div>
       <div className="mb-5">
@@ -43,7 +42,7 @@ function Documents() {
       {getAllDocumentsAdmin?.files?.length === 0 ? (
         <p>No documents available.</p>
       ) : (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 ">
           {getAllDocumentsAdmin?.files?.map((doc) => (
             <div
               key={doc._id}
@@ -53,16 +52,16 @@ function Documents() {
               // onClick={() => handleDocumentClick(doc?.attachments?.file_url)}
               >
                 <div className="flex justify-between items-center">
-                  <h3
-                    className="text-xl font-semibold text-gray-800"
-                  >
+                  <h3 className="text-xl font-semibold text-gray-800">
                     {doc.title}
                   </h3>
                   <DeleteDialog
                     onConfirm={() => handleDeleteDocument(doc._id)}
                   />
                 </div>
-                <p className="my-2 text-gray-600">{doc.description}</p>
+                <p className="my-2 text-gray-600 whitespace-normal break-words">
+                  {doc.description}
+                </p>
               </div>
               <button
                 onClick={() => handleDocumentClick(doc.attachments?.file_name)}

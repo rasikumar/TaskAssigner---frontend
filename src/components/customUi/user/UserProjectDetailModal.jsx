@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 
 import { useEffect, useRef, useState } from "react";
-import { FaPen, FaRedo, FaRegWindowClose, FaTimes } from "react-icons/fa";
+import { FaPen, FaRedo, FaRegWindowClose } from "react-icons/fa";
 import { Input } from "../../ui/input";
 import { Button } from "../../ui/button";
 // import { useQuery } from "@tanstack/react-query";
@@ -28,6 +28,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { Calendar } from "@/components/ui/calendar";
+import { toast } from "react-toastify";
 
 export const UserProjectDetailModal = ({
   project,
@@ -42,13 +52,13 @@ export const UserProjectDetailModal = ({
   // const [isOpen] = useState(false);
   // const [ownershipOptions, setOwnershipOptions] = useState([]);
   const [milestoneData, setMilestoneData] = useState(project?.milestones || []);
-  const [milestoneError, setMilestoneError] = useState("");
-
   const [pdfUrl, setPdfUrl] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
-
-  const EndDate = useRef(null);
-  const StartDate = useRef(null);
+  const [errors, setErrors] = useState({});
+  const projectNameRef = useRef(null);
+  const projectDescriptionRef = useRef(null);
+  const estimatedHoursRef = useRef(null);
+  const [fileInputKey, setFileInputKey] = useState(Date.now());
 
   const mutateDocumentId = useMutation({
     mutationFn: userGetProjectView,
@@ -63,6 +73,10 @@ export const UserProjectDetailModal = ({
       setErrorMessage("Error Viewing document. Please try again later.");
     },
   });
+
+  const attachmentsArray = Array.isArray(formData?.attachments)
+    ? formData.attachments
+    : [formData?.attachments]; // Convert single object to array
 
   useEffect(() => {
     setIsVisible(true);
@@ -126,24 +140,77 @@ export const UserProjectDetailModal = ({
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+  const validateForm = () => {
+    let valid = true;
+    const newErrors = {
+      project_name: "",
+      project_description: "",
+      milestones: "",
+      estimated_hours: "",
+    };
 
-  const handleSave = (e) => {
-    e.preventDefault();
+    if (formData.project_name.length < 10) {
+      newErrors.project_name = "Project name must be at least 10 characters";
+      valid = false;
+      projectNameRef.current?.focus();
+    }
 
-    // Validate milestones
-    for (const milestone of milestoneData) {
-      if (!milestone.name.trim()) {
-        setMilestoneError("Milestone name cannot be empty.");
-        return;
+    if (formData.project_description.length < 10) {
+      newErrors.project_description =
+        "Description must be at least 10 characters";
+      valid = false;
+      if (!newErrors.project_name) {
+        projectDescriptionRef.current?.focus();
       }
     }
 
-    const updatedFormData = { ...formData, milestones: milestoneData };
+    if (formData.milestones.length === 0) {
+      newErrors.milestones = "Please add at least one milestone";
+      valid = false;
+    }
+
+    if (!formData.estimated_hours || formData.estimated_hours < 20) {
+      newErrors.estimated_hours = "Estimated hours Minimum 20 Hours Required";
+      valid = false;
+      if (
+        !newErrors.project_name &&
+        !newErrors.project_description &&
+        !newErrors.milestones
+      ) {
+        estimatedHoursRef.current?.focus();
+      }
+    }
+
+    setErrors(newErrors);
+    return valid;
+  };
+  const handleSave = (e) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
+    // Ensure at least one milestone is added
+    if (milestoneData.length === 0) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        milestones: "Please add at least one milestone",
+      }));
+      return;
+    }
+
+    const updatedFormData = {
+      ...formData,
+      milestones: milestoneData,
+      attachments:
+        Array.isArray(formData.attachments) && formData.attachments.length === 1
+          ? formData.attachments[0].file || formData.attachments[0]
+          : formData.attachments.file || formData.attachments,
+    };
 
     setErrorMessage(""); // Clear error message
-    setMilestoneError(""); // Clear milestone error
     onEdit(updatedFormData); // Submit changes including milestones
-    // console.log(updatedFormData);
   };
 
   const handleMilestoneChange = (index, field, value) => {
@@ -178,6 +245,55 @@ export const UserProjectDetailModal = ({
         onChange={handleChange}
         className="w-full p-2 border-b-2 focus:outline-none focus:ring-2 focus:ring-primary"
       />
+      {errors[name] && (
+        <p className="text-red-500 text-xs mt-1">{errors[name]}</p>
+      )}
+    </div>
+  );
+
+  const renderMilestones = () => (
+    <div className="flex gap-2 flex-col">
+      <h2 className="text-lg font-semibold text-gray-800 mb-4">Milestones</h2>
+      {milestoneData.map((milestone, index) => (
+        <div key={milestone._id} className="mb-2 flex gap-2">
+          <Input
+            type="text"
+            value={milestone.name}
+            onChange={(e) =>
+              handleMilestoneChange(index, "name", e.target.value)
+            }
+            className="w-full p-2 border-b-2 focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+          <Select
+            value={milestone.status}
+            onValueChange={(value) =>
+              handleMilestoneChange(index, "status", value)
+            }
+            className="w-full p-2 border rounded-md mt-2"
+          >
+            <SelectTrigger className="outline-none focus:ring-0 focus:ring-offset-0">
+              <SelectValue placeholder="Select status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Select a Status</SelectLabel>
+                <SelectItem value="Not Started">Not Started</SelectItem>
+                <SelectItem value="In Progress">In Progress</SelectItem>
+                <SelectItem value="Completed">Completed</SelectItem>
+                <SelectItem value="Pending">Pending</SelectItem>
+                <SelectItem value="On Hold">On Hold</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+          <Button onClick={() => handleMilestoneDelete(index)}>Delete</Button>
+        </div>
+      ))}
+      <Button onClick={handleMilestoneAdd} className="mb-2">
+        Add
+      </Button>
+      {errors.milestones && (
+        <p className="text-red-500 text-xs mt-1">{errors.milestones}</p>
+      )}
     </div>
   );
 
@@ -202,6 +318,72 @@ export const UserProjectDetailModal = ({
       },
     });
   };
+
+  const handleDocumentEdit = (index, file) => {
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024 || file.type !== "application/pdf") {
+      toast.error("Only PDF files under 10 MB are allowed.");
+      setFileInputKey(Date.now());
+      return;
+    }
+    setFormData((prevData) => {
+      const newAttachment = {
+        file_name: file.name,
+        file: file,
+      };
+
+      const updatedAttachments = Array.isArray(prevData.attachments)
+        ? [...prevData.attachments]
+        : [];
+
+      if (updatedAttachments[index]) {
+        updatedAttachments[index] = newAttachment;
+      } else {
+        updatedAttachments.push(newAttachment);
+      }
+
+      return {
+        ...prevData,
+        attachments: updatedAttachments,
+      };
+    });
+  };
+
+  const DatePicker = ({ date, setDate, label }) => (
+    <div className="mb-4">
+      <label className="block text-sm font-semibold text-gray-700">
+        {label}
+      </label>
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            variant={"outline"}
+            className={cn(
+              "w-full justify-start text-left font-normal",
+              !date && "text-muted-foreground"
+            )}
+          >
+            <CalendarIcon className="mr-2 h-4 w-4" />
+            {date ? (
+              format(new Date(date), "dd/MM/yyyy")
+            ) : (
+              <span>Pick a date</span>
+            )}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0">
+          <Calendar
+            mode="single"
+            selected={date ? new Date(date) : undefined}
+            onSelect={(selectedDate) => setDate(selectedDate?.toISOString())}
+            initialFocus
+          />
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
+
   return (
     <div
       id="modal-overlay"
@@ -328,108 +510,46 @@ export const UserProjectDetailModal = ({
                 formData.estimated_hours
               )}
 
-              <div className="mb-4">
-                Start Date
-                <Input
-                  onClick={() => StartDate.current.showPicker()}
-                  ref={StartDate}
-                  id="StartDate"
-                  name="StartDate"
-                  type="date"
-                  value={
-                    formData.startDate ? formData.startDate.split("T")[0] : ""
-                  }
-                  onChange={(e) =>
-                    setFormData({ ...formData, startDate: e.target.value })
-                  }
-                  required
-                />
-              </div>
+              <DatePicker
+                date={formData.startDate}
+                setDate={(date) =>
+                  setFormData({ ...formData, startDate: date })
+                }
+                label="Start Date"
+              />
 
-              <div className="mb-4">
-                End Date
-                <Input
-                  onClick={() => EndDate.current.showPicker()}
-                  ref={EndDate}
-                  id="endDate"
-                  name="endDate"
-                  type="date"
-                  value={formData.endDate ? formData.endDate.split("T")[0] : ""}
-                  onChange={(e) =>
-                    setFormData({ ...formData, endDate: e.target.value })
-                  }
-                  required
-                />
-              </div>
+              <DatePicker
+                date={formData.endDate}
+                setDate={(date) => setFormData({ ...formData, endDate: date })}
+                label="End Date"
+              />
 
-              <div className="flex gap-2 flex-col">
-                <h2 className="text-lg font-semibold text-gray-800 mb-4">
-                  Milestones
-                </h2>
-
-                {milestoneData.map((milestone, index) => (
-                  <div
-                    key={milestone._id || index}
-                    className="mb-2 flex gap-2 items-center"
+              {attachmentsArray.map((doc, index) => (
+                <div key={index} className="flex items-center gap-2 mt-2">
+                  <input
+                    type="text"
+                    value={doc?.file_name || `Document ${index + 1}`}
+                    className="border p-2 text-sm w-full"
+                    readOnly
+                  />
+                  <Input
+                    type="file"
+                    onChange={(e) =>
+                      handleDocumentEdit(index, e.target.files[0])
+                    }
+                    key={fileInputKey}
+                    className="hidden"
+                    id={`file-input-${index}`}
+                  />
+                  <label
+                    htmlFor={`file-input-${index}`}
+                    className="bg-gray-200 px-3 py-1 rounded cursor-pointer text-sm"
                   >
-                    <Input
-                      type="text"
-                      value={milestone.name}
-                      onChange={(e) =>
-                        handleMilestoneChange(index, "name", e.target.value)
-                      }
-                      className={`w-full p-2 border-b-2 focus:outline-none focus:ring-2 focus:ring-primary ${
-                        milestone.status === "Completed" &&
-                        "bg-green-400 cursor-not-allowed"
-                      }`}
-                    />
-
-                    {milestone.status === "Completed" ? (
-                      ""
-                    ) : (
-                      <Select
-                        value={milestone.status}
-                        onValueChange={(value) =>
-                          handleMilestoneChange(index, "status", value)
-                        }
-                        className="w-full p-2 border rounded-md mt-2"
-                      >
-                        <SelectTrigger className="outline-none focus:ring-0 focus:ring-offset-0">
-                          <SelectValue placeholder="Select status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectGroup>
-                            <SelectLabel>Select a Status</SelectLabel>
-                            <SelectItem value="Not Started">
-                              Not Started
-                            </SelectItem>
-                            <SelectItem value="In Progress">
-                              In Progress
-                            </SelectItem>
-                            <SelectItem value="Pending">Pending</SelectItem>
-                            <SelectItem value="On Hold">On Hold</SelectItem>
-                          </SelectGroup>
-                        </SelectContent>
-                      </Select>
-                    )}
-                    {!milestone._id && (
-                      <button
-                        onClick={() => handleMilestoneDelete(index)}
-                        className="p-2 text-red-500 hover:text-red-700 transition-colors"
-                      >
-                        <FaTimes size={20} />
-                      </button>
-                    )}
-                  </div>
-                ))}
-                {milestoneError && (
-                  <div className="text-red-500 text-sm">{milestoneError}</div>
-                )}
-                <Button onClick={handleMilestoneAdd} className="mb-2">
-                  Add
-                </Button>
-              </div>
-
+                    Upload
+                  </label>
+                </div>
+              ))}
+              {renderMilestones()}
               <Button onClick={handleSave} className="mb-4">
                 Update Project
               </Button>

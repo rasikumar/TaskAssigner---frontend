@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 
 import { getAllProjectList } from "@/API/admin/projects/project_api";
 import { getTaskRelatedToProject } from "@/API/admin/task/task_api";
@@ -27,6 +27,7 @@ import TicketHook from "@/hooks/ticket/TicketHook";
 import { FaTicketAlt } from "react-icons/fa";
 import { VscLoading } from "react-icons/vsc";
 import { ToastContainer, toast } from "react-toastify";
+import DatePicker from "@/components/DatePicker";
 
 const CreateTicket = () => {
   const [formData, setFormData] = useState({
@@ -49,9 +50,12 @@ const CreateTicket = () => {
   const [task, setTask] = useState([]);
   const [taskError, setTaskError] = useState("");
   const [subCategoryOptions, setSubCategoryOptions] = useState([]);
-  // console.log(formData);
-  const startDateRef = useRef(null);
-  const endDateRef = useRef(null);
+  const [validationErrors, setValidationErrors] = useState({
+    title: "",
+    description: "",
+  });
+  const [fileInputKey, setFileInputKey] = useState(Date.now());
+
   const {
     isLoading: isProjectLoading,
     isError: isProjectError,
@@ -77,11 +81,38 @@ const CreateTicket = () => {
   const sendProjectId = async (projectId) => {
     try {
       const response = await getTaskRelatedToProject(projectId);
-      setTask(response);
+      if (response.length === 0) {
+        toast.error("No tasks found for this project.");
+        return false; // Indicate no tasks found
+      } else {
+        setTask(response);
+        return true; // Indicate tasks found
+      }
     } catch (error) {
       console.error("Error sending project ID:", error);
       toast.error("Failed to fetch tasks related to the project.");
+      return false;
     }
+  };
+
+  const validateTitle = (value) => {
+    if (value.length < 5) {
+      return "Title must be at least 5 characters";
+    }
+    if (value.length > 30) {
+      return "Title must be no more than 30 characters";
+    }
+    return "";
+  };
+
+  const validateDescription = (value) => {
+    if (value.length < 10) {
+      return "Description must be at least 10 characters";
+    }
+    if (value.length > 100) {
+      return "Description must be no more than 100 characters";
+    }
+    return "";
   };
 
   const handleSelectChange = (name, value) => {
@@ -89,7 +120,18 @@ const CreateTicket = () => {
       ...prevData,
       [name]: value,
     }));
-
+    if (name === "title") {
+      setValidationErrors((prev) => ({
+        ...prev,
+        title: validateTitle(value),
+      }));
+    }
+    if (name === "description") {
+      setValidationErrors((prev) => ({
+        ...prev,
+        description: validateDescription(value),
+      }));
+    }
     if (name === "main_category") {
       const subOptions = subCategoryMapping[value] || [];
       setSubCategoryOptions(subOptions);
@@ -102,16 +144,24 @@ const CreateTicket = () => {
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
-    console.log(files);
-    const validFiles = files.filter((file) => file.size <= 10 * 1024 * 1024); // 10 MB limit
+
+    const validFiles = files.filter(
+      (file) =>
+        file.size <= 10 * 1024 * 1024 &&
+        (file.type === "application/pdf" || file.type.startsWith("image/"))
+    );
 
     if (validFiles.length !== files.length) {
-      toast.error("Some files exceed the 10 MB size limit.");
+      toast.error(
+        "Only PDF and image files (JPEG/PNG/GIF/WEBP) under 10MB are allowed"
+      );
+      setFileInputKey(Date.now());
+      return;
     }
 
-    setFormData((prevData) => ({
-      ...prevData,
-      attachments: [...prevData.attachments, ...validFiles],
+    setFormData((prev) => ({
+      ...prev,
+      attachments: [...prev.attachments, ...validFiles],
     }));
   };
 
@@ -120,6 +170,17 @@ const CreateTicket = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    const titleError = validateTitle(formData.title);
+    const descriptionError = validateDescription(formData.description);
+
+    setValidationErrors({
+      title: titleError,
+      description: descriptionError,
+    });
+
+    if (titleError || descriptionError) {
+      return; // Don't submit if validation fails
+    }
     // Validation checks
     if (!formData.title) {
       toast.error("Title is required.");
@@ -180,12 +241,6 @@ const CreateTicket = () => {
       }
     }
 
-    // Debugging: Log all FormData entries
-    // for (let pair of formDataToSend.entries()) {
-    //   console.log(`${pair[0]}: ${pair[1]}`);
-    // }
-
-    // Send the FormData using your mutation
     createTicketMutation.mutate(formDataToSend, {
       onSuccess: () => {
         setFormData({
@@ -273,13 +328,16 @@ const CreateTicket = () => {
                 <Combobox
                   items={projectlist}
                   value={formData.project}
-                  onChange={(value) => {
+                  onChange={async (value) => {
                     setFormData((prevData) => ({
                       ...prevData,
                       project: value,
+                      tasks: "", // Clear selected task
                     }));
-                    sendProjectId(value);
-                    setStep(2);
+                    const hasTasks = await sendProjectId(value);
+                    if (hasTasks) {
+                      setStep(2);
+                    }
                   }}
                 />
               )}
@@ -374,32 +432,20 @@ const CreateTicket = () => {
                 disabled={!formData.main_category}
                 required
               />
-              <div>
+              <div className="flex flex-col gap-2">
                 <Label htmlFor="start_date">Start Date:</Label>
-                <Input
-                  onClick={() => startDateRef.current.showPicker()}
-                  ref={startDateRef}
-                  type="date"
-                  id="start_date"
-                  value={formData.start_date}
-                  onChange={(e) =>
-                    handleSelectChange("start_date", e.target.value)
-                  }
-                  required
+                <DatePicker
+                  selectedDate={formData.start_date}
+                  onChange={(date) => handleSelectChange("start_date", date)}
+                  placeholder="Start Date"
                 />
               </div>
-              <div>
+              <div className="flex flex-col gap-2">
                 <Label htmlFor="end_date">End Date:</Label>
-                <Input
-                  onClick={() => endDateRef.current.showPicker()}
-                  ref={endDateRef}
-                  type="date"
-                  id="end_date"
-                  value={formData.end_date}
-                  onChange={(e) =>
-                    handleSelectChange("end_date", e.target.value)
-                  }
-                  required
+                <DatePicker
+                  selectedDate={formData.end_date}
+                  onChange={(date) => handleSelectChange("end_date", date)}
+                  placeholder="End Date"
                 />
               </div>
               <div className="flex gap-2">
@@ -413,7 +459,7 @@ const CreateTicket = () => {
           {step === 4 && (
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <div>
-                <Label htmlFor="title">Title:</Label>
+                <Label htmlFor="title">Title</Label>
                 <Input
                   type="text"
                   id="title"
@@ -421,9 +467,17 @@ const CreateTicket = () => {
                   onChange={(e) => handleSelectChange("title", e.target.value)}
                   required
                 />
+                {validationErrors.title && (
+                  <p className="text-red-500 text-sm">
+                    {validationErrors.title}
+                  </p>
+                )}
+                {/* <p className="text-xs text-gray-500">
+                  {formData.title.length}/30 characters
+                </p> */}
               </div>
               <div>
-                <Label htmlFor="description">Description:</Label>
+                <Label htmlFor="description">Description</Label>
                 <Textarea
                   id="description"
                   value={formData.description}
@@ -432,13 +486,22 @@ const CreateTicket = () => {
                   }
                   required
                 />
+                {validationErrors.description && (
+                  <p className="text-red-500 text-sm">
+                    {validationErrors.description}
+                  </p>
+                )}
+                {/* <p className="text-xs text-gray-500">
+                  {formData.description.length}/100 characters
+                </p> */}
               </div>
               <div className="flex flex-col">
                 <Label htmlFor="attachments">Attachments:</Label>
                 <Input
+                  key={fileInputKey}
                   type="file"
                   multiple
-                  id="attachments"
+                  accept=".pdf, .jpg, .jpeg, .png, .gif, .webp"
                   onChange={handleFileChange}
                 />
               </div>

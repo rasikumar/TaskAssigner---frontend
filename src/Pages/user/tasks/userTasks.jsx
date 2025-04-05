@@ -125,34 +125,69 @@ const UserTasks = () => {
           </span>
         </div>
       </td>
-      <td className="px-2 py-3 text-sm text-center">
+      <td
+        className="px-2 py-3 text-sm text-center"
+        onClick={() => {
+          handleTaskClick(task);
+        }}
+      >
         {task.project?.project_name || "N/A"} {/* Access nested field */}
       </td>
-      <td className="px-2 py-3 text-sm text-center">
+      <td
+        className="px-2 py-3 text-sm text-center"
+        onClick={() => {
+          handleTaskClick(task);
+        }}
+      >
         {task.assigned_by?.name || "N/A"} {/* Access nested field */}
       </td>
-      <td className="px-2 py-3 text-sm text-center">
+      <td
+        className="px-2 py-3 text-sm text-center"
+        onClick={() => {
+          handleTaskClick(task);
+        }}
+      >
         {task.assigned_to?.name || "N/A"} {/* Access nested field */}
       </td>
 
-      <td className="px-2 py-3 text-sm text-center">
+      <td
+        className="px-2 py-3 text-sm text-center"
+        onClick={() => {
+          handleTaskClick(task);
+        }}
+      >
         {new Date(task.start_date).toLocaleDateString("en-GB", {
           day: "2-digit",
           month: "2-digit",
           year: "numeric",
         }) || "N/A"}
       </td>
-      <td className="px-2 py-3 text-sm text-center">
+      <td
+        className="px-2 py-3 text-sm text-center"
+        onClick={() => {
+          handleTaskClick(task);
+        }}
+      >
         {new Date(task.end_date).toLocaleDateString("en-GB", {
           day: "2-digit",
           month: "2-digit",
           year: "numeric",
         }) || "N/A"}
       </td>
-      <td className="px-2 py-2 text-center text-xs font-semibold">
+      <td
+        className="px-2 py-2 text-center text-xs font-semibold"
+        onClick={() => {
+          handleTaskClick(task);
+        }}
+      >
         <span className={getStatus(task.status)}>{task.status || "N/A"}</span>
       </td>
-      <td className="px-2 py-2 text-center text-xs font-semibold">
+      <td
+        className="px-2 py-2 text-center text-xs font-semibold"
+        onClick={() => {
+          handleTaskClick(task);
+        }}
+      >
         <span className={getpriority(task.priority)}>
           {task.priority || "N/A"}
         </span>

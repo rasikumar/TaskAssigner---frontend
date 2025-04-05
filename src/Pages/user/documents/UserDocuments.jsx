@@ -81,7 +81,9 @@ function UserDocuments() {
                   />
                 </RoleChecker>
               </div>
-              <p className="my-2 text-gray-600">{doc.description}</p>
+              <p className="my-2 text-gray-600 whitespace-normal break-words">
+                {doc.description}
+              </p>
               {doc.attachments?.file_name && (
                 <button
                   onClick={() => handleDocumentClick(doc.attachments.file_name)}

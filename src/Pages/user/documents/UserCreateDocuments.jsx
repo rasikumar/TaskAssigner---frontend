@@ -16,7 +16,11 @@ const UserCreateDocuments = () => {
   const [description, setDescription] = useState("");
   const [preview, setPreview] = useState(null);
   const [dragActive, setDragActive] = useState(false);
-  const [errors, setErrors] = useState({ title: false, description: false, file: false });
+  const [errors, setErrors] = useState({
+    title: false,
+    description: false,
+    file: false,
+  });
 
   const { uploadDocuments } = DocumentHook();
 
@@ -38,14 +42,17 @@ const UserCreateDocuments = () => {
 
   const handleUpload = async () => {
     let newErrors = {
-      title: !title,
-      description: !description,
-      file: !file,
+      title: title.length < 10,
+      description: description.length < 20,
+      file: !file || file.type !== "application/pdf",
     };
     setErrors(newErrors);
-    
+
     if (newErrors.title || newErrors.description || newErrors.file) {
-      toast.error("Please fill all required fields.");
+      if (newErrors.title) toast.error("Title must be at least 10 characters.");
+      if (newErrors.description)
+        toast.error("Description must be at least 20 characters.");
+      if (newErrors.file) toast.error("Only PDF files are allowed.");
       return;
     }
 
@@ -105,7 +112,9 @@ const UserCreateDocuments = () => {
               setTitle(e.target.value);
               setErrors((prev) => ({ ...prev, title: false }));
             }}
-            className={`w-full p-2 mb-4 border ${errors.title ? "border-red-500" : "border-gray-300"} rounded`}
+            className={`w-full p-2 mb-4 border ${
+              errors.title ? "border-red-500" : "border-gray-300"
+            } rounded`}
           />
           <Textarea
             placeholder="Description"
@@ -114,10 +123,16 @@ const UserCreateDocuments = () => {
               setDescription(e.target.value);
               setErrors((prev) => ({ ...prev, description: false }));
             }}
-            className={`w-full p-2 mb-4 border ${errors.description ? "border-red-500" : "border-gray-300"} rounded`}
+            className={`w-full p-2 mb-4 border ${
+              errors.description ? "border-red-500" : "border-gray-300"
+            } rounded`}
           />
           <Label
-            className={`w-full h-48 border ${errors.file ? "border-red-500" : "border-gray-300"} text-center flex items-center justify-center cursor-pointer relative ${dragActive ? "bg-gray-200" : ""}`}
+            className={`w-full h-48 border ${
+              errors.file ? "border-red-500" : "border-gray-300"
+            } text-center flex items-center justify-center cursor-pointer relative ${
+              dragActive ? "bg-gray-200" : ""
+            }`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}

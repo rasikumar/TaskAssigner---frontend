@@ -17,8 +17,9 @@ export const getEmpMails = async () => {
 
 export const updateUser = async (userData) => {
   try {
-    const response = await Instance.put(
-      `${USER}/approve/${userData}`
+    const response = await Instance.post(
+      `${USER}/approveHr`,
+      userData
       // userData
     );
     return response.data;

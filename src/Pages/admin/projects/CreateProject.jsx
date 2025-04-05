@@ -186,20 +186,12 @@ const CreateProject = () => {
       [name]: value,
     }));
 
-    // Only clear error if the validation is actually fixed
+    // Clear error when user starts typing
     if (errors[name]) {
-      let isValid = true;
-      if (name === "project_name" && value.length < 10) isValid = false;
-      if (name === "project_description" && value.length < 10) isValid = false;
-      if (name === "estimated_hours" && (value === "" || value < 20))
-        isValid = false;
-
-      if (isValid) {
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          [name]: "",
-        }));
-      }
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        [name]: "",
+      }));
     }
   };
 
@@ -337,7 +329,7 @@ const CreateProject = () => {
                         handleSelectChange("project_name", e.target.value)
                       }
                       required
-                      placeholder="Enter project title"
+                      placeholder="Enter project title (min 10 characters)"
                     />
                     {errors.project_name && (
                       <p className="text-red-500 text-sm mt-1">
@@ -358,7 +350,7 @@ const CreateProject = () => {
                         )
                       }
                       required
-                      placeholder="Enter project description"
+                      placeholder="Enter project description (min 10 characters)"
                       className="outline-none focus:ring-0 focus:ring-offset-0 "
                     />
                     {errors.project_description && (

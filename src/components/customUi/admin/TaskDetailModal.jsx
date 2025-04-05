@@ -32,6 +32,7 @@ export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
   const [formData, setFormData] = useState(task);
   const [errorMessage, setErrorMessage] = useState("");
   const [ownershipOptions, setOwnershipOptions] = useState([]);
+  const [formTouched, setFormTouched] = useState(false); // New state to track form submission
 
   const queryClient = useQueryClient();
 
@@ -141,7 +142,7 @@ export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
     }));
   };
 
-  const renderInput = (name, label, value) => (
+  const renderInput = (name, label, value, error) => (
     <div className="mb-4">
       <label className="block text-sm font-semibold text-gray-700">
         {label}
@@ -153,11 +154,25 @@ export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
         onChange={handleChange}
         className="w-full p-2 border-b-2 focus:outline-none focus:ring-2 focus:ring-primary"
       />
+      {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
     </div>
   );
 
   const handleSave = (e) => {
     e.preventDefault();
+    setFormTouched(true);
+
+    // Validation for task title and description
+    if (formData.task_title.trim().length < 5) {
+      setErrorMessage("Task title must be at least 5 characters long.");
+      return;
+    }
+
+    if (formData.task_description.trim().length < 10) {
+      setErrorMessage("Task description must be at least 10 characters long.");
+      return;
+    }
+
     if (JSON.stringify(formData) === JSON.stringify(task)) {
       setErrorMessage("No changes were made.");
     } else {
@@ -223,7 +238,14 @@ export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
           <hr className="bg-taskBlack h-[0.1rem] border-0" />
           {isEditing ? (
             <>
-              {renderInput("task_title", "Task Title", formData.task_title)}
+              {renderInput(
+                "task_title",
+                "Task Title",
+                formData.task_title,
+                formTouched && formData.task_title.trim().length < 5
+                  ? "Task title must be at least 5 characters long."
+                  : ""
+              )}
 
               <Textarea
                 value={formData.task_description}
@@ -233,10 +255,14 @@ export const TaskDetailsModal = ({ task, onClose, onEdit }) => {
                     task_description: e.target.value,
                   })
                 }
-                label="Task Description"
                 rows="5"
                 className="w-full"
               />
+              {formTouched && formData.task_description.trim().length < 10 && (
+                <p className="text-red-500 text-xs mt-1">
+                  Task description must be at least 10 characters long.
+                </p>
+              )}
 
               <div className="mb-4">
                 <Selector
